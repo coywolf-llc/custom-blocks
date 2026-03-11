@@ -13,6 +13,7 @@ const GcbMultiselectControl = ( props ) => {
 
 	return (
 		<SelectControl
+			__next40pxDefaultSize
 			multiple
 			label={ field.label }
 			help={ field.help }
