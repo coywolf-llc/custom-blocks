@@ -15,6 +15,16 @@ import {
 } from '@wordpress/editor';
 import { StrictMode, useState } from '@wordpress/element';
 
+// Try to import InlineNotices for WP 7.0+ compatibility.
+// Falls back to EditorNotices on older WordPress versions.
+let InlineNotices;
+try {
+	// eslint-disable-next-line import/named -- InlineNotices is available in WP 7.0+ runtime
+	InlineNotices = require( '@wordpress/notices' ).InlineNotices;
+} catch ( e ) {
+	// InlineNotices not available, will use EditorNotices fallback
+}
+
 /**
  * Internal dependencies
  */
@@ -135,7 +145,7 @@ const Editor = ( { onError, postId, postType, settings } ) => {
 					>
 						<ErrorBoundary onError={ onError }>
 							<Header editorMode={ editorMode } setEditorMode={ setEditorMode } />
-							<EditorNotices />
+							{ InlineNotices ? <InlineNotices /> : <EditorNotices /> }
 							<div className="gcb-editor flex w-full h-0 flex-grow">
 								<Main editorMode={ editorMode } setEditorMode={ setEditorMode }>
 									<LocationButtons
