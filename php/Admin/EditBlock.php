@@ -50,6 +50,8 @@ class EditBlock extends ComponentAbstract {
 		add_filter( 'admin_footer_text', [ $this, 'conditionally_prevent_footer_text' ] );
 		add_filter( 'update_footer', [ $this, 'conditionally_prevent_update_text' ], 11 );
 		add_action( 'rest_api_init', [ $this, 'register_route_template_file' ] );
+		add_filter( 'option_wp_enable_real_time_collaboration', [ $this, 'disable_collaboration_for_gcb' ] );
+		add_filter( 'default_option_wp_enable_real_time_collaboration', [ $this, 'disable_collaboration_for_gcb' ] );
 	}
 
 	/**
@@ -89,6 +91,46 @@ class EditBlock extends ComponentAbstract {
 		}
 
 		return $use_block_editor;
+	}
+
+	/**
+	 * Disables real-time collaboration for the Genesis Custom Blocks post type.
+	 *
+	 * WordPress 7.0 introduces real-time collaboration features that attempt to
+	 * load CRDT documents during initialization. The custom editor used for
+	 * Genesis Custom Blocks doesn't fully initialize WordPress data stores before
+	 * the sync system runs, causing undefined access errors when trying to read
+	 * the _crdt_document meta field.
+	 *
+	 * This filter disables collaboration only for the genesis_custom_block post type,
+	 * preserving collaboration functionality for other post types.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @param bool $enabled Whether real-time collaboration is enabled.
+	 * @return bool Whether real-time collaboration should be enabled.
+	 */
+	public function disable_collaboration_for_gcb( $enabled ) {
+		// Check if we're on the edit screen for Genesis Custom Blocks.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only operation
+		$post_type = isset( $_GET['post_type'] ) ? sanitize_key( $_GET['post_type'] ) : '';
+
+		// Also check for existing posts being edited.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only operation
+		if ( empty( $post_type ) && isset( $_GET['post'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only operation
+			$post = get_post( intval( $_GET['post'] ) );
+			if ( $post ) {
+				$post_type = $post->post_type;
+			}
+		}
+
+		// Disable collaboration only for Genesis Custom Blocks post type.
+		if ( genesis_custom_blocks()->get_post_type_slug() === $post_type ) {
+			return false;
+		}
+
+		return $enabled;
 	}
 
 	/**
