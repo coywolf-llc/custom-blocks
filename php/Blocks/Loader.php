@@ -218,6 +218,7 @@ class Loader extends ComponentAbstract {
 		register_block_type(
 			$block_name,
 			[
+				'api_version'     => 3,
 				'attributes'      => $attributes,
 				// @see https://github.com/WordPress/gutenberg/issues/4671
 				'render_callback' => function ( $attributes, $content ) use ( $block ) {
