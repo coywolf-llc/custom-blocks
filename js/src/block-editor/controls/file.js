@@ -87,6 +87,7 @@ const GcbFileControl = ( props ) => {
 							: (
 								<>
 									<FormFileUpload
+										__next40pxDefaultSize
 										disabled={ !! isUploading }
 										onChange={ ( event ) => {
 											setIsUploading( true );
