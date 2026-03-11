@@ -48,6 +48,7 @@ const KeywordsSection = () => {
 	return (
 		<div className="mt-5">
 			<FormTokenField
+				__next40pxDefaultSize
 				// @ts-ignore
 				label={ sprintf(
 					/* translators: %1$d: the max number of keywords */
