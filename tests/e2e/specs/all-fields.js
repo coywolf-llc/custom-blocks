@@ -14,6 +14,46 @@ import {
 	visitAdminPage,
 } from '@wordpress/e2e-test-utils';
 
+/**
+ * Get the editor canvas iframe if it exists (Block API v3).
+ * Falls back to the main page if no iframe is found (older WP versions).
+ */
+const getEditorCanvas = async () => {
+	const iframeSelector = 'iframe[name="editor-canvas"]';
+	try {
+		await page.waitForSelector( iframeSelector, { timeout: 3000 } );
+		const iframe = await page.$( iframeSelector );
+		if ( iframe ) {
+			return await iframe.contentFrame();
+		}
+	} catch ( error ) {
+		// No iframe found, use main page (WP 6.x or earlier)
+	}
+	return page;
+};
+
+/**
+ * Get document from either a Page or Frame object.
+ * The pptr-testing-library's getDocument() only works with Page objects,
+ * so we need to handle Frame objects differently for the iframe editor.
+ *
+ * @param {Object} canvas - Either a Puppeteer Page or Frame object.
+ * @return {Promise<Object>} Document element handle.
+ */
+const getDocumentFromCanvas = async ( canvas ) => {
+	// If it's a Page object, use the standard getDocument
+	if ( canvas === page ) {
+		return getDocument( canvas );
+	}
+	// If it's a Frame object, get the document directly
+	const documentHandle = await canvas.evaluateHandle( 'document' );
+	const document = documentHandle.asElement();
+	if ( ! document ) {
+		throw new Error( 'Could not get document from canvas frame' );
+	}
+	return document;
+};
+
 const uploadMediaFile = async ( $context, fieldLabel, fileName ) => {
 	await ( await queries.findByLabelText( $context, fieldLabel ) ).click();
 	const inputSelector = '.media-modal input[type=file]';
@@ -187,8 +227,25 @@ describe( 'AllFields', () => {
 		await page.waitForSelector( '.block-editor-inserter__block-list', { visible: true } );
 		await ( await queries.findAllByRole( $blockEditorDocument, 'option', { name: new RegExp( blockName, 'i' ) } ) )[ 0 ].click();
 
+		// Get the editor canvas (iframe for Block API v3, or main page for older versions)
+		const editorCanvas = await getEditorCanvas();
+		const $canvasDocument = await getDocumentFromCanvas( editorCanvas );
+
+		// Wait for the block to be inserted and visible in the canvas, then wait for fields to render
+		// In the iframe editor, this may take a moment
+		if ( editorCanvas !== page ) {
+			// For iframe editor, wait for content in the iframe
+			await editorCanvas.waitForSelector( '.wp-block', { timeout: 5000 } );
+			// Wait a bit more for block controls to render
+			await page.waitForTimeout( 1000 );
+		} else {
+			// For classic editor, wait on the page
+			await page.waitForSelector( '.wp-block', { timeout: 5000 } );
+			await page.waitForTimeout( 1000 );
+		}
+
 		const typeIntoField = async ( fieldType ) => {
-			const $field = await findByLabelText( $blockEditorDocument, fields[ fieldType ].label );
+			const $field = await findByLabelText( $canvasDocument, fields[ fieldType ].label );
 			await $field.type( fields[ fieldType ].value );
 		};
 
@@ -199,53 +256,66 @@ describe( 'AllFields', () => {
 		await typeIntoField( 'number' );
 		await typeIntoField( 'color' );
 
-		const imageFileName = await uploadMediaFile( $blockEditorDocument, fields.image.label, 'trombone.jpg' );
-		const fileUploadName = await uploadMediaFile( $blockEditorDocument, fields.file.label, 'example.pdf' );
+		const imageFileName = await uploadMediaFile( $canvasDocument, fields.image.label, 'trombone.jpg' );
+		const fileUploadName = await uploadMediaFile( $canvasDocument, fields.file.label, 'example.pdf' );
 
-		await ( await findByLabelText( $blockEditorDocument, fields.select.label ) ).select( fields.select.value );
-		await page.click( `[value=${ fields.multiselect.value }` );
-		await ( await findByLabelText( $blockEditorDocument, fields.toggle.label ) ).click();
-		await ( await findAllByLabelText( $blockEditorDocument, fields.range.label ) )[ 1 ].type( fields.range.value );
-		await ( await findByLabelText( $blockEditorDocument, fields.checkbox.label ) ).click();
-		await page.click( `[value=${ fields.radio.value }` );
+		await ( await findByLabelText( $canvasDocument, fields.select.label ) ).select( fields.select.value );
+
+		// For iframe context, we need to execute clicks within the iframe
+		if ( editorCanvas !== page ) {
+			await editorCanvas.click( `[value=${ fields.multiselect.value }]` );
+		} else {
+			await page.click( `[value=${ fields.multiselect.value }]` );
+		}
+
+		await ( await findByLabelText( $canvasDocument, fields.toggle.label ) ).click();
+		await ( await findAllByLabelText( $canvasDocument, fields.range.label ) )[ 1 ].type( fields.range.value );
+		await ( await findByLabelText( $canvasDocument, fields.checkbox.label ) ).click();
+
+		if ( editorCanvas !== page ) {
+			await editorCanvas.click( `[value=${ fields.radio.value }]` );
+		} else {
+			await page.click( `[value=${ fields.radio.value }]` );
+		}
 
 		// Click away from the block so the <ServerSideRender> displays.
-		await ( await findByRole( $blockEditorDocument, 'textbox', { name: /add title/i } ) ).click();
+		await ( await findByRole( $canvasDocument, 'textbox', { name: /add title/i } ) ).click();
 
 		const getExpectedText = ( templateFunction, fieldName ) => {
 			return `Here is the result of calling ${ templateFunction } for ${ fields[ fieldName ].name }: ${ fields[ fieldName ].value }`;
 		};
 		const options = { exact: false };
 
-		await findAllByText( $blockEditorDocument, fields.text.value, options );
-		await findAllByText( $blockEditorDocument, fields.textarea.value, options );
-		await findByText( $blockEditorDocument, getExpectedText( 'block_value', 'url' ), options );
-		await findByText( $blockEditorDocument, getExpectedText( 'block_field', 'url' ), options );
+		// Check for rendered content in the canvas
+		await findAllByText( $canvasDocument, fields.text.value, options );
+		await findAllByText( $canvasDocument, fields.textarea.value, options );
+		await findByText( $canvasDocument, getExpectedText( 'block_value', 'url' ), options );
+		await findByText( $canvasDocument, getExpectedText( 'block_field', 'url' ), options );
 
-		await findByText( $blockEditorDocument, getExpectedText( 'block_value', 'email' ), options );
-		await findByText( $blockEditorDocument, getExpectedText( 'block_field', 'email' ), options );
+		await findByText( $canvasDocument, getExpectedText( 'block_value', 'email' ), options );
+		await findByText( $canvasDocument, getExpectedText( 'block_field', 'email' ), options );
 
-		await findByText( $blockEditorDocument, getExpectedText( 'block_value', 'number' ), options );
-		await findByText( $blockEditorDocument, getExpectedText( 'block_field', 'number' ), options );
+		await findByText( $canvasDocument, getExpectedText( 'block_value', 'number' ), options );
+		await findByText( $canvasDocument, getExpectedText( 'block_field', 'number' ), options );
 
-		await findByText( $blockEditorDocument, getExpectedText( 'block_value', 'color' ), options );
-		await findByText( $blockEditorDocument, getExpectedText( 'block_field', 'color' ), options );
+		await findByText( $canvasDocument, getExpectedText( 'block_value', 'color' ), options );
+		await findByText( $canvasDocument, getExpectedText( 'block_field', 'color' ), options );
 
-		await findByText( $blockEditorDocument, imageFileName, options );
-		await findByText( $blockEditorDocument, fileUploadName, options );
+		await findByText( $canvasDocument, imageFileName, options );
+		await findByText( $canvasDocument, fileUploadName, options );
 
-		await findByText( $blockEditorDocument, getExpectedText( 'block_value', 'select' ), options );
-		await findByText( $blockEditorDocument, getExpectedText( 'block_field', 'select' ), options );
+		await findByText( $canvasDocument, getExpectedText( 'block_value', 'select' ), options );
+		await findByText( $canvasDocument, getExpectedText( 'block_field', 'select' ), options );
 
-		await findByText( $blockEditorDocument, getExpectedText( 'block_field', 'multiselect' ), options );
-		await findByText( $blockEditorDocument, getExpectedText( 'block_field', 'toggle' ), options );
+		await findByText( $canvasDocument, getExpectedText( 'block_field', 'multiselect' ), options );
+		await findByText( $canvasDocument, getExpectedText( 'block_field', 'toggle' ), options );
 
-		await findByText( $blockEditorDocument, getExpectedText( 'block_value', 'range' ), options );
-		await findByText( $blockEditorDocument, getExpectedText( 'block_field', 'range' ), options );
+		await findByText( $canvasDocument, getExpectedText( 'block_value', 'range' ), options );
+		await findByText( $canvasDocument, getExpectedText( 'block_field', 'range' ), options );
 
-		await findByText( $blockEditorDocument, getExpectedText( 'block_field', 'checkbox' ), options );
+		await findByText( $canvasDocument, getExpectedText( 'block_field', 'checkbox' ), options );
 
-		await findByText( $blockEditorDocument, getExpectedText( 'block_value', 'radio' ), options );
-		await findByText( $blockEditorDocument, getExpectedText( 'block_field', 'radio' ), options );
+		await findByText( $canvasDocument, getExpectedText( 'block_value', 'radio' ), options );
+		await findByText( $canvasDocument, getExpectedText( 'block_field', 'radio' ), options );
 	}, 300000 );
 } );

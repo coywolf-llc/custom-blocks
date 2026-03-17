@@ -11,6 +11,42 @@ import {
 } from '@wordpress/e2e-test-utils';
 
 /**
+ * Get the editor canvas iframe if it exists (Block API v3).
+ * Falls back to the main page if no iframe is found (older WP versions).
+ */
+const getEditorCanvas = async () => {
+	const iframeSelector = 'iframe[name="editor-canvas"]';
+	try {
+		await page.waitForSelector( iframeSelector, { timeout: 3000 } );
+		const iframe = await page.$( iframeSelector );
+		if ( iframe ) {
+			return await iframe.contentFrame();
+		}
+	} catch ( error ) {
+		// No iframe found, use main page (WP 6.x or earlier)
+	}
+	return page;
+};
+
+/**
+ * Get document from either a Page or Frame object.
+ * The pptr-testing-library's getDocument() only works with Page objects,
+ * so we need to handle Frame objects differently for the iframe editor.
+ *
+ * @param {Object} canvas - Either a Puppeteer Page or Frame object.
+ * @return {Promise<Object>} Document element handle.
+ */
+const getDocumentFromCanvas = async ( canvas ) => {
+	// If it's a Page object, use the standard getDocument
+	if ( canvas === page ) {
+		return getDocument( canvas );
+	}
+	// If it's a Frame object, get the document directly
+	const documentHandle = await canvas.evaluateHandle( 'document' );
+	return documentHandle.asElement();
+};
+
+/**
  * Test environment configuration (username/password, base URL).
  *
  * We use these directly rather than relying on the older `loginUser`
@@ -88,7 +124,9 @@ describe( 'ApiBlocks', () => {
 
 		await openNewPostEditor();
 
-		const $blockEditorDocument = await getDocument( page );
+		// Get the editor canvas (iframe for Block API v3, or main page for older versions)
+		const editorCanvas = await getEditorCanvas();
+		const $canvasDocument = await getDocumentFromCanvas( editorCanvas );
 
 		/**
 		 * Inserts a block by its human-readable name using the global block
@@ -159,11 +197,11 @@ describe( 'ApiBlocks', () => {
 		};
 
 		await insertBlockByName( 'Test Url' );
-		await findAllByText( $blockEditorDocument, 'Test Url' );
-		await findByLabelText( $blockEditorDocument, 'Url Here' );
+		await findAllByText( $canvasDocument, 'Test Url' );
+		await findByLabelText( $canvasDocument, 'Url Here' );
 
 		await insertBlockByName( 'Test Text' );
-		await findAllByText( $blockEditorDocument, 'Test Text' );
-		await findByLabelText( $blockEditorDocument, 'Enter some text here' );
+		await findAllByText( $canvasDocument, 'Test Text' );
+		await findByLabelText( $canvasDocument, 'Enter some text here' );
 	} );
 } );

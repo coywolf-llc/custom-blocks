@@ -21,6 +21,7 @@ const GcbSelectControl = ( props ) => {
 
 	return (
 		<SelectControl
+			__next40pxDefaultSize
 			label={ field.label }
 			help={ field.help }
 			value={ getValue( props ) || field.default }

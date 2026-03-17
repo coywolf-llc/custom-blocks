@@ -15,6 +15,7 @@ const GcbTextControl = ( props ) => {
 
 	return (
 		<TextControl
+			__next40pxDefaultSize
 			label={ field.label }
 			placeholder={ field.placeholder || '' }
 			maxLength={ field.maxlength }

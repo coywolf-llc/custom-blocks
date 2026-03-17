@@ -103,12 +103,12 @@ const Edit = ( { block, blockProps } ) => {
 											title={ block.title }
 											// @ts-ignore The declaration file is outdated.
 											onRequestClose={ ( event ) => {
-												event.stopPropagation();
+												event?.stopPropagation();
 
 												// Mainly from https://github.com/WordPress/gutenberg/issues/12830#issuecomment-607644893
 												// If the close request is coming from clicking the 'Media Library' button,
 												// Don't close this modal.
-												if ( ! event.target.classList.contains( MEDIA_LIBRARY_BUTTON_CLASS ) ) {
+												if ( ! event?.target?.classList?.contains( MEDIA_LIBRARY_BUTTON_CLASS ) ) {
 													setIsModalDisplaying( false );
 												}
 											} }

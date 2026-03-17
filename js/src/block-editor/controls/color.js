@@ -29,6 +29,7 @@ const GcbColorControl = ( props ) => {
 	return (
 		<BaseControl label={ field.label } id={ id } className="genesis-custom-blocks-color-control" help={ field.help }>
 			<TextControl
+				__next40pxDefaultSize
 				id={ id }
 				value={ value }
 				onChange={ onChange }
