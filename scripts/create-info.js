@@ -77,6 +77,13 @@ async function createInfoJson() {
         const originalInfo = JSON.parse(JSON.stringify(info));
         console.log('Successfully fetched current info.json');
 
+        if (!info.sections) {
+            info.sections = {};
+        }
+        if (!info.sections.reviews) {
+            info.sections.reviews = '';
+        }
+
         info.version = currentVersion;
         info.download_link = info.download_link.replace(
             /genesis-custom-blocks\.\d+\.\d+\.\d+\.zip/,
