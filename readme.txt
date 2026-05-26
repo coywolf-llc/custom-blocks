@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -102,6 +102,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.5 =
+* Fix "Refusing to download a plugin update from an untrusted host." when uploading a plugin zip via Plugins -> Add New -> Upload Plugin. The upgrader_pre_download guard in the GitHub self-updater was meant to reject remote package URLs not on the GitHub host allowlist, but was also firing for local uploads (where $package is a filesystem path with no scheme). The guard now short-circuits for non-URL packages.
 
 = 1.0.4 =
 * Fix critical error ("Failed opening required js/dist/edit-block.asset.php") when the plugin is installed from the GitHub source archive instead of the release zip. EditBlock now detects missing build artefacts and renders an in-page notice instead of fataling.
