@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.22
+Stable tag: 1.0.23
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -102,6 +102,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.23 =
+* Remove the standalone Template Editor page (#32).
 
 = 1.0.23 =
 * Remove the standalone Template Editor page; the Custom HTML panel on the Builder screen already covers it. Drops the `react-ace`/`ace-builds` dependencies (~500 KB off the edit-block bundle).
