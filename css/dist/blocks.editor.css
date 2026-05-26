@@ -79,6 +79,10 @@ div[class^=wp-block-coywolf-custom-blocks-],.gcb-editor{
   margin:0
 }
 
+.components-button svg[fill=none],.block-editor-block-icon svg[fill=none],.block-editor-block-icon.has-colors svg[fill=none],.block-editor-block-card svg[fill=none],.block-editor-inserter__menu svg[fill=none],.editor-block-list-item svg[fill=none]{
+  fill:none
+}
+
 .gcb-editor-form{
   border-left:none;
   background:rgba(139,139,150,.1);

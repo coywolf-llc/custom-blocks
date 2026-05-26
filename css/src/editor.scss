@@ -116,6 +116,28 @@ div[class^="wp-block-coywolf-custom-blocks-"],
 	margin: 0;
 }
 
+/*
+ * Gutenberg's block-editor and components stylesheets force `fill: currentColor`
+ * on every SVG inside buttons, the block icon slot, and the block card — which
+ * overrides the SVG's own `fill="none"` presentation attribute (CSS beats
+ * attributes). For react-icons stroke libraries like Lucide, that turns line
+ * glyphs into solid filled shapes (which is why an `lu/LuSquareCode` icon
+ * appears as a solid black square in the inserter, inspector, and block card).
+ *
+ * Restore the SVG's intended fill by targeting only SVGs that explicitly opt
+ * out via `fill="none"`. Filled icon libraries (Font Awesome, BoxIcons, Simple
+ * Icons, etc.) don't set this attribute, so they keep Gutenberg's
+ * currentColor fill unchanged.
+ */
+.components-button svg[fill="none"],
+.block-editor-block-icon svg[fill="none"],
+.block-editor-block-icon.has-colors svg[fill="none"],
+.block-editor-block-card svg[fill="none"],
+.block-editor-inserter__menu svg[fill="none"],
+.editor-block-list-item svg[fill="none"] {
+	fill: none;
+}
+
 .gcb-editor-form {
 	border-left: none;
 	background: $dark-opacity-light-200;

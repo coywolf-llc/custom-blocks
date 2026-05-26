@@ -35,6 +35,19 @@ body {
 	grid-column: span 4 / span 4;
 }
 
+/*
+ * Match the Post-editor side fix: stop Gutenberg's blanket
+ * `.components-button svg { fill: currentColor }` from filling react-icons
+ * stroke glyphs (Lucide, Feather, Tabler, etc.) inside the icon picker grid.
+ * Only SVGs that opted into fill="none" are affected; filled-style libraries
+ * are left alone.
+ */
+.components-button svg[fill="none"],
+.block-editor-block-icon svg[fill="none"],
+.block-editor-block-icon.has-colors svg[fill="none"] {
+	fill: none;
+}
+
 /* For Gutenberg components */
 .components-form-token-field__label {
 	font-size: 0.875rem;
