@@ -4,7 +4,7 @@
 
 Build custom Gutenberg blocks in the WordPress admin — no SFTP, no theme files. A privacy-respecting fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) with WP Engine telemetry, the WPE update server, and Genesis Pro upsells removed; ships an inline Custom HTML editor, native JSON export/import, and a one-shot importer for migrating off upstream.
 
-- **Version:** 1.0.24
+- **Version:** 1.0.25
 - **Requires WordPress:** 6.0 or later
 - **Tested up to:** 7.0
 - **Requires PHP:** 7.0 or later
@@ -54,6 +54,9 @@ Yes. The field is intended for use by site administrators (editing `coywolf_cust
 This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) by WP Engine / StudioPress, originally created by Luke Carbis, Ryan Kienstra, Stino11, Rheinard Korf, and the StudioPress / WP Engine team. All credit for the original plugin and its design belongs to them; this fork exists to keep the codebase alive and self-contained for Coywolf sites. Released under the same GPL-2.0-or-later license.
 
 ## Changelog
+
+### 1.0.25
+- Security + performance audit pass (#34).
 
 ### 1.0.25
 - Security and performance pass: cache block list (skips a `WP_Query` on every WP request); cache list-table block-usage tally as one full-table scan + transient instead of two LIKE counts per row; cache Documentation markdown by readme mtime; replace static Lucide import with an inline SVG fallback so the icon library code-splits properly (block-editor.js 717 KiB → 42.5 KiB, edit-block.js 851 KiB → 176 KiB); validate `blockName` in the template-file REST endpoint and the imported-block slug against `^[a-z0-9-]+$`; defensive cap check on the Documentation page.
