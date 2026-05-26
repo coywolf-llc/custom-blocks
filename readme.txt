@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.27
+Stable tag: 1.0.28
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -102,6 +102,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.28 =
+* Standalone post-content rewrite tool on the import page (#37).
 
 = 1.0.28 =
 * Add a standalone "Rewrite post content now" tool on the Import from Genesis page. Use it after an import where the rewrite checkbox wasn't ticked, or after removing the upstream Genesis plugin — sweeps every post/page and rewrites `wp:genesis-custom-blocks/{slug}` to `wp:coywolf-custom-blocks/{slug}` for every block that exists in Coywolf. The page stays reachable now even when upstream is uninstalled.
