@@ -2,14 +2,14 @@
 /**
  * Genesis Custom Blocks Settings.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license   http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-namespace Genesis\CustomBlocks\Admin;
+namespace Coywolf\CustomBlocks\Admin;
 
-use Genesis\CustomBlocks\ComponentAbstract;
+use Coywolf\CustomBlocks\ComponentAbstract;
 
 /**
  * Class Settings
@@ -21,14 +21,14 @@ class Settings extends ComponentAbstract {
 	 *
 	 * @var string
 	 */
-	const NOTICES_OPTION_NAME = 'genesis_custom_blocks_notices';
+	const NOTICES_OPTION_NAME = 'coywolf_custom_blocks_notices';
 
 	/**
 	 * Settings group to opt into analytics.
 	 *
 	 * @var string
 	 */
-	const SETTINGS_GROUP = 'genesis-custom-blocks-settings-page';
+	const SETTINGS_GROUP = 'coywolf-custom-blocks-settings-page';
 
 	/**
 	 * Option name controlling whether uninstall.php should drop plugin data.
@@ -49,7 +49,7 @@ class Settings extends ComponentAbstract {
 	 *
 	 * @var string
 	 */
-	const PAGE_SLUG = 'genesis-custom-blocks-settings';
+	const PAGE_SLUG = 'coywolf-custom-blocks-settings';
 
 	/**
 	 * Register any hooks that this component needs.
@@ -64,9 +64,9 @@ class Settings extends ComponentAbstract {
 	 */
 	public function add_submenu_pages() {
 		add_submenu_page(
-			'edit.php?post_type=' . genesis_custom_blocks()->get_post_type_slug(),
-			__( 'Coywolf Custom Blocks Settings', 'genesis-custom-blocks' ),
-			__( 'Settings', 'genesis-custom-blocks' ),
+			'edit.php?post_type=' . coywolf_custom_blocks()->get_post_type_slug(),
+			__( 'Coywolf Custom Blocks Settings', 'coywolf-custom-blocks' ),
+			__( 'Settings', 'coywolf-custom-blocks' ),
 			'manage_options',
 			self::PAGE_SLUG,
 			[ $this, 'render_page' ]
@@ -77,7 +77,7 @@ class Settings extends ComponentAbstract {
 	 * Renders the Settings page.
 	 */
 	public function render_page() {
-		include genesis_custom_blocks()->get_path() . 'php/Views/Settings.php';
+		include coywolf_custom_blocks()->get_path() . 'php/Views/Settings.php';
 	}
 
 	/**

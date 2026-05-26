@@ -2,14 +2,14 @@
 /**
  * Genesis Custom Blocks Documentation.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license   http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-namespace Genesis\CustomBlocks\Admin;
+namespace Coywolf\CustomBlocks\Admin;
 
-use Genesis\CustomBlocks\ComponentAbstract;
+use Coywolf\CustomBlocks\ComponentAbstract;
 
 /**
  * Class Documentation
@@ -21,7 +21,7 @@ class Documentation extends ComponentAbstract {
 	 *
 	 * @var string
 	 */
-	public $slug = 'genesis-custom-blocks-documentation';
+	public $slug = 'coywolf-custom-blocks-documentation';
 
 	/**
 	 * Register any hooks that this component needs.
@@ -36,9 +36,9 @@ class Documentation extends ComponentAbstract {
 	 * Add submenu pages to the Genesis Custom Blocks menu.
 	 */
 	public function add_submenu_page() {
-		$menu_title = __( 'Documentation', 'genesis-custom-blocks' );
+		$menu_title = __( 'Documentation', 'coywolf-custom-blocks' );
 		add_submenu_page(
-			'edit.php?post_type=' . genesis_custom_blocks()->get_post_type_slug(),
+			'edit.php?post_type=' . coywolf_custom_blocks()->get_post_type_slug(),
 			$menu_title,
 			$menu_title,
 			'manage_options',

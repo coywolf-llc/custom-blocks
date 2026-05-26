@@ -1,4 +1,4 @@
-/* global genesisCustomBlocks, gcbBlocks */
+/* global coywolfCustomBlocks, ccbBlocks */
 
 /**
  * WordPress dependencies
@@ -12,8 +12,8 @@ import { setLocaleData } from '@wordpress/i18n';
 import { addControls, registerBlocks } from './helpers';
 import { Edit } from './components';
 
-setLocaleData( { '': {} }, 'genesis-custom-blocks' );
-addFilter( 'genesisCustomBlocks.controls', 'genesisCustomBlocks/addControls', addControls );
+setLocaleData( { '': {} }, 'coywolf-custom-blocks' );
+addFilter( 'coywolfCustomBlocks.controls', 'coywolfCustomBlocks/addControls', addControls );
 
 // @ts-ignore
-registerBlocks( genesisCustomBlocks, gcbBlocks, Edit );
+registerBlocks( coywolfCustomBlocks, ccbBlocks, Edit );

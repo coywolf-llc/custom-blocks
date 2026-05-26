@@ -142,7 +142,7 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 		if ( '' === $this->validate_package_url( $package ) ) {
 			return new WP_Error(
 				'coywolf_ccb_untrusted_package',
-				__( 'Refusing to download a plugin update from an untrusted host.', 'genesis-custom-blocks' )
+				__( 'Refusing to download a plugin update from an untrusted host.', 'coywolf-custom-blocks' )
 			);
 		}
 		return $reply;
@@ -164,7 +164,7 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 				$plugin_meta[ $i ] = sprintf(
 					'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
 					esc_url( $repo_url ),
-					esc_html__( 'View details', 'genesis-custom-blocks' )
+					esc_html__( 'View details', 'coywolf-custom-blocks' )
 				);
 			}
 		}
@@ -331,7 +331,7 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 
 		return new WP_Error(
 			'coywolf_ccb_rename_failed',
-			__( 'Could not rename the downloaded update folder to match the plugin slug.', 'genesis-custom-blocks' )
+			__( 'Could not rename the downloaded update folder to match the plugin slug.', 'coywolf-custom-blocks' )
 		);
 	}
 

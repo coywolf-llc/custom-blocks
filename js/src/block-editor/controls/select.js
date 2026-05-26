@@ -14,7 +14,7 @@ const GcbSelectControl = ( props ) => {
 
 	if ( '' === field.default ) {
 		field.options = [
-			{ label: __( '– Select –', 'genesis-custom-blocks' ), value: '', disabled: true },
+			{ label: __( '– Select –', 'coywolf-custom-blocks' ), value: '', disabled: true },
 			...field.options,
 		];
 	}

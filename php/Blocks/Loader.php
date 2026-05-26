@@ -2,27 +2,21 @@
 /**
  * Loader initiates the loading of new blocks.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-namespace Genesis\CustomBlocks\Blocks;
+namespace Coywolf\CustomBlocks\Blocks;
 
 use WP_REST_Server;
 use WP_Query;
-use Genesis\CustomBlocks\ComponentAbstract;
-use Genesis\CustomBlocks\Admin\Settings;
+use Coywolf\CustomBlocks\ComponentAbstract;
+use Coywolf\CustomBlocks\Admin\Settings;
 
 /**
  * Class Loader
  */
 class Loader extends ComponentAbstract {
 
-	/**
-	 * The script slug for analytics.
-	 *
-	 * @var string
-	 */
-	const ANALYTICS_SCRIPT_SLUG = 'genesis-custom-blocks-analytics#async';
 
 	/**
 	 * Asset paths and urls for blocks.
@@ -111,22 +105,22 @@ class Loader extends ComponentAbstract {
 		 * @param mixed  $data The data from the Loader's data store.
 		 * @param string $key  The key for the data being retrieved.
 		 */
-		$data = apply_filters( 'genesis_custom_blocks_data', $data, $key );
+		$data = apply_filters( 'coywolf_custom_blocks_data', $data, $key );
 
 		/**
 		 * Filters the data that gets returned, specifically for a single key.
 		 *
 		 * @param mixed $data The data from the Loader's data store.
 		 */
-		return apply_filters( "genesis_custom_blocks_data_{$key}", $data );
+		return apply_filters( "coywolf_custom_blocks_data_{$key}", $data );
 	}
 
 	/**
 	 * Launch the blocks inside Gutenberg.
 	 */
 	public function editor_assets() {
-		$js_handle  = 'genesis-custom-blocks-blocks';
-		$css_handle = 'genesis-custom-blocks-editor-css';
+		$js_handle  = 'coywolf-custom-blocks-blocks';
+		$css_handle = 'coywolf-custom-blocks-editor-css';
 
 		$js_config  = require $this->plugin->get_path( 'js/dist/block-editor.asset.php' );
 		$css_config = require $this->plugin->get_path( 'css/dist/blocks.editor.asset.php' );
@@ -142,7 +136,7 @@ class Loader extends ComponentAbstract {
 		// Add dynamic Gutenberg blocks.
 		wp_add_inline_script(
 			$js_handle,
-			'const gcbBlocks = ' . wp_json_encode( $this->blocks ),
+			'const ccbBlocks = ' . wp_json_encode( $this->blocks ),
 			'before'
 		);
 
@@ -150,7 +144,7 @@ class Loader extends ComponentAbstract {
 		$author_blocks = get_posts(
 			[
 				'author'         => get_current_user_id(),
-				'post_type'      => 'genesis_custom_block',
+				'post_type'      => 'coywolf_custom_block',
 				// We could use -1 here, but that could be dangerous. 99 is more than enough.
 				'posts_per_page' => 99,
 			]
@@ -159,7 +153,7 @@ class Loader extends ComponentAbstract {
 		$author_block_slugs = wp_list_pluck( $author_blocks, 'post_name' );
 		wp_localize_script(
 			$js_handle,
-			'genesisCustomBlocks',
+			'coywolfCustomBlocks',
 			[
 				'authorBlocks' => $author_block_slugs,
 				'postType'     => get_post_type(), // To conditionally exclude blocks from certain post types.
@@ -220,7 +214,7 @@ class Loader extends ComponentAbstract {
 			[
 				'api_version'     => 3,
 				'attributes'      => $attributes,
-				'editor_style'    => 'genesis-custom-blocks-editor-css',
+				'editor_style'    => 'coywolf-custom-blocks-editor-css',
 				// @see https://github.com/WordPress/gutenberg/issues/4671
 				'render_callback' => function ( $attributes, $content ) use ( $block ) {
 					return $this->render_block_template( $block, $attributes, $content );
@@ -286,7 +280,7 @@ class Loader extends ComponentAbstract {
 		 * @param array[] $attributes The attributes for a block.
 		 * @param array   $block      Block data, including its name at $block['name'].
 		 */
-		return apply_filters( 'genesis_custom_blocks_get_block_attributes', $attributes, $block );
+		return apply_filters( 'coywolf_custom_blocks_get_block_attributes', $attributes, $block );
 	}
 
 	/**
@@ -359,7 +353,7 @@ class Loader extends ComponentAbstract {
 		 * @param array   $attributes The block attributes.
 		 * @param Field[] $fields     The block fields.
 		 */
-		$this->data['attributes'] = apply_filters( 'genesis_custom_blocks_template_attributes', $attributes, $block->fields );
+		$this->data['attributes'] = apply_filters( 'coywolf_custom_blocks_template_attributes', $attributes, $block->fields );
 		$this->data['config']     = $block;
 		$this->data['content']    = $content;
 
@@ -376,7 +370,7 @@ class Loader extends ComponentAbstract {
 			 * @param Block $block The block that is rendered.
 			 * @param array $attributes The block attributes.
 			 */
-			do_action( 'genesis_custom_blocks_render_template', $block, $attributes );
+			do_action( 'coywolf_custom_blocks_render_template', $block, $attributes );
 
 			/**
 			 * Runs in a block's 'render_callback', and only on the front-end.
@@ -386,7 +380,7 @@ class Loader extends ComponentAbstract {
 			 * @param Block $block The block that is rendered.
 			 * @param array $attributes The block attributes.
 			 */
-			do_action( "genesis_custom_blocks_render_template_{$block->name}", $block, $attributes );
+			do_action( "coywolf_custom_blocks_render_template_{$block->name}", $block, $attributes );
 		}
 
 		ob_start();
@@ -394,8 +388,8 @@ class Loader extends ComponentAbstract {
 
 		if ( empty( $did_enqueue_styles ) ) {
 			$this->template_editor->render_css(
-				isset( $this->blocks[ "genesis-custom-blocks/{$block->name}" ]['templateCss'] )
-					? $this->blocks[ "genesis-custom-blocks/{$block->name}" ]['templateCss']
+				isset( $this->blocks[ "coywolf-custom-blocks/{$block->name}" ]['templateCss'] )
+					? $this->blocks[ "coywolf-custom-blocks/{$block->name}" ]['templateCss']
 					: '',
 				$block->name
 			);
@@ -418,16 +412,16 @@ class Loader extends ComponentAbstract {
 		foreach ( $types as $type ) {
 			$locations = array_merge(
 				$locations,
-				genesis_custom_blocks()->get_stylesheet_locations( $name, $type )
+				coywolf_custom_blocks()->get_stylesheet_locations( $name, $type )
 			);
 		}
 
-		$stylesheet_path = genesis_custom_blocks()->locate_template( $locations );
-		$stylesheet_url  = genesis_custom_blocks()->get_url_from_path( $stylesheet_path );
+		$stylesheet_path = coywolf_custom_blocks()->locate_template( $locations );
+		$stylesheet_url  = coywolf_custom_blocks()->get_url_from_path( $stylesheet_path );
 
 		if ( ! empty( $stylesheet_url ) ) {
 			wp_enqueue_style(
-				"genesis-custom-blocks__block-{$name}",
+				"coywolf-custom-blocks__block-{$name}",
 				$stylesheet_url,
 				[],
 				wp_get_theme()->get( 'Version' )
@@ -448,15 +442,15 @@ class Loader extends ComponentAbstract {
 			'blocks/blocks.css',
 		];
 
-		$stylesheet_path = genesis_custom_blocks()->locate_template( $locations );
-		$stylesheet_url  = genesis_custom_blocks()->get_url_from_path( $stylesheet_path );
+		$stylesheet_path = coywolf_custom_blocks()->locate_template( $locations );
+		$stylesheet_url  = coywolf_custom_blocks()->get_url_from_path( $stylesheet_path );
 
 		/**
 		 * Enqueue the stylesheet, if it exists.
 		 */
 		if ( ! empty( $stylesheet_url ) ) {
 			wp_enqueue_style(
-				'genesis-custom-blocks__global-styles',
+				'coywolf-custom-blocks__global-styles',
 				$stylesheet_url,
 				[],
 				filemtime( $stylesheet_path )
@@ -483,8 +477,8 @@ class Loader extends ComponentAbstract {
 		$located = '';
 
 		foreach ( $types as $type ) {
-			$templates = genesis_custom_blocks()->get_template_locations( $name, $type );
-			$located   = genesis_custom_blocks()->locate_template( $templates );
+			$templates = coywolf_custom_blocks()->get_template_locations( $name, $type );
+			$located   = coywolf_custom_blocks()->locate_template( $templates );
 
 			if ( ! empty( $located ) ) {
 				break;
@@ -497,8 +491,8 @@ class Loader extends ComponentAbstract {
 		// file that may exist in the theme. Empty markup falls through to the file
 		// template lookup below so existing installs that rely on theme files
 		// keep working without migration.
-		if ( ! empty( $this->blocks[ "genesis-custom-blocks/{$name}" ]['templateMarkup'] ) ) {
-			$this->template_editor->render_markup( $this->blocks[ "genesis-custom-blocks/{$name}" ]['templateMarkup'] );
+		if ( ! empty( $this->blocks[ "coywolf-custom-blocks/{$name}" ]['templateMarkup'] ) ) {
+			$this->template_editor->render_markup( $this->blocks[ "coywolf-custom-blocks/{$name}" ]['templateMarkup'] );
 			return;
 		}
 
@@ -508,7 +502,7 @@ class Loader extends ComponentAbstract {
 			 *
 			 * @param string $located The located template.
 			 */
-			$theme_template = apply_filters( 'genesis_custom_blocks_override_theme_template', $located );
+			$theme_template = apply_filters( 'coywolf_custom_blocks_override_theme_template', $located );
 
 			// This is not a load once template, so require_once is false.
 			load_template( $theme_template, false );
@@ -525,7 +519,7 @@ class Loader extends ComponentAbstract {
 				'<div class="notice notice-warning">%s</div>',
 				wp_kses_post(
 					/* translators: %1$s: file path */
-					sprintf( __( 'No Template Editor markup or template file was found: %1$s', 'genesis-custom-blocks' ), '<code>' . esc_html( $templates[0] ) . '</code>' )
+					sprintf( __( 'No Template Editor markup or template file was found: %1$s', 'coywolf-custom-blocks' ), '<code>' . esc_html( $templates[0] ) . '</code>' )
 				)
 			);
 		}
@@ -536,7 +530,7 @@ class Loader extends ComponentAbstract {
 	 */
 	public function retrieve_blocks() {
 		// Reverse to preserve order of preference when using array_merge.
-		$blocks_files = array_reverse( genesis_custom_blocks()->locate_template( 'blocks/blocks.json', '', false ) );
+		$blocks_files = array_reverse( coywolf_custom_blocks()->locate_template( 'blocks/blocks.json', '', false ) );
 		foreach ( $blocks_files as $blocks_file ) {
 			// This is expected to be on the local filesystem, so file_get_contents() is ok to use here.
 			$json       = file_get_contents( $blocks_file ); // @codingStandardsIgnoreLine
@@ -551,7 +545,7 @@ class Loader extends ComponentAbstract {
 		$is_edit_context = 'edit' === filter_input( INPUT_GET, 'context' );
 		$block_posts     = new WP_Query(
 			[
-				'post_type'      => genesis_custom_blocks()->get_post_type_slug(),
+				'post_type'      => coywolf_custom_blocks()->get_post_type_slug(),
 				'post_status'    => $is_edit_context ? 'any' : 'publish',
 				'posts_per_page' => 100,
 			]
@@ -568,25 +562,25 @@ class Loader extends ComponentAbstract {
 		}
 
 		/**
-		 * Use this action to add new blocks and fields with the Genesis\CustomBlocks\add_block and Genesis\CustomBlocks\add_field helper functions.
+		 * Use this action to add new blocks and fields with the Coywolf\CustomBlocks\add_block and Coywolf\CustomBlocks\add_field helper functions.
 		 */
-		do_action( 'genesis_custom_blocks_add_blocks' );
+		do_action( 'coywolf_custom_blocks_add_blocks' );
 
 		/**
 		 * Filter the available blocks.
 		 *
-		 * This is used internally by the Genesis\CustomBlocks\add_block and Genesis\CustomBlocks\add_field helper functions,
+		 * This is used internally by the Coywolf\CustomBlocks\add_block and Coywolf\CustomBlocks\add_field helper functions,
 		 * but it can also be used to hide certain blocks if desired.
 		 *
 		 * @param array $blocks An associative array of blocks.
 		 */
-		$this->blocks = apply_filters( 'genesis_custom_blocks_available_blocks', $this->blocks );
+		$this->blocks = apply_filters( 'coywolf_custom_blocks_available_blocks', $this->blocks );
 	}
 
 	/**
 	 * Add a new block.
 	 *
-	 * This method should be called during the genesis_custom_blocks_add_blocks action, to ensure
+	 * This method should be called during the coywolf_custom_blocks_add_blocks action, to ensure
 	 * that the block isn't added too late.
 	 *
 	 * @param array $block_config The config of the block to add.
@@ -596,27 +590,27 @@ class Loader extends ComponentAbstract {
 			return;
 		}
 
-		$this->blocks[ "genesis-custom-blocks/{$block_config['name']}" ] = $block_config;
+		$this->blocks[ "coywolf-custom-blocks/{$block_config['name']}" ] = $block_config;
 	}
 
 	/**
 	 * Add a new field to an existing block.
 	 *
-	 * This method should be called during the genesis_custom_blocks_add_blocks action, to ensure
+	 * This method should be called during the coywolf_custom_blocks_add_blocks action, to ensure
 	 * that the block isn't added too late.
 	 *
 	 * @param string $block_name   The name of the block that the field is added to.
 	 * @param array  $field_config The config of the field to add.
 	 */
 	public function add_field( $block_name, $field_config ) {
-		if ( ! isset( $this->blocks[ "genesis-custom-blocks/{$block_name}" ] ) ) {
+		if ( ! isset( $this->blocks[ "coywolf-custom-blocks/{$block_name}" ] ) ) {
 			return;
 		}
 		if ( ! isset( $field_config['name'] ) ) {
 			return;
 		}
 
-		$this->blocks[ "genesis-custom-blocks/{$block_name}" ]['fields'][ $field_config['name'] ] = $field_config;
+		$this->blocks[ "coywolf-custom-blocks/{$block_name}" ]['fields'][ $field_config['name'] ] = $field_config;
 	}
 
 	/**
@@ -637,7 +631,7 @@ class Loader extends ComponentAbstract {
 		}
 
 		foreach ( $endpoints as $route => $handler ) {
-			if ( 0 === strpos( $route, '/wp/v2/block-renderer/(?P<name>genesis-custom-blocks/' ) && isset( $endpoints[ $route ][0] ) ) {
+			if ( 0 === strpos( $route, '/wp/v2/block-renderer/(?P<name>coywolf-custom-blocks/' ) && isset( $endpoints[ $route ][0] ) ) {
 				$endpoints[ $route ][0]['methods'] = [ WP_REST_Server::READABLE, WP_REST_Server::CREATABLE ];
 			}
 		}

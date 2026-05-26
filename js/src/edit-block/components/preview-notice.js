@@ -26,11 +26,11 @@ import { Notice } from '../../common/components';
  */
 const PreviewNotice = ( { children } ) => (
 	<Notice className="mt-2">
-		{ __( 'To preview this, please edit the block in the', 'genesis-custom-blocks' ) }
+		{ __( 'To preview this, please edit the block in the', 'coywolf-custom-blocks' ) }
 		&nbsp;
 		{ children }
 		&nbsp;
-		{ __( 'and save', 'genesis-custom-blocks' ) }
+		{ __( 'and save', 'coywolf-custom-blocks' ) }
 	</Notice>
 );
 

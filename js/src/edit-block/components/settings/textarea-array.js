@@ -56,7 +56,7 @@ const TextareaArray = ( { handleOnChange, setting, value } ) => {
 						<p className={ helpClass }>
 							{ __(
 								'Each choice on a new line. To specify the value and label separately, use this format:',
-								'genesis-custom-blocks'
+								'coywolf-custom-blocks'
 							) }
 						</p>
 						<p className={ helpClass }>

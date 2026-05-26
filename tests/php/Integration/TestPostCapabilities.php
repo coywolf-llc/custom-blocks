@@ -2,17 +2,17 @@
 /**
  * TestPostCapabilities
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\PostTypes\BlockPost;
+use Coywolf\CustomBlocks\PostTypes\BlockPost;
 
 /**
  * Class TestPostCapabilities
  *
- * Tests the capabilities for the 'genesis_custom_block' post type.
+ * Tests the capabilities for the 'coywolf_custom_block' post type.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 class TestPostCapabilities extends \WP_UnitTestCase {
 
@@ -35,7 +35,7 @@ class TestPostCapabilities extends \WP_UnitTestCase {
 	 *
 	 * @var string
 	 */
-	public $post_type_slug = 'genesis_custom_block';
+	public $post_type_slug = 'coywolf_custom_block';
 
 	/**
 	 * Setup.
@@ -45,7 +45,7 @@ class TestPostCapabilities extends \WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		$this->block_post = new BlockPost();
-		$this->block_post->set_plugin( genesis_custom_blocks() );
+		$this->block_post->set_plugin( coywolf_custom_blocks() );
 		$this->block_post->register_post_type();
 		$this->post_id = $this->factory()->post->create( [ 'post_type' => $this->post_type_slug ] );
 	}
@@ -57,37 +57,37 @@ class TestPostCapabilities extends \WP_UnitTestCase {
 	 */
 	public function get_users() {
 		return [
-			[ 'subscriber', 'genesis_custom_block_edit_block', false ],
-			[ 'subscriber', 'genesis_custom_block_edit_blocks', false ],
-			[ 'subscriber', 'genesis_custom_block_edit_others_blocks', false ],
-			[ 'subscriber', 'genesis_custom_block_publish_blocks', false ],
-			[ 'subscriber', 'genesis_custom_block_read_block', true ],
-			[ 'subscriber', 'genesis_custom_block_read_private_blocks', false ],
-			[ 'subscriber', 'genesis_custom_block_delete_block', false ],
+			[ 'subscriber', 'coywolf_custom_block_edit_block', false ],
+			[ 'subscriber', 'coywolf_custom_block_edit_blocks', false ],
+			[ 'subscriber', 'coywolf_custom_block_edit_others_blocks', false ],
+			[ 'subscriber', 'coywolf_custom_block_publish_blocks', false ],
+			[ 'subscriber', 'coywolf_custom_block_read_block', true ],
+			[ 'subscriber', 'coywolf_custom_block_read_private_blocks', false ],
+			[ 'subscriber', 'coywolf_custom_block_delete_block', false ],
 
-			[ 'contributor', 'genesis_custom_block_edit_block', false ],
-			[ 'contributor', 'genesis_custom_block_edit_blocks', false ],
-			[ 'contributor', 'genesis_custom_block_edit_others_blocks', false ],
-			[ 'contributor', 'genesis_custom_block_publish_blocks', false ],
-			[ 'contributor', 'genesis_custom_block_read_block', true ],
-			[ 'contributor', 'genesis_custom_block_read_private_blocks', false ],
-			[ 'contributor', 'genesis_custom_block_delete_block', false ],
+			[ 'contributor', 'coywolf_custom_block_edit_block', false ],
+			[ 'contributor', 'coywolf_custom_block_edit_blocks', false ],
+			[ 'contributor', 'coywolf_custom_block_edit_others_blocks', false ],
+			[ 'contributor', 'coywolf_custom_block_publish_blocks', false ],
+			[ 'contributor', 'coywolf_custom_block_read_block', true ],
+			[ 'contributor', 'coywolf_custom_block_read_private_blocks', false ],
+			[ 'contributor', 'coywolf_custom_block_delete_block', false ],
 
-			[ 'author', 'genesis_custom_block_edit_block', false ],
-			[ 'author', 'genesis_custom_block_edit_blocks', false ],
-			[ 'author', 'genesis_custom_block_edit_others_blocks', false ],
-			[ 'author', 'genesis_custom_block_publish_blocks', false ],
-			[ 'author', 'genesis_custom_block_read_block', true ],
-			[ 'author', 'genesis_custom_block_read_private_blocks', false ],
-			[ 'author', 'genesis_custom_block_delete_block', false ],
+			[ 'author', 'coywolf_custom_block_edit_block', false ],
+			[ 'author', 'coywolf_custom_block_edit_blocks', false ],
+			[ 'author', 'coywolf_custom_block_edit_others_blocks', false ],
+			[ 'author', 'coywolf_custom_block_publish_blocks', false ],
+			[ 'author', 'coywolf_custom_block_read_block', true ],
+			[ 'author', 'coywolf_custom_block_read_private_blocks', false ],
+			[ 'author', 'coywolf_custom_block_delete_block', false ],
 
-			[ 'editor', 'genesis_custom_block_edit_block', false ],
-			[ 'editor', 'genesis_custom_block_edit_blocks', false ],
-			[ 'editor', 'genesis_custom_block_edit_others_blocks', false ],
-			[ 'editor', 'genesis_custom_block_publish_blocks', false ],
-			[ 'editor', 'genesis_custom_block_read_block', true ],
-			[ 'editor', 'genesis_custom_block_read_private_blocks', false ],
-			[ 'editor', 'genesis_custom_block_delete_block', true ],
+			[ 'editor', 'coywolf_custom_block_edit_block', false ],
+			[ 'editor', 'coywolf_custom_block_edit_blocks', false ],
+			[ 'editor', 'coywolf_custom_block_edit_others_blocks', false ],
+			[ 'editor', 'coywolf_custom_block_publish_blocks', false ],
+			[ 'editor', 'coywolf_custom_block_read_block', true ],
+			[ 'editor', 'coywolf_custom_block_read_private_blocks', false ],
+			[ 'editor', 'coywolf_custom_block_delete_block', true ],
 
 			[ 'administrator', 'edit_post', true ],
 			[ 'administrator', 'edit_posts', true ],
@@ -97,13 +97,13 @@ class TestPostCapabilities extends \WP_UnitTestCase {
 			[ 'administrator', 'read_private_posts', true ],
 			[ 'administrator', 'delete_post', true ],
 
-			[ 'administrator', 'genesis_custom_block_edit_block', true ],
-			[ 'administrator', 'genesis_custom_block_edit_blocks', true ],
-			[ 'administrator', 'genesis_custom_block_edit_others_blocks', true ],
-			[ 'administrator', 'genesis_custom_block_publish_blocks', true ],
-			[ 'administrator', 'genesis_custom_block_read_block', true ],
-			[ 'administrator', 'genesis_custom_block_read_private_blocks', true ],
-			[ 'administrator', 'genesis_custom_block_delete_block', true ],
+			[ 'administrator', 'coywolf_custom_block_edit_block', true ],
+			[ 'administrator', 'coywolf_custom_block_edit_blocks', true ],
+			[ 'administrator', 'coywolf_custom_block_edit_others_blocks', true ],
+			[ 'administrator', 'coywolf_custom_block_publish_blocks', true ],
+			[ 'administrator', 'coywolf_custom_block_read_block', true ],
+			[ 'administrator', 'coywolf_custom_block_read_private_blocks', true ],
+			[ 'administrator', 'coywolf_custom_block_delete_block', true ],
 		];
 	}
 
@@ -111,7 +111,7 @@ class TestPostCapabilities extends \WP_UnitTestCase {
 	 * Tests that the capabilities are correct for the post type.
 	 *
 	 * @dataProvider get_users
-	 * @covers \Genesis\CustomBlocks\PostTypes\BlockPost::register_post_type()
+	 * @covers \Coywolf\CustomBlocks\PostTypes\BlockPost::register_post_type()
 	 *
 	 * @param string $user_role The user role, like 'editor'.
 	 * @param string $capability The capability to test for, like 'edit_post'.

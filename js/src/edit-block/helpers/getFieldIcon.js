@@ -27,7 +27,7 @@ const getFieldIcon = ( controlName ) => {
 	const icon = fieldIcons[ controlName ]; /* eslint-disable-line import/namespace */
 
 	// @ts-ignore
-	return applyFilters( 'genesisCustomBlocks.getFieldIcon', icon, controlName );
+	return applyFilters( 'coywolfCustomBlocks.getFieldIcon', icon, controlName );
 };
 
 export default getFieldIcon;

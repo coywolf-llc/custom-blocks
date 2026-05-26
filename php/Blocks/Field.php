@@ -2,12 +2,12 @@
 /**
  * Block Field.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-namespace Genesis\CustomBlocks\Blocks;
+namespace Coywolf\CustomBlocks\Blocks;
 
 /**
  * Class Field
@@ -90,7 +90,7 @@ class Field {
 		 * @param array $config   The field config.
 		 * @param array $settings The field settings.
 		 */
-		return apply_filters( 'genesis_custom_blocks_field_to_array', $config, $this->settings );
+		return apply_filters( 'coywolf_custom_blocks_field_to_array', $config, $this->settings );
 	}
 
 	/**
@@ -107,7 +107,7 @@ class Field {
 		}
 
 		if ( ! isset( $config['type'] ) && isset( $config['control'] ) ) {
-			$control = genesis_custom_blocks()->block_post->get_control( $config['control'] );
+			$control = coywolf_custom_blocks()->block_post->get_control( $config['control'] );
 			if ( $control ) {
 				$this->type = $control->type;
 			}
@@ -125,7 +125,7 @@ class Field {
 		 *
 		 * @param array $settings The field settings.
 		 */
-		$this->settings = apply_filters( 'genesis_custom_blocks_settings_from_array', $this->settings );
+		$this->settings = apply_filters( 'coywolf_custom_blocks_settings_from_array', $this->settings );
 	}
 
 	/**
@@ -184,11 +184,11 @@ class Field {
 		}
 
 		if ( true === $value ) {
-			return __( 'Yes', 'genesis-custom-blocks' );
+			return __( 'Yes', 'coywolf-custom-blocks' );
 		}
 
 		if ( false === $value ) {
-			return __( 'No', 'genesis-custom-blocks' );
+			return __( 'No', 'coywolf-custom-blocks' );
 		}
 
 		return strval( $value );

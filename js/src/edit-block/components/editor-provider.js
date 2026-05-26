@@ -57,12 +57,12 @@ const EditorProvider = ( {
 
 		if ( settings.autosave ) {
 			createWarningNotice(
-				__( 'There is an autosave of this post that is more recent than the version below.', 'genesis-custom-blocks' ),
+				__( 'There is an autosave of this post that is more recent than the version below.', 'coywolf-custom-blocks' ),
 				{
 					id: 'autosave-exists',
 					actions: [
 						{
-							label: __( 'View the autosave', 'genesis-custom-blocks' ),
+							label: __( 'View the autosave', 'coywolf-custom-blocks' ),
 							url: settings.autosave.editLink,
 						},
 					],

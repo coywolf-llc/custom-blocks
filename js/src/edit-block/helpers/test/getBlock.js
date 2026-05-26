@@ -14,9 +14,9 @@ describe( 'getBlock', () => {
 			{ example: 'Example here' },
 		],
 		[
-			'{"genesis-custom-blocks/test-email":{"name":"test-email","title":"Test Email","category":{"icon":null,"slug":"text","title":"Text"},"icon":"genesis_custom_blocks","keywords":[],"excluded":[],"fields":{"email":{}}}}',
+			'{"coywolf-custom-blocks/test-email":{"name":"test-email","title":"Test Email","category":{"icon":null,"slug":"text","title":"Text"},"icon":"coywolf_custom_blocks","keywords":[],"excluded":[],"fields":{"email":{}}}}',
 			{
-				'genesis-custom-blocks/test-email': {
+				'coywolf-custom-blocks/test-email': {
 					name: 'test-email',
 					title: 'Test Email',
 					category: {
@@ -24,7 +24,7 @@ describe( 'getBlock', () => {
 						slug: 'text',
 						title: 'Text',
 					},
-					icon: 'genesis_custom_blocks',
+					icon: 'coywolf_custom_blocks',
 					keywords: [],
 					excluded: [],
 					fields: {

@@ -2,11 +2,11 @@
 /**
  * Tests for class Plugin.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Plugin;
-use Genesis\CustomBlocks\Admin\Admin;
+use Coywolf\CustomBlocks\Plugin;
+use Coywolf\CustomBlocks\Admin\Admin;
 
 /**
  * Tests for class Plugin.
@@ -37,7 +37,7 @@ class TestPlugin extends \WP_UnitTestCase {
 	/**
 	 * Test init.
 	 *
-	 * @covers \Genesis\CustomBlocks\Plugin::init()
+	 * @covers \Coywolf\CustomBlocks\Plugin::init()
 	 */
 	public function test_init() {
 		$plugin_instance = new Plugin();
@@ -50,23 +50,23 @@ class TestPlugin extends \WP_UnitTestCase {
 		$util_property->setAccessible( true );
 		$util_class = $util_property->getValue( $this->instance );
 
-		$this->assertEquals( 'Genesis\CustomBlocks\Util', get_class( $util_class ) );
+		$this->assertEquals( 'Coywolf\CustomBlocks\Util', get_class( $util_class ) );
 	}
 
 	/**
 	 * Test plugin_loaded.
 	 *
-	 * @covers \Genesis\CustomBlocks\Plugin::plugin_loaded()
+	 * @covers \Coywolf\CustomBlocks\Plugin::plugin_loaded()
 	 */
 	public function test_plugin_loaded() {
 		$this->instance->plugin_loaded();
-		$this->assertEquals( 'Genesis\CustomBlocks\Admin\Admin', get_class( $this->instance->admin ) );
+		$this->assertEquals( 'Coywolf\CustomBlocks\Admin\Admin', get_class( $this->instance->admin ) );
 	}
 
 	/**
 	 * Test require_deprecated.
 	 *
-	 * @covers \Genesis\CustomBlocks\Plugin::require_deprecated()
+	 * @covers \Coywolf\CustomBlocks\Plugin::require_deprecated()
 	 */
 	public function test_require_deprecated() {
 		$this->instance->require_deprecated();
@@ -79,7 +79,7 @@ class TestPlugin extends \WP_UnitTestCase {
 	 * This is also essentially the same test as in TestUtil.
 	 * But this also tests that the __call() magic method in Plugin works.
 	 *
-	 * @covers \Genesis\CustomBlocks\Util::get_template_locations()
+	 * @covers \Coywolf\CustomBlocks\Util::get_template_locations()
 	 */
 	public function test_get_template_locations() {
 		$name = 'foo-baz';

@@ -2,11 +2,11 @@
 /**
  * Tests for class Number.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Blocks\Controls\Number;
-use Genesis\CustomBlocks\Blocks\Controls\ControlSetting;
+use Coywolf\CustomBlocks\Blocks\Controls\Number;
+use Coywolf\CustomBlocks\Blocks\Controls\ControlSetting;
 
 /**
  * Tests for class Number.
@@ -43,7 +43,7 @@ class TestNumber extends \WP_UnitTestCase {
 	/**
 	 * Test __construct.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\Number::__construct()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\Number::__construct()
 	 */
 	public function test_construct() {
 		$this->assertEquals( 'Number', $this->instance->label );
@@ -55,7 +55,7 @@ class TestNumber extends \WP_UnitTestCase {
 	 *
 	 * The parent constructor calls register_settings(), so there's no need to call it again here.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\Number::register_settings()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\Number::register_settings()
 	 */
 	public function test_register_settings() {
 		$expected_settings = [

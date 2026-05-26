@@ -55,7 +55,7 @@ const FrontEndPreview = ( { setEditorMode } ) => {
 					className="underline"
 					onClick={ () => setEditorMode( BUILDER_EDITING_MODE ) }
 				>
-					{ __( 'Builder', 'genesis-custom-blocks' ) }
+					{ __( 'Builder', 'coywolf-custom-blocks' ) }
 				</button>
 			</PreviewNotice>
 		);
@@ -68,7 +68,7 @@ const FrontEndPreview = ( { setEditorMode } ) => {
 					className="underline"
 					onClick={ () => setEditorMode( EDITOR_PREVIEW_EDITING_MODE ) }
 				>
-					{ __( 'Editor Preview', 'genesis-custom-blocks' ) }
+					{ __( 'Editor Preview', 'coywolf-custom-blocks' ) }
 				</button>
 			</PreviewNotice>
 		);
@@ -77,7 +77,7 @@ const FrontEndPreview = ( { setEditorMode } ) => {
 	if ( isPostNew && isPostDirty ) {
 		return (
 			<div className="mt-4 flex flex-row items-center">
-				{ __( 'Please save your block to preview it:', 'genesis-custom-blocks' ) }
+				{ __( 'Please save your block to preview it:', 'coywolf-custom-blocks' ) }
 				&nbsp;
 				<PostSavedState />
 			</div>
@@ -86,9 +86,9 @@ const FrontEndPreview = ( { setEditorMode } ) => {
 
 	return (
 		<ServerSideRender
-			block={ `genesis-custom-blocks/${ block?.name }` }
+			block={ `coywolf-custom-blocks/${ block?.name }` }
 			attributes={ block?.previewAttributes }
-			className="genesis-custom-blocks-editor__ssr"
+			className="coywolf-custom-blocks-editor__ssr"
 			httpMethod="POST"
 		/>
 	);

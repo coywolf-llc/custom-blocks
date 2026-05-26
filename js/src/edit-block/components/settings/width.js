@@ -32,7 +32,7 @@ const Width = ( { handleOnChange, setting, value } ) => {
 			<div
 				className="gcb-setting-width flex w-full border border-gray-600 rounded-sm mt-2"
 				role="listbox"
-				aria-label={ __( 'The width of the field', 'genesis-custom-blocks' ) }
+				aria-label={ __( 'The width of the field', 'coywolf-custom-blocks' ) }
 			>
 				{ [ '25', '50', '75', '100' ].map( ( width, index ) => {
 					const key = `${ name }-${ index }`;

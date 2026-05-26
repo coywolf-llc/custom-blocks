@@ -2,12 +2,12 @@
 /**
  * Block API helper functions.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-namespace Genesis\CustomBlocks;
+namespace Coywolf\CustomBlocks;
 
 /**
  * Add a new block.
@@ -17,7 +17,7 @@ namespace Genesis\CustomBlocks;
  *     An associative array containing the block configuration.
  *
  *     @type string   $title    The block title.
- *     @type string   $icon     The block icon. See assets/icons.json for a JSON array of all possible values. Default: 'genesis_custom_blocks'.
+ *     @type string   $icon     The block icon. See assets/icons.json for a JSON array of all possible values. Default: 'coywolf_custom_blocks'.
  *     @type string   $category The slug of a registered category. Categories include: common, formatting, layout, widgets, embed. Default: 'common'.
  *     @type array    $excluded Exclude the block in these post types. Default: [].
  *     @type string[] $keywords An array of up to three keywords. Default: [].
@@ -35,7 +35,7 @@ function add_block( $block_name, $block_config = [] ) {
 
 	$default_config = [
 		'title'    => str_replace( '-', ' ', ucwords( $block_config['name'], '-' ) ),
-		'icon'     => 'genesis_custom_blocks',
+		'icon'     => 'coywolf_custom_blocks',
 		'category' => 'common',
 		'excluded' => [],
 		'keywords' => [],
@@ -43,7 +43,7 @@ function add_block( $block_name, $block_config = [] ) {
 	];
 
 	$block_config = wp_parse_args( $block_config, $default_config );
-	genesis_custom_blocks()->loader->add_block( $block_config );
+	coywolf_custom_blocks()->loader->add_block( $block_config );
 }
 
 /**
@@ -75,5 +75,5 @@ function add_field( $block_name, $field_name, $field_config = [] ) {
 	];
 
 	$field_config = wp_parse_args( $field_config, $default_config );
-	genesis_custom_blocks()->loader->add_field( $block_name, $field_config );
+	coywolf_custom_blocks()->loader->add_field( $block_name, $field_config );
 }

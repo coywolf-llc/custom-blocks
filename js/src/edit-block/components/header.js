@@ -44,7 +44,7 @@ const Header = ( { editorMode, setEditorMode } ) => {
 	const { template } = useTemplate();
 	const buttonClasses = 'flex items-center h-12 px-4 text-sm';
 	const backURL = addQueryArgs( 'edit.php', {
-		post_type: 'genesis_custom_block',
+		post_type: 'coywolf_custom_block',
 	} );
 
 	return (
@@ -52,7 +52,7 @@ const Header = ( { editorMode, setEditorMode } ) => {
 			<a
 				className="flex items-center justify-center h-full w-16 bg-gray-900 text-white"
 				href={ backURL }
-				aria-label={ __( 'Go back to WordPress', 'genesis-custom-blocks' ) }
+				aria-label={ __( 'Go back to WordPress', 'coywolf-custom-blocks' ) }
 			>
 				<Icon className="fill-current" icon={ wordpress } size={ 36 } />
 			</a>
@@ -67,7 +67,7 @@ const Header = ( { editorMode, setEditorMode } ) => {
 					setEditorMode( BUILDER_EDITING_MODE );
 				} }
 			>
-				<span>{ __( 'Builder', 'genesis-custom-blocks' ) }</span>
+				<span>{ __( 'Builder', 'coywolf-custom-blocks' ) }</span>
 			</button>
 			{ template.templateExists
 				? null
@@ -81,7 +81,7 @@ const Header = ( { editorMode, setEditorMode } ) => {
 							setEditorMode( TEMPLATE_EDITOR_EDITING_MODE );
 						} }
 					>
-						<span>{ __( 'Template Editor', 'genesis-custom-blocks' ) }</span>
+						<span>{ __( 'Template Editor', 'coywolf-custom-blocks' ) }</span>
 					</button>
 				)
 			}
@@ -94,7 +94,7 @@ const Header = ( { editorMode, setEditorMode } ) => {
 					setEditorMode( EDITOR_PREVIEW_EDITING_MODE );
 				} }
 			>
-				<span>{ __( 'Editor Preview', 'genesis-custom-blocks' ) }</span>
+				<span>{ __( 'Editor Preview', 'coywolf-custom-blocks' ) }</span>
 			</button>
 			<button
 				className={ classNames(
@@ -105,7 +105,7 @@ const Header = ( { editorMode, setEditorMode } ) => {
 					setEditorMode( FRONT_END_PREVIEW_EDITING_MODE );
 				} }
 			>
-				<span>{ __( 'Front-end Preview', 'genesis-custom-blocks' ) }</span>
+				<span>{ __( 'Front-end Preview', 'coywolf-custom-blocks' ) }</span>
 			</button>
 			<div id="save-and-publish">
 				<span className="mr-3 text-sm">

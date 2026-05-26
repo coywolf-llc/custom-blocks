@@ -2,11 +2,11 @@
 /**
  * Tests for Helpers.php.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Blocks\Block;
-use Genesis\CustomBlocks\Blocks\Loader;
+use Coywolf\CustomBlocks\Blocks\Block;
+use Coywolf\CustomBlocks\Blocks\Loader;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 /**
@@ -23,10 +23,10 @@ class TestHelpers extends \WP_UnitTestCase {
 	 * @inheritdoc
 	 */
 	public function tear_down() {
-		genesis_custom_blocks()->loader = new Loader();
-		remove_all_filters( 'genesis_custom_blocks_default_fields' );
-		remove_all_filters( 'genesis_custom_blocks_data_attributes' );
-		remove_all_filters( 'genesis_custom_blocks_data_config' );
+		coywolf_custom_blocks()->loader = new Loader();
+		remove_all_filters( 'coywolf_custom_blocks_default_fields' );
+		remove_all_filters( 'coywolf_custom_blocks_data_attributes' );
+		remove_all_filters( 'coywolf_custom_blocks_data_config' );
 
 		parent::tear_down();
 	}
@@ -43,7 +43,7 @@ class TestHelpers extends \WP_UnitTestCase {
 		$mock_text      = 'Example text';
 
 		add_filter(
-			'genesis_custom_blocks_data_attributes',
+			'coywolf_custom_blocks_data_attributes',
 			function ( $data ) use ( $field_name, $class_key, $mock_text, $expected_class ) {
 				if ( ! is_array( $data ) ) {
 					$data = [];
@@ -56,7 +56,7 @@ class TestHelpers extends \WP_UnitTestCase {
 		);
 
 		add_filter(
-			'genesis_custom_blocks_data_config',
+			'coywolf_custom_blocks_data_config',
 			function ( $data ) use ( $field_name ) {
 				unset( $data );
 				$field_config = [ 'control' => 'text' ];
@@ -106,10 +106,10 @@ class TestHelpers extends \WP_UnitTestCase {
 		$additional_field_name  = 'example_additional_field';
 		$additional_field_value = 'Here is some text';
 
-		remove_all_filters( 'genesis_custom_blocks_data_attributes' );
+		remove_all_filters( 'coywolf_custom_blocks_data_attributes' );
 
 		add_filter(
-			'genesis_custom_blocks_data_attributes',
+			'coywolf_custom_blocks_data_attributes',
 			function () use ( $additional_field_name, $additional_field_value ) {
 				return [ $additional_field_name => $additional_field_value ];
 			}
@@ -119,11 +119,11 @@ class TestHelpers extends \WP_UnitTestCase {
 		$return_value = block_field( $additional_field_name, true );
 		$echoed_value = ob_get_clean();
 
-		// When a field isn't in the genesis_custom_blocks()->loader->data['config'], it should not be echoed or returned.
+		// When a field isn't in the coywolf_custom_blocks()->loader->data['config'], it should not be echoed or returned.
 		$this->assertEmpty( $return_value );
 		$this->assertEmpty( $echoed_value );
 
-		$default_fields_filter = 'genesis_custom_blocks_default_fields';
+		$default_fields_filter = 'coywolf_custom_blocks_default_fields';
 
 		// Don't return anything from the filter callback, to test the behavior.
 		add_filter(
@@ -154,7 +154,7 @@ class TestHelpers extends \WP_UnitTestCase {
 		$return_value = block_field( $additional_field_name, true );
 		$echoed_value = ob_get_clean();
 
-		// Now that the filter includes the additional field, the field should be echoed, even though it's not in genesis_custom_blocks()->data['config'].
+		// Now that the filter includes the additional field, the field should be echoed, even though it's not in coywolf_custom_blocks()->data['config'].
 		$this->assertEquals( null, $return_value );
 		$this->assertEquals( $additional_field_value, $echoed_value );
 	}

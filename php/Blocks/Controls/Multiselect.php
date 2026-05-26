@@ -2,12 +2,12 @@
 /**
  * Select control.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-namespace Genesis\CustomBlocks\Blocks\Controls;
+namespace Coywolf\CustomBlocks\Blocks\Controls;
 
 /**
  * Class Multiselect
@@ -35,7 +35,7 @@ class Multiselect extends ControlAbstract {
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->label = __( 'Multi-Select', 'genesis-custom-blocks' );
+		$this->label = __( 'Multi-Select', 'coywolf-custom-blocks' );
 	}
 
 	/**
@@ -50,7 +50,7 @@ class Multiselect extends ControlAbstract {
 		$this->settings[] = new ControlSetting(
 			[
 				'name'    => 'options',
-				'label'   => __( 'Choices', 'genesis-custom-blocks' ),
+				'label'   => __( 'Choices', 'coywolf-custom-blocks' ),
 				'type'    => 'textarea_array',
 				'default' => '',
 				'help'    => '',
@@ -59,10 +59,10 @@ class Multiselect extends ControlAbstract {
 		$this->settings[] = new ControlSetting(
 			[
 				'name'    => 'default',
-				'label'   => __( 'Default Value', 'genesis-custom-blocks' ),
+				'label'   => __( 'Default Value', 'coywolf-custom-blocks' ),
 				'type'    => 'textarea_default',
 				'default' => [],
-				'help'    => __( 'Each default value on a new line.', 'genesis-custom-blocks' ),
+				'help'    => __( 'Each default value on a new line.', 'coywolf-custom-blocks' ),
 			]
 		);
 	}

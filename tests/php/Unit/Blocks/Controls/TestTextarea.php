@@ -2,11 +2,11 @@
 /**
  * Tests for class Textarea.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Blocks\Controls\Textarea;
-use Genesis\CustomBlocks\Blocks\Controls\ControlSetting;
+use Coywolf\CustomBlocks\Blocks\Controls\Textarea;
+use Coywolf\CustomBlocks\Blocks\Controls\ControlSetting;
 
 /**
  * Tests for class Textarea.
@@ -43,7 +43,7 @@ class TestTextarea extends \WP_UnitTestCase {
 	/**
 	 * Test __construct.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\Textarea::__construct()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\Textarea::__construct()
 	 */
 	public function test_construct() {
 		$this->assertEquals( 'Textarea', $this->instance->label );
@@ -55,7 +55,7 @@ class TestTextarea extends \WP_UnitTestCase {
 	 *
 	 * The parent constructor calls register_settings(), so there's no need to call it again here.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\Textarea::register_settings()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\Textarea::register_settings()
 	 */
 	public function test_register_settings() {
 		$expected_settings = [

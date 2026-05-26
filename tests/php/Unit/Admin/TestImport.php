@@ -2,11 +2,11 @@
 /**
  * Tests for class Import.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
 use Brain\Monkey;
-use Genesis\CustomBlocks\Admin\Import;
+use Coywolf\CustomBlocks\Admin\Import;
 
 /**
  * Tests for class Import.
@@ -45,7 +45,7 @@ class TestImport extends AbstractTemplate {
 		$this->instance                 = new Import( new FilesystemStub() );
 		$this->import_file_valid_json   = dirname( __DIR__ ) . '/Fixtures/MockImportValidFormat.txt';
 		$this->import_file_invalid_json = dirname( __DIR__ ) . '/Fixtures/MockImportInvalidFormat.txt';
-		$this->instance->set_plugin( genesis_custom_blocks() );
+		$this->instance->set_plugin( coywolf_custom_blocks() );
 	}
 
 	/**
@@ -61,7 +61,7 @@ class TestImport extends AbstractTemplate {
 	/**
 	 * Test register_hooks.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Import::register_hooks()
+	 * @covers \Coywolf\CustomBlocks\Admin\Import::register_hooks()
 	 */
 	public function test_register_hooks() {
 		$this->instance->register_hooks();
@@ -71,7 +71,7 @@ class TestImport extends AbstractTemplate {
 	/**
 	 * Test register_importer.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Import::register_importer()
+	 * @covers \Coywolf\CustomBlocks\Admin\Import::register_importer()
 	 */
 	public function test_register_importer() {
 		global $wp_importers;
@@ -91,7 +91,7 @@ class TestImport extends AbstractTemplate {
 	/**
 	 * Test render_page.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Import::render_page()
+	 * @covers \Coywolf\CustomBlocks\Admin\Import::render_page()
 	 */
 	public function test_render_page() {
 		$page_header_text = 'Import Genesis Custom Blocks';
@@ -264,7 +264,7 @@ class TestImport extends AbstractTemplate {
 	/**
 	 * Test render_page_header.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Import::render_page_header()
+	 * @covers \Coywolf\CustomBlocks\Admin\Import::render_page_header()
 	 */
 	public function test_render_page_header() {
 		ob_start();
@@ -276,7 +276,7 @@ class TestImport extends AbstractTemplate {
 	/**
 	 * Test render_welcome.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Import::render_welcome()
+	 * @covers \Coywolf\CustomBlocks\Admin\Import::render_welcome()
 	 */
 	public function test_render_welcome() {
 		ob_start();
@@ -291,7 +291,7 @@ class TestImport extends AbstractTemplate {
 	/**
 	 * Test render_import_success.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Import::render_import_success()
+	 * @covers \Coywolf\CustomBlocks\Admin\Import::render_import_success()
 	 */
 	public function test_render_import_success() {
 		$title = 'Example Title';
@@ -306,7 +306,7 @@ class TestImport extends AbstractTemplate {
 	/**
 	 * Test render_import_error.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Import::render_import_error()
+	 * @covers \Coywolf\CustomBlocks\Admin\Import::render_import_error()
 	 */
 	public function test_render_import_error() {
 		$title = 'Baz Title';
@@ -329,7 +329,7 @@ class TestImport extends AbstractTemplate {
 	/**
 	 * Test render_done.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Import::render_done()
+	 * @covers \Coywolf\CustomBlocks\Admin\Import::render_done()
 	 */
 	public function test_render_done() {
 		ob_start();
@@ -342,13 +342,13 @@ class TestImport extends AbstractTemplate {
 	/**
 	 * Test render_choose_blocks.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Import::render_choose_blocks()
+	 * @covers \Coywolf\CustomBlocks\Admin\Import::render_choose_blocks()
 	 */
 	public function test_render_choose_blocks() {
 		$name   = 'block-name';
 		$title  = 'Example Block Title';
 		$blocks = [
-			"genesis-custom-blocks/$name" => [
+			"coywolf-custom-blocks/$name" => [
 				'name'  => $name,
 				'title' => $title,
 			],
@@ -358,15 +358,15 @@ class TestImport extends AbstractTemplate {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( '<p>Please select the blocks to import:</p>', $output );
-		$this->assertStringContainsString( 'name="genesis-custom-blocks/' . $name . '"', $output );
-		$this->assertStringContainsString( 'id="genesis-custom-blocks/' . $name . '"', $output );
+		$this->assertStringContainsString( 'name="coywolf-custom-blocks/' . $name . '"', $output );
+		$this->assertStringContainsString( 'id="coywolf-custom-blocks/' . $name . '"', $output );
 		$this->assertStringContainsString( '<strong>' . $title . '</strong>', $output );
 	}
 
 	/**
 	 * Test validate_upload.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Import::validate_upload()
+	 * @covers \Coywolf\CustomBlocks\Admin\Import::validate_upload()
 	 */
 	public function test_validate_upload() {
 		$error           = 'This is an invalid file';
@@ -408,14 +408,14 @@ class TestImport extends AbstractTemplate {
 	/**
 	 * Test import_blocks.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Import::import_blocks()
+	 * @covers \Coywolf\CustomBlocks\Admin\Import::import_blocks()
 	 */
 	public function test_import_blocks() {
 		$name             = 'block-name';
 		$title            = 'Example Block Title';
 		$success_message  = '<p>Successfully imported';
 		$blocks_to_import = [
-			"genesis-custom-blocks/$name" => [
+			"coywolf-custom-blocks/$name" => [
 				'title' => $title,
 			],
 		];
@@ -423,7 +423,7 @@ class TestImport extends AbstractTemplate {
 		ob_start();
 		$this->instance->import_blocks( $blocks_to_import );
 		$output      = ob_get_clean();
-		$block_query = new WP_Query( [ 'post_type' => 'genesis_custom_block' ] );
+		$block_query = new WP_Query( [ 'post_type' => 'coywolf_custom_block' ] );
 
 		// When the 'name' isn't passed to the method, it shouldn't import any block, but should still have the 'All Done!' message.
 		$this->assertEmpty( $block_query->found_posts );
@@ -431,7 +431,7 @@ class TestImport extends AbstractTemplate {
 		$this->assertStringNotContainsString( $success_message, $output );
 
 		$blocks_to_import = [
-			"genesis-custom-blocks/$name" => [
+			"coywolf-custom-blocks/$name" => [
 				'name'  => $name,
 				'title' => $title,
 			],
@@ -445,10 +445,10 @@ class TestImport extends AbstractTemplate {
 		$this->assertStringContainsString( $success_message, $output );
 		$this->assertStringContainsString( $title, $output );
 
-		$block_query     = new WP_Query( [ 'post_type' => 'genesis_custom_block' ] );
+		$block_query     = new WP_Query( [ 'post_type' => 'coywolf_custom_block' ] );
 		$block           = reset( $block_query->posts );
 		$decoded_block   = json_decode( $block->post_content );
-		$full_block_name = 'genesis-custom-blocks/' . $name;
+		$full_block_name = 'coywolf-custom-blocks/' . $name;
 		$block_data      = $decoded_block->$full_block_name;
 
 		$this->assertEquals( $name, $block_data->name );
@@ -458,10 +458,10 @@ class TestImport extends AbstractTemplate {
 	/**
 	 * Test block_exists.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Import::block_exists()
+	 * @covers \Coywolf\CustomBlocks\Admin\Import::block_exists()
 	 */
 	public function test_block_exists() {
-		$block_namespace = 'genesis-custom-blocks/block-name';
+		$block_namespace = 'coywolf-custom-blocks/block-name';
 
 		$this->assertFalse( $this->invoke_protected_method( 'block_exists', [ $block_namespace ] ) );
 

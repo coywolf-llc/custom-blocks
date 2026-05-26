@@ -2,12 +2,12 @@
 /**
  * TemplateEditor.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-namespace Genesis\CustomBlocks\Blocks;
+namespace Coywolf\CustomBlocks\Blocks;
 
 /**
  * Class TemplateEditor
@@ -44,7 +44,7 @@ class TemplateEditor {
 		// Echo raw — the Custom HTML field is authored by admins for their own
 		// site and must round-trip arbitrary markup including <script>, <iframe>,
 		// inline event handlers, etc. wp_kses_post() would strip all of those.
-		// Editing genesis_custom_block posts requires manage_options, so this is
+		// Editing coywolf_custom_block posts requires manage_options, so this is
 		// gated on the same trust level as editing theme files via Appearance →
 		// Theme File Editor.
 		echo $rendered; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -54,7 +54,7 @@ class TemplateEditor {
 	 * Renders CSS that was entered in the template editor.
 	 *
 	 * @param string $css        The CSS to render, if any.
-	 * @param string $block_name The block name, without the genesis-custom-blocks/ namespace.
+	 * @param string $block_name The block name, without the coywolf-custom-blocks/ namespace.
 	 */
 	public function render_css( $css, $block_name ) {
 		if ( empty( $css ) || in_array( $block_name, $this->blocks_with_rendered_css, true ) ) {

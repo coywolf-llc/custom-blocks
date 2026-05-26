@@ -2,12 +2,12 @@
 /**
  * InnerBlocks control.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-namespace Genesis\CustomBlocks\Blocks\Controls;
+namespace Coywolf\CustomBlocks\Blocks\Controls;
 
 /**
  * Class InnerBlocks
@@ -28,8 +28,8 @@ class InnerBlocks extends ControlAbstract {
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->label     = __( 'Inner Blocks', 'genesis-custom-blocks' );
-		$this->locations = [ 'editor' => __( 'Editor', 'genesis-custom-blocks' ) ];
+		$this->label     = __( 'Inner Blocks', 'coywolf-custom-blocks' );
+		$this->locations = [ 'editor' => __( 'Editor', 'coywolf-custom-blocks' ) ];
 	}
 
 	/**
@@ -50,7 +50,7 @@ class InnerBlocks extends ControlAbstract {
 	 */
 	public function validate( $value, $is_echo ) {
 		unset( $value, $is_echo );
-		$content = genesis_custom_blocks()->loader->get_data( 'content' );
+		$content = coywolf_custom_blocks()->loader->get_data( 'content' );
 
 		return empty( $content )
 			? urldecode( wp_strip_all_tags( filter_input( INPUT_GET, 'inner_blocks' ) ) )

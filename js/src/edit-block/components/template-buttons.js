@@ -43,7 +43,7 @@ const TemplateButtons = ( {
 						'font-semibold': MARKUP_TEMPLATE_MODE === templateMode,
 					} ) }
 				>
-					{ __( 'Markup', 'genesis-custom-blocks' ) }
+					{ __( 'Markup', 'coywolf-custom-blocks' ) }
 				</span>
 			</button>
 			<button
@@ -55,7 +55,7 @@ const TemplateButtons = ( {
 						'font-semibold': CSS_TEMPLATE_MODE === templateMode,
 					} ) }
 				>
-					{ __( 'CSS', 'genesis-custom-blocks' ) }
+					{ __( 'CSS', 'coywolf-custom-blocks' ) }
 				</span>
 			</button>
 		</div>

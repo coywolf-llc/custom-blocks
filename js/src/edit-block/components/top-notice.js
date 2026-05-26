@@ -45,27 +45,27 @@ const TopNotice = ( { editorMode, isOnboarding, setEditorMode } ) => {
 			{ isOnboarding
 				? <div className="mt-4 p-5 bg-blue-100 text-blue-700 border-l-4 border-blue-700 rounded-sm">
 					<h2 className="text-lg font-semibold text-blue-900">
-						<span role="img" className="mr-2" aria-label={ __( 'Test tube emoji', 'genesis-custom-blocks' ) }>🧪</span>
-						{ __( 'Time to experiment!', 'genesis-custom-blocks' ) }
+						<span role="img" className="mr-2" aria-label={ __( 'Test tube emoji', 'coywolf-custom-blocks' ) }>🧪</span>
+						{ __( 'Time to experiment!', 'coywolf-custom-blocks' ) }
 					</h2>
 					<ol className="text-sm mt-2 ml-2">
-						<li>{ __( 'Choose an icon', 'genesis-custom-blocks' ) }</li>
-						<li>{ __( 'Change the category', 'genesis-custom-blocks' ) }</li>
-						<li>{ __( 'Investigate a few different field types', 'genesis-custom-blocks' ) }</li>
+						<li>{ __( 'Choose an icon', 'coywolf-custom-blocks' ) }</li>
+						<li>{ __( 'Change the category', 'coywolf-custom-blocks' ) }</li>
+						<li>{ __( 'Investigate a few different field types', 'coywolf-custom-blocks' ) }</li>
 					</ol>
 					<p className="text-sm mt-2 ml-2">
-						{ __( "When you're ready, save your block by pressing", 'genesis-custom-blocks' ) }
+						{ __( "When you're ready, save your block by pressing", 'coywolf-custom-blocks' ) }
 						&nbsp;
 						<strong>
-							{ __( 'Publish', 'genesis-custom-blocks' ) }
+							{ __( 'Publish', 'coywolf-custom-blocks' ) }
 						</strong>
 					</p>
 					<div className="flex items-center mt-5 text-xs text-blue-800">
 						<QuestionIcon />
-						<p className="font-semibold ml-1">{ __( 'Learn more:', 'genesis-custom-blocks' ) }</p>
+						<p className="font-semibold ml-1">{ __( 'Learn more:', 'coywolf-custom-blocks' ) }</p>
 						&nbsp;
 						<a className="underline ml-1" href={ urlGetStarted } target="_blank" rel="noreferrer noopener">
-							{ __( 'Get Started', 'genesis-custom-blocks' ) }
+							{ __( 'Get Started', 'coywolf-custom-blocks' ) }
 						</a>
 					</div>
 				</div>
@@ -73,7 +73,7 @@ const TopNotice = ( { editorMode, isOnboarding, setEditorMode } ) => {
 			}
 			{ ! isOnboarding && template.templateExists && ! isNewPost
 				? <div className="flex items-center mt-4 mb-6">
-					<span className="text-sm">{ __( 'Template:', 'genesis-custom-blocks' ) }</span>
+					<span className="text-sm">{ __( 'Template:', 'coywolf-custom-blocks' ) }</span>
 					<span className="flex items-center w-auto text-xs font-mono ml-1 px-2 py-1 bg-gray-200 rounded-sm truncate">
 						<TemplateFile color="gray" templatePath={ template.templatePath } />
 					</span>
@@ -85,34 +85,34 @@ const TopNotice = ( { editorMode, isOnboarding, setEditorMode } ) => {
 					<div className="flex items-center">
 						<QuestionIcon />
 						<h4 className="text-lg font-semibold text-blue-900 ml-2">
-							{ __( 'Next step: Edit your block template.', 'genesis-custom-blocks' ) }
+							{ __( 'Next step: Edit your block template.', 'coywolf-custom-blocks' ) }
 						</h4>
 					</div>
 					<p className="text-sm mt-2 ml-2">
-						{ __( 'Edit the template in the', 'genesis-custom-blocks' ) }
+						{ __( 'Edit the template in the', 'coywolf-custom-blocks' ) }
 						&nbsp;
 						<button
 							className="underline"
 							onClick={ () => setEditorMode( TEMPLATE_EDITOR_EDITING_MODE ) }
 						>
-							{ __( 'Template Editor', 'genesis-custom-blocks' ) }
+							{ __( 'Template Editor', 'coywolf-custom-blocks' ) }
 						</button>
 						&nbsp;
-						{ __( 'or add this template file to your theme:', 'genesis-custom-blocks' ) }
+						{ __( 'or add this template file to your theme:', 'coywolf-custom-blocks' ) }
 					</p>
 					<p className="flex items-center w-auto text-xs font-mono mt-2 ml-2 px-2 py-1 bg-blue-200 rounded-sm">
 						<TemplateFile color="blue" templatePath={ template.templatePath } />
 					</p>
 					<div className="flex items-center mt-5 text-xs text-blue-800">
 						<QuestionIcon />
-						<p className="font-semibold ml-1">{ __( 'Learn more:', 'genesis-custom-blocks' ) }</p>
+						<p className="font-semibold ml-1">{ __( 'Learn more:', 'coywolf-custom-blocks' ) }</p>
 						<a
 							className="underline ml-2"
 							href={ urlBlockTemplates }
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							{ __( 'Block Templates', 'genesis-custom-blocks' ) }
+							{ __( 'Block Templates', 'coywolf-custom-blocks' ) }
 						</a>
 						<a
 							className="underline ml-2"
@@ -120,7 +120,7 @@ const TopNotice = ( { editorMode, isOnboarding, setEditorMode } ) => {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							{ __( 'Template Functions', 'genesis-custom-blocks' ) }
+							{ __( 'Template Functions', 'coywolf-custom-blocks' ) }
 						</a>
 					</div>
 				</div>
@@ -130,7 +130,7 @@ const TopNotice = ( { editorMode, isOnboarding, setEditorMode } ) => {
 				TEMPLATE_EDITOR_EDITING_MODE === editorMode && hasRepeaterField( getFields() )
 					? (
 						<Notice>
-							{ __( 'There is a repeater field, which will only display with', 'genesis-custom-blocks' ) }
+							{ __( 'There is a repeater field, which will only display with', 'coywolf-custom-blocks' ) }
 							&nbsp;
 							<a
 								className="underline"
@@ -138,7 +138,7 @@ const TopNotice = ( { editorMode, isOnboarding, setEditorMode } ) => {
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								{ __( 'PHP block templates', 'genesis-custom-blocks' ) }
+								{ __( 'PHP block templates', 'coywolf-custom-blocks' ) }
 							</a>
 						</Notice>
 					)

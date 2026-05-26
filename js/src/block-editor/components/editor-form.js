@@ -26,7 +26,7 @@ import { getFieldsAsArray, getIconComponent } from '../../common/helpers';
 const EditorForm = ( { block, blockProps } ) => (
 	<div
 		className="gcb-editor-form"
-		aria-label={ __( 'GCB block form', 'genesis-custom-blocks' ) }
+		aria-label={ __( 'GCB block form', 'coywolf-custom-blocks' ) }
 	>
 		<h3>
 			<Icon size={ 24 } icon={ getIconComponent( block.icon ) } />

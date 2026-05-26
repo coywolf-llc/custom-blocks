@@ -12,10 +12,10 @@ export const LOCATIONS = [ EDITOR_LOCATION, INSPECTOR_LOCATION ];
 export const LOCATIONS_WITH_LABEL = [
 	{
 		value: EDITOR_LOCATION,
-		label: __( 'Editor', 'genesis-custom-blocks' ),
+		label: __( 'Editor', 'coywolf-custom-blocks' ),
 	},
 	{
 		value: INSPECTOR_LOCATION,
-		label: __( 'Inspector', 'genesis-custom-blocks' ),
+		label: __( 'Inspector', 'coywolf-custom-blocks' ),
 	},
 ];

@@ -31,7 +31,7 @@ const IconSection = () => {
 
 	return (
 		<div className="mt-5">
-			<span className="text-sm">{ __( 'Icon', 'genesis-custom-blocks' ) }</span>
+			<span className="text-sm">{ __( 'Icon', 'coywolf-custom-blocks' ) }</span>
 			<button
 				className="flex border border-gray-600 rounded-sm mt-2"
 				onClick={ () => {
@@ -42,11 +42,11 @@ const IconSection = () => {
 					<Icon size={ 24 } icon={ getIconComponent( currentIcon ) } />
 				</div>
 				<div className="flex items-center h-8 px-3">
-					{ showIcons ? __( 'Close', 'genesis-custom-blocks' ) : __( 'Choose', 'genesis-custom-blocks' ) }
+					{ showIcons ? __( 'Close', 'coywolf-custom-blocks' ) : __( 'Choose', 'coywolf-custom-blocks' ) }
 				</div>
 			</button>
 			{ showIcons
-				? <div role="listbox" className="grid grid-cols-6 border border-gray-600 rounded-sm h-40 p-1 overflow-auto mt-2" aria-label={ __( 'Icons', 'genesis-custom-blocks' ) } >
+				? <div role="listbox" className="grid grid-cols-6 border border-gray-600 rounded-sm h-40 p-1 overflow-auto mt-2" aria-label={ __( 'Icons', 'coywolf-custom-blocks' ) } >
 					{
 						Object.keys( blockIcons ).map( ( iconName, index ) => {
 							const snakeCaseIconName = pascalCaseToSnakeCase( iconName );

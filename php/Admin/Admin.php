@@ -2,14 +2,14 @@
 /**
  * WP Admin resources.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license   http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-namespace Genesis\CustomBlocks\Admin;
+namespace Coywolf\CustomBlocks\Admin;
 
-use Genesis\CustomBlocks\ComponentAbstract;
+use Coywolf\CustomBlocks\ComponentAbstract;
 
 /**
  * Class Admin
@@ -58,23 +58,23 @@ class Admin extends ComponentAbstract {
 		global $wp_filesystem;
 
 		$this->settings = new Settings();
-		genesis_custom_blocks()->register_component( $this->settings );
+		coywolf_custom_blocks()->register_component( $this->settings );
 
 		$this->documentation = new Documentation();
-		genesis_custom_blocks()->register_component( $this->documentation );
+		coywolf_custom_blocks()->register_component( $this->documentation );
 
 		$this->edit_block = new EditBlock();
-		genesis_custom_blocks()->register_component( $this->edit_block );
+		coywolf_custom_blocks()->register_component( $this->edit_block );
 
 		$this->onboarding = new Onboarding();
-		genesis_custom_blocks()->register_component( $this->onboarding );
+		coywolf_custom_blocks()->register_component( $this->onboarding );
 
 		if ( defined( 'WP_LOAD_IMPORTERS' ) && WP_LOAD_IMPORTERS ) {
 			// Ensure WP_Filesystem() is defined.
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 			WP_Filesystem();
 			$this->import = new Import( $wp_filesystem );
-			genesis_custom_blocks()->register_component( $this->import );
+			coywolf_custom_blocks()->register_component( $this->import );
 		}
 	}
 
@@ -92,7 +92,7 @@ class Admin extends ComponentAbstract {
 	 */
 	public function enqueue_scripts() {
 		wp_enqueue_style(
-			'genesis-custom-blocks',
+			'coywolf-custom-blocks',
 			$this->plugin->get_url( 'css/admin.css' ),
 			[],
 			$this->plugin->get_version()

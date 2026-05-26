@@ -2,10 +2,10 @@
 /**
  * Tests for class Settings.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Admin\Settings;
+use Coywolf\CustomBlocks\Admin\Settings;
 use function Brain\Monkey\setUp;
 use function Brain\Monkey\tearDown;
 use function Brain\Monkey\Functions\expect;
@@ -27,7 +27,7 @@ class TestSettings extends WP_UnitTestCase {
 	 *
 	 * @var string
 	 */
-	const SUBMENU_PARENT_SLUG = 'edit.php?post_type=genesis_custom_block';
+	const SUBMENU_PARENT_SLUG = 'edit.php?post_type=coywolf_custom_block';
 
 	/**
 	 * Setup.
@@ -38,7 +38,7 @@ class TestSettings extends WP_UnitTestCase {
 		parent::set_up();
 		setUp();
 		$this->instance = new Settings();
-		$this->instance->set_plugin( genesis_custom_blocks() );
+		$this->instance->set_plugin( coywolf_custom_blocks() );
 	}
 
 	/**
@@ -57,7 +57,7 @@ class TestSettings extends WP_UnitTestCase {
 	/**
 	 * Test register_hooks.
 	 *
-	 * @covers \Genesis\CustomBlocksPro\Admin\Settings::register_hooks()
+	 * @covers \Coywolf\CustomBlocksPro\Admin\Settings::register_hooks()
 	 */
 	public function test_register_hooks() {
 		$this->instance->register_hooks();
@@ -67,7 +67,7 @@ class TestSettings extends WP_UnitTestCase {
 	/**
 	 * Test add_submenu_pages.
 	 *
-	 * @covers \Genesis\CustomBlocksPro\Admin\Settings::add_submenu_pages()
+	 * @covers \Coywolf\CustomBlocksPro\Admin\Settings::add_submenu_pages()
 	 */
 	public function test_add_submenu_pages() {
 		global $submenu;

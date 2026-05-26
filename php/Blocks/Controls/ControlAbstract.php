@@ -2,15 +2,15 @@
 /**
  * Control abstract.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-namespace Genesis\CustomBlocks\Blocks\Controls;
+namespace Coywolf\CustomBlocks\Blocks\Controls;
 
 use JsonSerializable;
-use Genesis\CustomBlocks\Blocks\Field;
+use Coywolf\CustomBlocks\Blocks\Field;
 
 /**
  * Class ControlAbstract
@@ -86,39 +86,39 @@ abstract class ControlAbstract implements JsonSerializable {
 		$this->settings_config = [
 			'location'    => [
 				'name'    => 'location',
-				'label'   => __( 'Field Location', 'genesis-custom-blocks' ),
+				'label'   => __( 'Field Location', 'coywolf-custom-blocks' ),
 				'type'    => 'location',
 				'default' => 'editor',
 			],
 			'width'       => [
 				'name'    => 'width',
-				'label'   => __( 'Field Width', 'genesis-custom-blocks' ),
+				'label'   => __( 'Field Width', 'coywolf-custom-blocks' ),
 				'type'    => 'width',
 				'default' => '100',
 			],
 			'help'        => [
 				'name'    => 'help',
-				'label'   => __( 'Help Text', 'genesis-custom-blocks' ),
+				'label'   => __( 'Help Text', 'coywolf-custom-blocks' ),
 				'type'    => 'text',
 				'default' => '',
 			],
 			'default'     => [
 				'name'    => 'default',
-				'label'   => __( 'Default Value', 'genesis-custom-blocks' ),
+				'label'   => __( 'Default Value', 'coywolf-custom-blocks' ),
 				'type'    => 'text',
 				'default' => '',
 			],
 			'placeholder' => [
 				'name'    => 'placeholder',
-				'label'   => __( 'Placeholder Text', 'genesis-custom-blocks' ),
+				'label'   => __( 'Placeholder Text', 'coywolf-custom-blocks' ),
 				'type'    => 'text',
 				'default' => '',
 			],
 		];
 
 		$this->locations = [
-			'editor'    => __( 'Editor', 'genesis-custom-blocks' ),
-			'inspector' => __( 'Inspector', 'genesis-custom-blocks' ),
+			'editor'    => __( 'Editor', 'coywolf-custom-blocks' ),
+			'inspector' => __( 'Inspector', 'coywolf-custom-blocks' ),
 		];
 	}
 

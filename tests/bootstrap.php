@@ -29,7 +29,7 @@ function _manually_load_plugin() {
 	require $plugin_root . '/vendor/autoload.php';
 	require $plugin_root . '/vendor/antecedent/patchwork/Patchwork.php';
 	require $plugin_root . '/tests/php/Unit/Helpers/TestingHelper.php';
-	require $plugin_root . '/genesis-custom-blocks.php';
+	require $plugin_root . '/coywolf-custom-blocks.php';
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 

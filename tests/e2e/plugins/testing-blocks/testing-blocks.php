@@ -2,18 +2,18 @@
 /**
  * Testing Blocks
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  *
  * Plugin Name: Testing Blocks
  * Plugin URI: https://github.com/studiopress/genesis-custom-blocks
  * Author: Genesis Custom Blocks contributors
  */
 
-use function Genesis\CustomBlocks\add_block;
-use function Genesis\CustomBlocks\add_field;
+use function Coywolf\CustomBlocks\add_block;
+use function Coywolf\CustomBlocks\add_field;
 
 add_filter(
-	'genesis_custom_blocks_template_path',
+	'coywolf_custom_blocks_template_path',
 	static function ( $path ) {
 		unset( $path );
 		return __DIR__;
@@ -21,7 +21,7 @@ add_filter(
 );
 
 add_action(
-	'genesis_custom_blocks_add_blocks',
+	'coywolf_custom_blocks_add_blocks',
 	static function () {
 		$url_block_slug  = 'test-url';
 		$text_block_slug = 'test-text';
@@ -29,7 +29,7 @@ add_action(
 		add_block(
 			$url_block_slug,
 			[
-				'title'    => __( 'Test Url', 'genesis-custom-blocks' ),
+				'title'    => __( 'Test Url', 'coywolf-custom-blocks' ),
 				'category' => 'common',
 				'icon'     => 'waves',
 				'excluded' => [ 'page' ],
@@ -49,9 +49,9 @@ add_action(
 		add_block(
 			$text_block_slug,
 			[
-				'title'    => __( 'Test Text', 'genesis-custom-blocks' ),
+				'title'    => __( 'Test Text', 'coywolf-custom-blocks' ),
 				'category' => 'common',
-				'icon'     => 'genesis_custom_blocks',
+				'icon'     => 'coywolf_custom_blocks',
 				'excluded' => [ 'page' ],
 				'keywords' => [ 'example', 'foo' ],
 			]

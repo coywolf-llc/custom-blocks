@@ -29,7 +29,7 @@ import {
 const BlockPanel = () => (
 	<div className="p-4">
 		<h4 className="text-sm font-semibold">
-			{ __( 'Block Settings', 'genesis-custom-blocks' ) }
+			{ __( 'Block Settings', 'coywolf-custom-blocks' ) }
 		</h4>
 		<SlugSection />
 		<IconSection />

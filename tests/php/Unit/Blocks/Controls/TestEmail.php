@@ -2,10 +2,10 @@
 /**
  * Tests for class Email.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Blocks\Controls\Email;
+use Coywolf\CustomBlocks\Blocks\Controls\Email;
 
 /**
  * Tests for class Email.
@@ -34,7 +34,7 @@ class TestEmail extends \WP_UnitTestCase {
 	/**
 	 * Test __construct.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\Email::__construct()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\Email::__construct()
 	 */
 	public function test_construct() {
 		$this->assertEquals( 'Email', $this->instance->label );
@@ -46,7 +46,7 @@ class TestEmail extends \WP_UnitTestCase {
 	 *
 	 * The parent constructor calls register_settings(), so there's no need to call it again here.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\Email::register_settings()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\Email::register_settings()
 	 */
 	public function test_register_settings() {
 		$expected_settings = [
