@@ -2,10 +2,10 @@
 /**
  * Tests for class Toggle.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Blocks\Controls\Toggle;
+use Coywolf\CustomBlocks\Blocks\Controls\Toggle;
 
 /**
  * Tests for class Toggle.
@@ -34,7 +34,7 @@ class TestToggle extends \WP_UnitTestCase {
 	/**
 	 * Test __construct.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\Toggle::__construct()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\Toggle::__construct()
 	 */
 	public function test_construct() {
 		$this->assertEquals( 'Toggle', $this->instance->label );
@@ -46,7 +46,7 @@ class TestToggle extends \WP_UnitTestCase {
 	 *
 	 * The parent constructor calls register_settings(), so there's no need to call it again here.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\Toggle::register_settings()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\Toggle::register_settings()
 	 */
 	public function test_register_settings() {
 		$expected_settings = [

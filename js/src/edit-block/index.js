@@ -1,4 +1,4 @@
-/* global gcbEditor */
+/* global ccbEditor */
 
 /**
  * WordPress dependencies
@@ -11,9 +11,8 @@ import { addFilter } from '@wordpress/hooks';
  */
 import { initializeEditor } from './helpers';
 import { addControls } from '../block-editor/helpers';
-import { GAClient } from '../common/classes';
 
-addFilter( 'genesisCustomBlocks.controls', 'genesisCustomBlocks/addControls', addControls );
+addFilter( 'coywolfCustomBlocks.controls', 'coywolfCustomBlocks/addControls', addControls );
 
 // Renders the app in the container.
 domReady( () => {
@@ -23,10 +22,5 @@ domReady( () => {
 	}
 
 	// @ts-ignore
-	initializeEditor( gcbEditor, container );
+	initializeEditor( ccbEditor, container );
 } );
-
-// @ts-ignore
-window.GcbAnalytics = {
-	GAClient: new GAClient(),
-};

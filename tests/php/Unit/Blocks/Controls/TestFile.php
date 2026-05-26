@@ -2,10 +2,10 @@
 /**
  * Tests for class File.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Blocks\Controls\File;
+use Coywolf\CustomBlocks\Blocks\Controls\File;
 
 /**
  * Tests for class File.
@@ -34,7 +34,7 @@ class TestFile extends \WP_UnitTestCase {
 	/**
 	 * Test __construct.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\File::__construct()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\File::__construct()
 	 */
 	public function test_construct() {
 		$this->assertEquals( 'file', $this->instance->name );
@@ -44,7 +44,7 @@ class TestFile extends \WP_UnitTestCase {
 	/**
 	 * Test register_settings.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\File::register_settings()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\File::register_settings()
 	 */
 	public function test_register_settings() {
 		$expected_settings = [
@@ -80,7 +80,7 @@ class TestFile extends \WP_UnitTestCase {
 	/**
 	 * Test validate.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\File::validate()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\File::validate()
 	 */
 	public function test_validate() {
 		$pdf_file      = 'example.pdf';

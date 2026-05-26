@@ -4,7 +4,7 @@
  *
  * Forked from wp-admin/admin-header.php.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license   http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
@@ -16,7 +16,7 @@ get_admin_page_title();
 $stripped_title = wp_strip_all_tags( $title );
 
 /* translators: Admin screen title. %s: Admin screen name. */
-$admin_title = sprintf( __( '%s &#8212; WordPress', 'genesis-custom-blocks' ), $stripped_title );
+$admin_title = sprintf( __( '%s &#8212; WordPress', 'coywolf-custom-blocks' ), $stripped_title );
 
 /** This filter is documented in wp-admin/admin-header.php */
 $admin_title = apply_filters( 'admin_title', $admin_title, $stripped_title );

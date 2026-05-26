@@ -100,7 +100,7 @@ const Field = ( {
 			tabIndex={ 0 }
 			aria-label={ sprintf(
 			/* translators: %1$s: the label of the field */
-				__( 'Field: %1$s', 'genesis-custom-blocks' ),
+				__( 'Field: %1$s', 'coywolf-custom-blocks' ),
 				field.label
 			) }
 			onClick={ selectField }
@@ -140,7 +140,7 @@ const Field = ( {
 						<button
 							aria-label={ sprintf(
 								/* translators: %1$s: the field label, %2$d: the current position, %3$d: its new position on moving */
-								__( 'Move %1$s field up from position %2$d to position %3$d', 'genesis-custom-blocks' ),
+								__( 'Move %1$s field up from position %2$d to position %3$d', 'coywolf-custom-blocks' ),
 								field.label,
 								index,
 								index - 1
@@ -162,7 +162,7 @@ const Field = ( {
 						<button
 							aria-label={ sprintf(
 								/* translators: %1$s: the field label, %2$d: the current position, %3$d: its new position on moving */
-								__( 'Move %1$s field down from position %2$d to position %3$d', 'genesis-custom-blocks' ),
+								__( 'Move %1$s field down from position %2$d to position %3$d', 'coywolf-custom-blocks' ),
 								field.label,
 								index,
 								index + 1

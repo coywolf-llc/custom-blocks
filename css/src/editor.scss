@@ -31,7 +31,7 @@ $font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans
 	}
 
 	/* Color Control Component */
-	.genesis-custom-blocks-color-control {
+	.coywolf-custom-blocks-color-control {
 
 		.components-base-control {
 			display: inline-block;
@@ -43,7 +43,7 @@ $font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans
 				height: 100%;
 			}
 
-			&.genesis-custom-blocks-color-popover {
+			&.coywolf-custom-blocks-color-popover {
 				width: 28px;
 				height: 28px;
 				border-radius: 50%;
@@ -74,7 +74,7 @@ $font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans
 	}
 
 	/* Media Upload Component */
-	.genesis-custom-blocks-media-controls {
+	.coywolf-custom-blocks-media-controls {
 		.gcb-image__img {
 			max-height: 200px;
 			display: block;
@@ -111,7 +111,7 @@ $font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans
 }
 
 /* Block form in editor */
-div[class^="wp-block-genesis-custom-blocks-"],
+div[class^="wp-block-coywolf-custom-blocks-"],
 .gcb-editor {
 	margin: 0;
 }
@@ -142,7 +142,7 @@ div[class^="wp-block-genesis-custom-blocks-"],
 		font-family: $font-family;
 	}
 
-	.genesis-custom-blocks-control {
+	.coywolf-custom-blocks-control {
 		flex-basis: 100%;
 		padding-right: 22px;
 
@@ -158,9 +158,9 @@ div[class^="wp-block-genesis-custom-blocks-"],
 	}
 
 	@media screen and (max-width: 782px) {
-		.genesis-custom-blocks-control.width-25,
-		.genesis-custom-blocks-control.width-50,
-		.genesis-custom-blocks-control.width-75 {
+		.coywolf-custom-blocks-control.width-25,
+		.coywolf-custom-blocks-control.width-50,
+		.coywolf-custom-blocks-control.width-75 {
 			flex-basis: 100%;
 		}
 	}
@@ -192,13 +192,13 @@ div[class^="wp-block-genesis-custom-blocks-"],
 
 .gcb-inspector-form {
 	/* Media Upload Component */
-	.genesis-custom-blocks-media-controls {
+	.coywolf-custom-blocks-media-controls {
 		.components-spinner {
 			float: none;
 		}
 	}
 
-	.genesis-custom-blocks-color-control .components-base-control__label {
+	.coywolf-custom-blocks-color-control .components-base-control__label {
 		display: block;
 	}
 }
@@ -211,7 +211,7 @@ div[class^="wp-block-genesis-custom-blocks-"],
 }
 
 /* In the <ServerSideRender> display, correct an issue where <ul> and <ol> can appear outside (to the left) of their container. */
-.editor-styles-wrapper .genesis-custom-blocks-editor__ssr {
+.editor-styles-wrapper .coywolf-custom-blocks-editor__ssr {
 	ul,
 	ol {
 		margin-left: 1rem;

@@ -16,11 +16,11 @@ const getDefaultBlock = ( postId = null ) => {
 		name,
 		title: name,
 		excluded: [],
-		icon: 'genesis_custom_blocks',
+		icon: 'coywolf_custom_blocks',
 		category: {
 			icon: null,
 			slug: 'text',
-			title: __( 'Text', 'genesis-custom-blocks' ),
+			title: __( 'Text', 'coywolf-custom-blocks' ),
 		},
 		keywords: [],
 		fields: {},

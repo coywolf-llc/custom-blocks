@@ -2,10 +2,10 @@
 /**
  * Tests for class Color.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Blocks\Controls;
+use Coywolf\CustomBlocks\Blocks\Controls;
 
 /**
  * Tests for class Color.
@@ -34,7 +34,7 @@ class TestColor extends \WP_UnitTestCase {
 	/**
 	 * Test __construct.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\Color::__construct()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\Color::__construct()
 	 */
 	public function test_construct() {
 		$this->assertEquals( 'Color', $this->instance->label );
@@ -46,7 +46,7 @@ class TestColor extends \WP_UnitTestCase {
 	 *
 	 * The parent constructor calls register_settings(), so there's no need to call it again here.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\Color::register_settings()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\Color::register_settings()
 	 */
 	public function test_register_settings() {
 		$expected_settings = [

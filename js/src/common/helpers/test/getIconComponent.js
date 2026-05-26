@@ -3,11 +3,11 @@
  */
 import { getIconComponent } from '../';
 
-global.gcbEditor = { controls: {} };
+global.ccbEditor = { controls: {} };
 
 describe( 'getIconComponent', () => {
 	it.each( [
-		[ 'genesis_custom_blocks', 'GenesisCustomBlocks' ],
+		[ 'coywolf_custom_blocks', 'GenesisCustomBlocks' ],
 		[ 'account_balance', 'AccountBalance' ],
 		[ 'brightness_2', 'Brightness2' ],
 		[ 'flight', 'Flight' ],

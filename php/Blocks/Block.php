@@ -2,12 +2,12 @@
 /**
  * Block.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-namespace Genesis\CustomBlocks\Blocks;
+namespace Coywolf\CustomBlocks\Blocks;
 
 /**
  * Class Block
@@ -120,11 +120,11 @@ class Block {
 	public function from_json( $json ) {
 		$json = json_decode( $json, true );
 
-		if ( ! isset( $json[ 'genesis-custom-blocks/' . $this->name ] ) ) {
+		if ( ! isset( $json[ 'coywolf-custom-blocks/' . $this->name ] ) ) {
 			return;
 		}
 
-		$config = $json[ 'genesis-custom-blocks/' . $this->name ];
+		$config = $json[ 'coywolf-custom-blocks/' . $this->name ];
 
 		$this->from_array( $config );
 	}
@@ -195,7 +195,7 @@ class Block {
 			$config['fields'][ $key ] = $field->to_array();
 		}
 
-		return wp_json_encode( [ 'genesis-custom-blocks/' . $this->name => $config ], JSON_UNESCAPED_UNICODE );
+		return wp_json_encode( [ 'coywolf-custom-blocks/' . $this->name => $config ], JSON_UNESCAPED_UNICODE );
 	}
 
 	/**

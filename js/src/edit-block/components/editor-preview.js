@@ -52,7 +52,7 @@ const EditorPreview = ( { setEditorMode } ) => {
 					className="underline"
 					onClick={ () => setEditorMode( BUILDER_EDITING_MODE ) }
 				>
-					{ __( 'Builder', 'genesis-custom-blocks' ) }
+					{ __( 'Builder', 'coywolf-custom-blocks' ) }
 				</button>
 			</PreviewNotice>
 		);

@@ -2,11 +2,11 @@
 /**
  * Abstract test class, used for testing functions that get templates.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Plugin;
-use Genesis\CustomBlocks\Blocks\Loader;
+use Coywolf\CustomBlocks\Plugin;
+use Coywolf\CustomBlocks\Blocks\Loader;
 
 /**
  * Abstract test class.
@@ -53,10 +53,10 @@ abstract class AbstractTemplate extends \WP_UnitTestCase {
 		$plugin->init();
 		$this->instance->set_plugin( $plugin );
 		$this->instance->init();
-		$this->invoke_protected_method( 'set_plugin', [ genesis_custom_blocks() ] );
+		$this->invoke_protected_method( 'set_plugin', [ coywolf_custom_blocks() ] );
 
 		$this->theme_directory    = get_template_directory();
-		$this->template_locations = genesis_custom_blocks()->get_template_locations( $this->mock_block_name );
+		$this->template_locations = coywolf_custom_blocks()->get_template_locations( $this->mock_block_name );
 		$this->create_block_template_directories();
 	}
 

@@ -2,7 +2,7 @@
 /**
  * Coywolf Custom Blocks
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks; (c) 2026, Coywolf LLC
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  *
@@ -14,11 +14,11 @@
  * Author URI: https://coywolf.com
  * License: GPL2
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: genesis-custom-blocks
+ * Text Domain: coywolf-custom-blocks
  * Domain Path: languages
  */
 
-use Genesis\CustomBlocks\Plugin;
+use Coywolf\CustomBlocks\Plugin;
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -32,7 +32,7 @@ require_once __DIR__ . '/vendor/autoload.php';
  *
  * @return Plugin
  */
-function genesis_custom_blocks() {
+function coywolf_custom_blocks() {
 	static $instance;
 
 	if ( null === $instance ) {
@@ -45,17 +45,17 @@ function genesis_custom_blocks() {
 /**
  * Set up the plugin instance.
  */
-genesis_custom_blocks()
+coywolf_custom_blocks()
 	->set_basename( plugin_basename( __FILE__ ) )
 	->set_directory( plugin_dir_path( __FILE__ ) )
 	->set_file( __FILE__ )
-	->set_slug( 'genesis-custom-blocks' )
+	->set_slug( 'coywolf-custom-blocks' )
 	->set_url( plugin_dir_url( __FILE__ ) )
 	->set_version( __FILE__ )
 	->init();
 
-add_action( 'plugins_loaded', [ genesis_custom_blocks(), 'plugin_loaded' ] );
-add_action( 'plugins_loaded', [ genesis_custom_blocks(), 'require_deprecated' ], 11 );
+add_action( 'plugins_loaded', [ coywolf_custom_blocks(), 'plugin_loaded' ] );
+add_action( 'plugins_loaded', [ coywolf_custom_blocks(), 'require_deprecated' ], 11 );
 
 /**
  * GitHub-releases-based self-updater. Replaces the original WP Engine update

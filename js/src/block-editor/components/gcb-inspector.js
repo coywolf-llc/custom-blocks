@@ -31,7 +31,7 @@ const GcbInspector = ( { blockProps, block } ) => (
 				return null;
 			}
 
-			const loadedControls = applyFilters( 'genesisCustomBlocks.controls', {} );
+			const loadedControls = applyFilters( 'coywolfCustomBlocks.controls', {} );
 			const Control = loadedControls[ field.control ];
 			if ( ! Control ) {
 				return null;

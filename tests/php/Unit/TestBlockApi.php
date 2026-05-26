@@ -2,13 +2,13 @@
 /**
  * Tests for BlockApi.php.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Blocks\Loader;
+use Coywolf\CustomBlocks\Blocks\Loader;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
-use function Genesis\CustomBlocks\add_block;
-use function Genesis\CustomBlocks\add_field;
+use function Coywolf\CustomBlocks\add_block;
+use function Coywolf\CustomBlocks\add_field;
 
 /**
  * Tests for BlockApi.php.
@@ -24,10 +24,10 @@ class TestBlockApi extends \WP_UnitTestCase {
 	 * @inheritdoc
 	 */
 	public function tear_down() {
-		genesis_custom_blocks()->loader = new Loader();
-		remove_all_filters( 'genesis_custom_blocks_default_fields' );
-		remove_all_filters( 'genesis_custom_blocks_data_attributes' );
-		remove_all_filters( 'genesis_custom_blocks_data_config' );
+		coywolf_custom_blocks()->loader = new Loader();
+		remove_all_filters( 'coywolf_custom_blocks_default_fields' );
+		remove_all_filters( 'coywolf_custom_blocks_data_attributes' );
+		remove_all_filters( 'coywolf_custom_blocks_data_config' );
 
 		parent::tear_down();
 	}
@@ -35,7 +35,7 @@ class TestBlockApi extends \WP_UnitTestCase {
 	/**
 	 * Test add_block.
 	 *
-	 * @covers \Genesis\CustomBlocks\add_block()
+	 * @covers \Coywolf\CustomBlocks\add_block()
 	 */
 	public function test_add_block() {
 		// Test calling this without the optional second argument.
@@ -44,14 +44,14 @@ class TestBlockApi extends \WP_UnitTestCase {
 			'category' => 'common',
 			'excluded' => [],
 			'fields'   => [],
-			'icon'     => 'genesis_custom_blocks',
+			'icon'     => 'coywolf_custom_blocks',
 			'keywords' => [],
 			'name'     => $block_name,
 			'title'    => 'Example Block',
 		];
 
 		$loader                         = Mockery::mock( Loader::class );
-		genesis_custom_blocks()->loader = $loader;
+		coywolf_custom_blocks()->loader = $loader;
 		$loader->expects()->add_block( $expected_default_config );
 		add_block( $block_name );
 
@@ -77,7 +77,7 @@ class TestBlockApi extends \WP_UnitTestCase {
 	/**
 	 * Test add_field.
 	 *
-	 * @covers \Genesis\CustomBlocks\add_field()
+	 * @covers \Coywolf\CustomBlocks\add_field()
 	 */
 	public function test_add_field() {
 		// Test calling this without the optional third argument.
@@ -92,7 +92,7 @@ class TestBlockApi extends \WP_UnitTestCase {
 		];
 
 		$loader                         = Mockery::mock( Loader::class );
-		genesis_custom_blocks()->loader = $loader;
+		coywolf_custom_blocks()->loader = $loader;
 		$loader->expects()->add_field( $block_name, $expected_default_config )->once();
 		add_field( $block_name, $field_name );
 

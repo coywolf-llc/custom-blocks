@@ -45,7 +45,7 @@ const TemplateEditor = () => {
 								caption: `{{${ field.name }}}`,
 								value: `{{${ field.name }}}`,
 								/* translators: %1$s: the field label */
-								meta: sprintf( __( 'GCB field %1$s', 'genesis-custom-blocks' ), field.label ),
+								meta: sprintf( __( 'GCB field %1$s', 'coywolf-custom-blocks' ), field.label ),
 							} )
 						)
 				);
@@ -65,13 +65,13 @@ const TemplateEditor = () => {
 					? (
 						<>
 							<p className="text-sm mt-1 mb-2">
-								{ __( 'To render a field, enter the field name (slug) enclosed in 2 brackets.', 'genesis-custom-blocks' ) }
+								{ __( 'To render a field, enter the field name (slug) enclosed in 2 brackets.', 'coywolf-custom-blocks' ) }
 							</p>
 							<p className="flex items-center w-full text-sm mt-1 mb-2">
 								{
 									sprintf(
 										/* translators: %1$s: the field name (slug). */
-										__( 'For example, the field %1$s would be', 'genesis-custom-blocks' ),
+										__( 'For example, the field %1$s would be', 'coywolf-custom-blocks' ),
 										exampleFieldName
 									)
 								}
@@ -88,7 +88,7 @@ const TemplateEditor = () => {
 								rel="noopener noreferrer"
 								className="max-w-max text-sm text-blue-700 mt-1 md:underline"
 							>
-								{ __( 'Learn more', 'genesis-custom-blocks' ) }
+								{ __( 'Learn more', 'coywolf-custom-blocks' ) }
 							</a>
 						</>
 					)

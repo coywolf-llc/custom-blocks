@@ -1,4 +1,4 @@
-/* global gcbEditor */
+/* global ccbEditor */
 
 /**
  * WordPress dependencies
@@ -28,7 +28,7 @@ import {
  * @property {string}   title               Often a pretty-printed version of the slug.
  * @property {Category} category            The block category, including slug and title properties.
  * @property {Object}   fields              Key/value pairs of Field objects.
- * @property {string}   icon                The block icon, like 'genesis_custom_block'.
+ * @property {string}   icon                The block icon, like 'coywolf_custom_block'.
  * @property {string[]} keywords            The keywords, max 3.
  * @property {boolean}  [displayModal]      Whether to display the editor fields in the modal.
  * @property {string[]} [excluded]          The excluded post tpes, if any.
@@ -55,7 +55,7 @@ import {
  */
 const useBlock = () => {
 	// @ts-ignore
-	const { postId } = gcbEditor;
+	const { postId } = ccbEditor;
 	const editedPostContent = useSelect(
 		( select ) => select( 'core/editor' ).getEditedPostContent(),
 		[]

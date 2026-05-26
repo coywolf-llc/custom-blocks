@@ -1,4 +1,4 @@
-/* global gcbEditor */
+/* global ccbEditor */
 
 /**
  * External dependencies
@@ -24,7 +24,7 @@ import { useBlock } from '../hooks';
  */
 const CategorySection = () => {
 	// @ts-ignore
-	const { categories: initialCategories } = gcbEditor;
+	const { categories: initialCategories } = ccbEditor;
 	const { block, changeBlock } = useBlock();
 	const [ categories, setCategories ] = useState( initialCategories );
 	const [ showNewCategoryForm, setShowNewCategoryForm ] = useState( false );
@@ -89,7 +89,7 @@ const CategorySection = () => {
 
 	return (
 		<div className="mt-5">
-			<label className="text-sm" htmlFor="block-categories">{ __( 'Category', 'genesis-custom-blocks' ) }</label>
+			<label className="text-sm" htmlFor="block-categories">{ __( 'Category', 'coywolf-custom-blocks' ) }</label>
 			<select /* eslint-disable-line jsx-a11y/no-onchange */
 				className="flex items-center w-full h-8 rounded-sm border border-gray-600 mt-2 px-2 text-sm"
 				id="block-categories"
@@ -132,7 +132,7 @@ const CategorySection = () => {
 				} }
 				aria-expanded={ showNewCategoryForm }
 			>
-				{ __( 'Add New Category', 'genesis-custom-blocks' ) }
+				{ __( 'Add New Category', 'coywolf-custom-blocks' ) }
 			</button>
 			{ showNewCategoryForm
 				? <form onSubmit={ onSubmitCategoryName } key="hierarchical-terms-form">
@@ -140,7 +140,7 @@ const CategorySection = () => {
 						htmlFor={ newCategoryId }
 						className="text-sm"
 					>
-						{ __( 'New Category Name', 'genesis-custom-blocks' ) }
+						{ __( 'New Category Name', 'coywolf-custom-blocks' ) }
 					</label>
 					<input
 						type="text"
@@ -150,7 +150,7 @@ const CategorySection = () => {
 					/>
 					<button className="flex border border-gray-600 rounded-sm mt-2" type="submit">
 						<span className="flex items-center h-8 px-3">
-							{ __( 'Add New Category', 'genesis-custom-blocks' ) }
+							{ __( 'Add New Category', 'coywolf-custom-blocks' ) }
 						</span>
 					</button>
 				</form>

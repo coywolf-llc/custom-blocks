@@ -113,7 +113,7 @@ test.describe( 'AllFields', () => {
 
 		await setupAdmin.visitAdminPage(
 			'post-new.php',
-			'post_type=genesis_custom_block'
+			'post_type=coywolf_custom_block'
 		);
 		await page.getByLabel( 'Block title' ).click();
 		await page.keyboard.type( blockName );

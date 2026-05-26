@@ -46,7 +46,7 @@ const LocationButtons = ( {
 							'font-semibold': EDITOR_LOCATION === currentLocation,
 						} ) }
 					>
-						{ __( 'Editor Fields', 'genesis-custom-blocks' ) }
+						{ __( 'Editor Fields', 'coywolf-custom-blocks' ) }
 					</span>
 				</button>
 				<button
@@ -58,7 +58,7 @@ const LocationButtons = ( {
 							'font-semibold': INSPECTOR_LOCATION === currentLocation,
 						} ) }
 					>
-						{ __( 'Inspector Fields', 'genesis-custom-blocks' ) }
+						{ __( 'Inspector Fields', 'coywolf-custom-blocks' ) }
 					</span>
 				</button>
 			</div>

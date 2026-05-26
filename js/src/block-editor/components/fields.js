@@ -16,7 +16,7 @@ import { select } from '@wordpress/data';
  * @return {React.FunctionComponent} The control component.
  */
 const getControl = ( field ) => {
-	const loadedControls = applyFilters( 'genesisCustomBlocks.controls', {} );
+	const loadedControls = applyFilters( 'coywolfCustomBlocks.controls', {} );
 	return loadedControls[ field.control ];
 };
 
@@ -28,8 +28,8 @@ const getControl = ( field ) => {
  */
 const getClassName = ( field ) => {
 	return field.width
-		? `genesis-custom-blocks-control width-${ field.width }`
-		: 'genesis-custom-blocks-control';
+		? `coywolf-custom-blocks-control width-${ field.width }`
+		: 'coywolf-custom-blocks-control';
 };
 
 /**

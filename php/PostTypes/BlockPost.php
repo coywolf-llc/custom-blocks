@@ -2,17 +2,17 @@
 /**
  * Block Post Type.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-namespace Genesis\CustomBlocks\PostTypes;
+namespace Coywolf\CustomBlocks\PostTypes;
 
-use Genesis\CustomBlocks\ComponentAbstract;
-use Genesis\CustomBlocks\Blocks\Block;
-use Genesis\CustomBlocks\Blocks\Field;
-use Genesis\CustomBlocks\Blocks\Controls\ControlAbstract;
+use Coywolf\CustomBlocks\ComponentAbstract;
+use Coywolf\CustomBlocks\Blocks\Block;
+use Coywolf\CustomBlocks\Blocks\Field;
+use Coywolf\CustomBlocks\Blocks\Controls\ControlAbstract;
 
 /**
  * Class Block
@@ -37,7 +37,7 @@ class BlockPost extends ComponentAbstract {
 	 * Block Post constructor.
 	 */
 	public function __construct() {
-		$this->slug = genesis_custom_blocks()->get_post_type_slug();
+		$this->slug = coywolf_custom_blocks()->get_post_type_slug();
 	}
 
 	/**
@@ -51,7 +51,7 @@ class BlockPost extends ComponentAbstract {
 		add_action( 'edit_form_before_permalink', [ $this, 'template_location' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 		add_action( 'init', [ $this, 'register_controls' ] );
-		add_filter( 'genesis_custom_blocks_field_value', [ $this, 'get_field_value' ], 10, 3 );
+		add_filter( 'coywolf_custom_blocks_field_value', [ $this, 'get_field_value' ], 10, 3 );
 
 		// Clean up the list table.
 		add_filter( 'disable_months_dropdown', '__return_true', 10, $this->slug );
@@ -103,7 +103,7 @@ class BlockPost extends ComponentAbstract {
 		 *     @type object $control      The control object, extending ControlAbstract.
 		 * }
 		 */
-		$this->controls = apply_filters( 'genesis_custom_blocks_controls', $controls );
+		$this->controls = apply_filters( 'coywolf_custom_blocks_controls', $controls );
 	}
 
 	/**
@@ -119,7 +119,7 @@ class BlockPost extends ComponentAbstract {
 
 		$separator     = '_';
 		$class_name    = str_replace( $separator, '', ucwords( $control_name, $separator ) );
-		$control_class = 'Genesis\\CustomBlocks\\Blocks\\Controls\\' . $class_name;
+		$control_class = 'Coywolf\\CustomBlocks\\Blocks\\Controls\\' . $class_name;
 		if ( class_exists( $control_class ) ) {
 			return new $control_class();
 		}
@@ -134,7 +134,7 @@ class BlockPost extends ComponentAbstract {
 		if ( ! did_action( 'init' ) ) {
 			_doing_it_wrong(
 				__METHOD__,
-				esc_html__( 'Must be called after the init action so the controls are registered', 'genesis-custom-blocks' ),
+				esc_html__( 'Must be called after the init action so the controls are registered', 'coywolf-custom-blocks' ),
 				'1.0.0'
 			);
 		}
@@ -170,20 +170,20 @@ class BlockPost extends ComponentAbstract {
 	 */
 	public function register_post_type() {
 		$labels = [
-			'name'               => _x( 'Content Blocks', 'post type general name', 'genesis-custom-blocks' ),
-			'singular_name'      => _x( 'Content Block', 'post type singular name', 'genesis-custom-blocks' ),
-			'menu_name'          => _x( 'Custom Blocks', 'admin menu', 'genesis-custom-blocks' ),
-			'name_admin_bar'     => _x( 'Block', 'add new on admin bar', 'genesis-custom-blocks' ),
-			'add_new'            => _x( 'Add New', 'block', 'genesis-custom-blocks' ),
-			'add_new_item'       => __( 'Add New Block', 'genesis-custom-blocks' ),
-			'new_item'           => __( 'New Block', 'genesis-custom-blocks' ),
-			'edit_item'          => __( 'Edit Block', 'genesis-custom-blocks' ),
-			'view_item'          => __( 'View Block', 'genesis-custom-blocks' ),
-			'all_items'          => __( 'All Blocks', 'genesis-custom-blocks' ),
-			'search_items'       => __( 'Search Blocks', 'genesis-custom-blocks' ),
-			'parent_item_colon'  => __( 'Parent Blocks:', 'genesis-custom-blocks' ),
-			'not_found'          => __( 'No blocks found.', 'genesis-custom-blocks' ),
-			'not_found_in_trash' => __( 'No blocks found in Trash.', 'genesis-custom-blocks' ),
+			'name'               => _x( 'Content Blocks', 'post type general name', 'coywolf-custom-blocks' ),
+			'singular_name'      => _x( 'Content Block', 'post type singular name', 'coywolf-custom-blocks' ),
+			'menu_name'          => _x( 'Custom Blocks', 'admin menu', 'coywolf-custom-blocks' ),
+			'name_admin_bar'     => _x( 'Block', 'add new on admin bar', 'coywolf-custom-blocks' ),
+			'add_new'            => _x( 'Add New', 'block', 'coywolf-custom-blocks' ),
+			'add_new_item'       => __( 'Add New Block', 'coywolf-custom-blocks' ),
+			'new_item'           => __( 'New Block', 'coywolf-custom-blocks' ),
+			'edit_item'          => __( 'Edit Block', 'coywolf-custom-blocks' ),
+			'view_item'          => __( 'View Block', 'coywolf-custom-blocks' ),
+			'all_items'          => __( 'All Blocks', 'coywolf-custom-blocks' ),
+			'search_items'       => __( 'Search Blocks', 'coywolf-custom-blocks' ),
+			'parent_item_colon'  => __( 'Parent Blocks:', 'coywolf-custom-blocks' ),
+			'not_found'          => __( 'No blocks found.', 'coywolf-custom-blocks' ),
+			'not_found_in_trash' => __( 'No blocks found in Trash.', 'coywolf-custom-blocks' ),
 		];
 
 		$args = [
@@ -258,7 +258,7 @@ class BlockPost extends ComponentAbstract {
 
 		if ( $this->slug === $screen->post_type && 'edit' === $screen->base ) {
 			wp_enqueue_style(
-				'genesis-custom-blocks-edit-block',
+				'coywolf-custom-blocks-edit-block',
 				$this->plugin->get_url( 'css/admin.edit-block.css' ),
 				[],
 				$this->plugin->get_version()
@@ -281,8 +281,8 @@ class BlockPost extends ComponentAbstract {
 			return;
 		}
 
-		$locations = genesis_custom_blocks()->get_template_locations( $post->post_name, 'block' );
-		$template  = genesis_custom_blocks()->locate_template( $locations, '', true );
+		$locations = coywolf_custom_blocks()->get_template_locations( $post->post_name, 'block' );
+		$template  = coywolf_custom_blocks()->locate_template( $locations, '', true );
 
 		if ( ! $template ) {
 			return;
@@ -297,7 +297,7 @@ class BlockPost extends ComponentAbstract {
 		if ( $template ) {
 			?>
 			<div id="edit-slug-box">
-				<strong><?php esc_html_e( 'Template:', 'genesis-custom-blocks' ); ?></strong>
+				<strong><?php esc_html_e( 'Template:', 'coywolf-custom-blocks' ); ?></strong>
 				<?php echo esc_html( $template_breaks ); ?><strong><?php echo esc_html( $filename ); ?></strong>
 			</div>
 			<?php
@@ -315,9 +315,9 @@ class BlockPost extends ComponentAbstract {
 		$new_columns = [
 			'cb'       => $columns['cb'],
 			'title'    => $columns['title'],
-			'template' => __( 'Template', 'genesis-custom-blocks' ),
-			'category' => __( 'Category', 'genesis-custom-blocks' ),
-			'keywords' => __( 'Keywords', 'genesis-custom-blocks' ),
+			'template' => __( 'Template', 'coywolf-custom-blocks' ),
+			'category' => __( 'Category', 'coywolf-custom-blocks' ),
+			'keywords' => __( 'Keywords', 'coywolf-custom-blocks' ),
 		];
 		return $new_columns;
 	}
@@ -333,8 +333,8 @@ class BlockPost extends ComponentAbstract {
 	public function list_table_content( $column, $post_id ) {
 		if ( 'template' === $column ) {
 			$block     = new Block( $post_id );
-			$locations = genesis_custom_blocks()->get_template_locations( $block->name, 'block' );
-			$template  = genesis_custom_blocks()->locate_template( $locations, '', true );
+			$locations = coywolf_custom_blocks()->get_template_locations( $block->name, 'block' );
+			$template  = coywolf_custom_blocks()->locate_template( $locations, '', true );
 
 			if ( $template ) {
 				// Formatting to make the template path easier to understand.
@@ -349,9 +349,9 @@ class BlockPost extends ComponentAbstract {
 					]
 				);
 			} elseif ( ! empty( $block->template_markup ) ) {
-				esc_html_e( 'Template Editor markup found', 'genesis-custom-blocks' );
+				esc_html_e( 'Template Editor markup found', 'coywolf-custom-blocks' );
 			} else {
-				esc_html_e( 'No Template Editor markup or template found', 'genesis-custom-blocks' );
+				esc_html_e( 'No Template Editor markup or template found', 'coywolf-custom-blocks' );
 			}
 		}
 

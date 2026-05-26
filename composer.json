@@ -24,7 +24,7 @@
     },
     "autoload": {
         "psr-4": {
-          "Genesis\\CustomBlocks\\": "php/"
+          "Coywolf\\CustomBlocks\\": "php/"
         }
     },
     "scripts": {

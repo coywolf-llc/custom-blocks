@@ -2,14 +2,14 @@
 /**
  * Genesis Custom Blocks Importer.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license   http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-namespace Genesis\CustomBlocks\Admin;
+namespace Coywolf\CustomBlocks\Admin;
 
-use Genesis\CustomBlocks\ComponentAbstract;
+use Coywolf\CustomBlocks\ComponentAbstract;
 
 /**
  * Class Import
@@ -21,7 +21,7 @@ class Import extends ComponentAbstract {
 	 *
 	 * @var string
 	 */
-	public $slug = 'genesis-custom-blocks';
+	public $slug = 'coywolf-custom-blocks';
 
 	/**
 	 * The filesystem.
@@ -52,8 +52,8 @@ class Import extends ComponentAbstract {
 	public function register_importer() {
 		register_importer(
 			$this->slug,
-			__( 'Genesis Custom Blocks', 'genesis-custom-blocks' ),
-			__( 'Import custom blocks created with Genesis Custom Blocks.', 'genesis-custom-blocks' ),
+			__( 'Genesis Custom Blocks', 'coywolf-custom-blocks' ),
+			__( 'Import custom blocks created with Genesis Custom Blocks.', 'coywolf-custom-blocks' ),
 			[ $this, 'render_page' ]
 		);
 	}
@@ -80,12 +80,12 @@ class Import extends ComponentAbstract {
 
 				if ( ! isset( $upload_dir['basedir'] ) ) {
 					$this->render_import_error(
-						__( 'Sorry, there was an error uploading the file.', 'genesis-custom-blocks' ),
-						__( 'Upload base directory not set.', 'genesis-custom-blocks' )
+						__( 'Sorry, there was an error uploading the file.', 'coywolf-custom-blocks' ),
+						__( 'Upload base directory not set.', 'coywolf-custom-blocks' )
 					);
 				}
 
-				$cache_dir = $upload_dir['basedir'] . '/genesis-custom-blocks';
+				$cache_dir = $upload_dir['basedir'] . '/coywolf-custom-blocks';
 				$file      = wp_import_handle_upload();
 
 				if ( $this->validate_upload( $file ) ) {
@@ -102,7 +102,7 @@ class Import extends ComponentAbstract {
 				}
 				break;
 			case 2:
-				$cache_dir = wp_get_upload_dir()['basedir'] . '/genesis-custom-blocks';
+				$cache_dir = wp_get_upload_dir()['basedir'] . '/coywolf-custom-blocks';
 				$file      = [ 'file' => $cache_dir . '/import.json' ];
 
 				if ( $this->validate_upload( $file ) ) {
@@ -123,7 +123,7 @@ class Import extends ComponentAbstract {
 		}
 
 		$html = ob_get_clean();
-		echo '<div class="wrap genesis-custom-blocks-import">' . $html . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<div class="wrap coywolf-custom-blocks-import">' . $html . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -131,7 +131,7 @@ class Import extends ComponentAbstract {
 	 */
 	public function render_page_header() {
 		?>
-		<h2><?php esc_html_e( 'Import Genesis Custom Blocks', 'genesis-custom-blocks' ); ?></h2>
+		<h2><?php esc_html_e( 'Import Genesis Custom Blocks', 'coywolf-custom-blocks' ); ?></h2>
 		<?php
 	}
 
@@ -140,20 +140,20 @@ class Import extends ComponentAbstract {
 	 */
 	public function render_welcome() {
 		?>
-		<p><?php esc_html_e( 'Welcome! This importer processes Genesis Custom Blocks JSON files, adding custom blocks to this site.', 'genesis-custom-blocks' ); ?></p>
-		<p><?php esc_html_e( 'Choose a JSON (.json) file to upload, then click Upload file and import.', 'genesis-custom-blocks' ); ?></p>
+		<p><?php esc_html_e( 'Welcome! This importer processes Genesis Custom Blocks JSON files, adding custom blocks to this site.', 'coywolf-custom-blocks' ); ?></p>
+		<p><?php esc_html_e( 'Choose a JSON (.json) file to upload, then click Upload file and import.', 'coywolf-custom-blocks' ); ?></p>
 		<p>
 			<?php
 			echo wp_kses(
 				sprintf(
 					/* translators: %1$s: an opening anchor tag, %2$s: a closing anchor tag */
-					__( 'This JSON file should come from the export link or bulk action in the %1$sContent Blocks screen%2$s, not from the main Export tool.', 'genesis-custom-blocks' ),
+					__( 'This JSON file should come from the export link or bulk action in the %1$sContent Blocks screen%2$s, not from the main Export tool.', 'coywolf-custom-blocks' ),
 					sprintf(
 						'<a href="%1$s">',
 						esc_url(
 							admin_url(
 								add_query_arg(
-									[ 'post_type' => genesis_custom_blocks()->get_post_type_slug() ],
+									[ 'post_type' => coywolf_custom_blocks()->get_post_type_slug() ],
 									'edit.php'
 								)
 							)
@@ -188,7 +188,7 @@ class Import extends ComponentAbstract {
 				'<p>%s</p>',
 				sprintf(
 					// translators: placeholder refers to title of custom block.
-					__( 'Successfully imported %1$s.', 'genesis-custom-blocks' ),
+					__( 'Successfully imported %1$s.', 'coywolf-custom-blocks' ),
 					'<strong>' . esc_html( $title ) . '</strong>'
 				)
 			)
@@ -212,7 +212,7 @@ class Import extends ComponentAbstract {
 	 */
 	public function render_done() {
 		?>
-		<p><?php esc_html_e( 'All done!', 'genesis-custom-blocks' ); ?></p>
+		<p><?php esc_html_e( 'All done!', 'coywolf-custom-blocks' ); ?></p>
 		<?php
 	}
 
@@ -223,13 +223,13 @@ class Import extends ComponentAbstract {
 	 */
 	public function render_choose_blocks( $blocks ) {
 		?>
-		<p><?php esc_html_e( 'Please select the blocks to import:', 'genesis-custom-blocks' ); ?></p>
+		<p><?php esc_html_e( 'Please select the blocks to import:', 'coywolf-custom-blocks' ); ?></p>
 		<form>
 			<?php
 			foreach ( $blocks as $block_namespace => $block ) {
-				$action = __( 'Import', 'genesis-custom-blocks' );
+				$action = __( 'Import', 'coywolf-custom-blocks' );
 				if ( $this->block_exists( $block_namespace ) ) {
-					$action = __( 'Replace', 'genesis-custom-blocks' );
+					$action = __( 'Replace', 'coywolf-custom-blocks' );
 				}
 				?>
 				<p>
@@ -242,9 +242,9 @@ class Import extends ComponentAbstract {
 			}
 			wp_nonce_field();
 			?>
-			<input type="hidden" name="import" value="genesis-custom-blocks">
+			<input type="hidden" name="import" value="coywolf-custom-blocks">
 			<input type="hidden" name="step" value="2">
-			<p class="submit"><input type="submit" value="<?php esc_attr_e( 'Import Selected', 'genesis-custom-blocks' ); ?>" class="button button-primary"></p>
+			<p class="submit"><input type="submit" value="<?php esc_attr_e( 'Import Selected', 'coywolf-custom-blocks' ); ?>" class="button button-primary"></p>
 		</form>
 		<?php
 	}
@@ -258,16 +258,16 @@ class Import extends ComponentAbstract {
 	public function validate_upload( $file ) {
 		if ( isset( $file['error'] ) ) {
 			$this->render_import_error(
-				__( 'Sorry, there was an error uploading the file.', 'genesis-custom-blocks' ),
+				__( 'Sorry, there was an error uploading the file.', 'coywolf-custom-blocks' ),
 				$file['error']
 			);
 			return false;
 		} elseif ( ! file_exists( $file['file'] ) ) {
 			$this->render_import_error(
-				__( 'Sorry, there was an error uploading the file.', 'genesis-custom-blocks' ),
+				__( 'Sorry, there was an error uploading the file.', 'coywolf-custom-blocks' ),
 				sprintf(
 					// translators: placeholder refers to a file directory.
-					__( 'The export file could not be found at %1$s. It is likely that this was caused by a permissions problem.', 'genesis-custom-blocks' ),
+					__( 'The export file could not be found at %1$s. It is likely that this was caused by a permissions problem.', 'coywolf-custom-blocks' ),
 					'<code>' . esc_html( $file['file'] ) . '</code>'
 				)
 			);
@@ -280,8 +280,8 @@ class Import extends ComponentAbstract {
 
 		if ( ! is_array( $data ) ) {
 			$this->render_import_error(
-				__( 'Sorry, there was an error processing the file.', 'genesis-custom-blocks' ),
-				__( 'Invalid JSON.', 'genesis-custom-blocks' )
+				__( 'Sorry, there was an error processing the file.', 'coywolf-custom-blocks' ),
+				__( 'Invalid JSON.', 'coywolf-custom-blocks' )
 			);
 			return false;
 		}
@@ -303,7 +303,7 @@ class Import extends ComponentAbstract {
 			$post_id = false;
 
 			if ( $this->block_exists( $block_namespace ) ) {
-				$post = get_page_by_path( $block['name'], OBJECT, genesis_custom_blocks()->get_post_type_slug() );
+				$post = get_page_by_path( $block['name'], OBJECT, coywolf_custom_blocks()->get_post_type_slug() );
 				if ( $post ) {
 					$post_id = $post->ID;
 				}
@@ -316,7 +316,7 @@ class Import extends ComponentAbstract {
 				'post_name'    => $block['name'],
 				'post_content' => wp_slash( $json ),
 				'post_status'  => 'publish',
-				'post_type'    => genesis_custom_blocks()->get_post_type_slug(),
+				'post_type'    => coywolf_custom_blocks()->get_post_type_slug(),
 			];
 
 			if ( $post_id ) {
@@ -328,7 +328,7 @@ class Import extends ComponentAbstract {
 				$this->render_import_error(
 					sprintf(
 						// translators: placeholder refers to title of custom block.
-						__( 'Error importing %s.', 'genesis-custom-blocks' ),
+						__( 'Error importing %s.', 'coywolf-custom-blocks' ),
 						$block['title']
 					),
 					$post->get_error_message()
@@ -344,7 +344,7 @@ class Import extends ComponentAbstract {
 	/**
 	 * Check if block already exists.
 	 *
-	 * @param string $block_namespace The JSON key for the block. e.g. genesis-custom-blocks/foo.
+	 * @param string $block_namespace The JSON key for the block. e.g. coywolf-custom-blocks/foo.
 	 *
 	 * @return bool
 	 */

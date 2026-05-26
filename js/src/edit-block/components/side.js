@@ -44,7 +44,7 @@ const Side = ( {
 						{ 'font-semibold border-b-4 border-blue-600': BLOCK_PANEL === panelDisplaying }
 					) }
 				>
-					{ __( 'Block', 'genesis-custom-blocks' ) }
+					{ __( 'Block', 'coywolf-custom-blocks' ) }
 				</button>
 				<button
 					onClick={ () => setPanelDisplaying( FIELD_PANEL ) }
@@ -55,7 +55,7 @@ const Side = ( {
 						)
 					}
 				>
-					{ __( 'Field', 'genesis-custom-blocks' ) }
+					{ __( 'Field', 'coywolf-custom-blocks' ) }
 				</button>
 			</div>
 			{ children }

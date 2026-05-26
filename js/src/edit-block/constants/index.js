@@ -1,6 +1,6 @@
 /** @typedef {null} NoFieldSelected The type when no field is selected. */
 
-export const BLOCK_NAMESPACE = 'genesis-custom-blocks';
+export const BLOCK_NAMESPACE = 'coywolf-custom-blocks';
 export const BLOCK_PANEL = 'block';
 export const BUILDER_EDITING_MODE = 'builderMode';
 export const CSS_TEMPLATE_MODE = 'cssTemplateMode';

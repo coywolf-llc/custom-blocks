@@ -25,7 +25,7 @@ test.describe( 'TemplateEditor', () => {
 		const blockName = 'Test Template Editor';
 		const templateMarkup = `Here is the text field: {{${ field.name }}}`;
 
-		await admin.visitAdminPage( 'post-new.php', 'post_type=genesis_custom_block' );
+		await admin.visitAdminPage( 'post-new.php', 'post_type=coywolf_custom_block' );
 		await page.getByLabel( 'Block title' ).waitFor();
 		await page.keyboard.type( blockName );
 

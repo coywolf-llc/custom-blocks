@@ -2,17 +2,17 @@
 /**
  * Primary plugin file.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license   http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-namespace Genesis\CustomBlocks;
+namespace Coywolf\CustomBlocks;
 
-use Genesis\CustomBlocks\Admin\Admin;
-use Genesis\CustomBlocks\Admin\Onboarding;
-use Genesis\CustomBlocks\Blocks\Loader;
-use Genesis\CustomBlocks\PostTypes\BlockPost;
+use Coywolf\CustomBlocks\Admin\Admin;
+use Coywolf\CustomBlocks\Admin\Onboarding;
+use Coywolf\CustomBlocks\Blocks\Loader;
+use Coywolf\CustomBlocks\PostTypes\BlockPost;
 
 /**
  * Class Plugin

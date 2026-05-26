@@ -23,7 +23,7 @@ const SlugSection = () => {
 
 	return (
 		<div className="mt-5">
-			<label className="text-sm" htmlFor="block-name">{ __( 'Slug', 'genesis-custom-blocks' ) }</label>
+			<label className="text-sm" htmlFor="block-name">{ __( 'Slug', 'coywolf-custom-blocks' ) }</label>
 			<input
 				className="flex items-center w-full h-8 rounded-sm border border-gray-600 mt-2 px-2 text-sm"
 				type="text"
@@ -35,7 +35,7 @@ const SlugSection = () => {
 					}
 				} }
 			/>
-			<span className="block italic text-xs mt-1">{ __( 'Used to determine the name of the template file.', 'genesis-custom-blocks' ) }</span>
+			<span className="block italic text-xs mt-1">{ __( 'Used to determine the name of the template file.', 'coywolf-custom-blocks' ) }</span>
 		</div>
 	);
 };

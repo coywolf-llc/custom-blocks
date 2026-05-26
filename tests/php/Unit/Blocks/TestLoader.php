@@ -2,13 +2,13 @@
 /**
  * Tests for class Loader.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Blocks\Block;
-use Genesis\CustomBlocks\Blocks\Field;
-use Genesis\CustomBlocks\Blocks\Loader;
-use Genesis\CustomBlocks\Admin\Settings;
+use Coywolf\CustomBlocks\Blocks\Block;
+use Coywolf\CustomBlocks\Blocks\Field;
+use Coywolf\CustomBlocks\Blocks\Loader;
+use Coywolf\CustomBlocks\Admin\Settings;
 
 /**
  * Tests for class Loader.
@@ -74,19 +74,19 @@ class TestLoader extends AbstractTemplate {
 	 * @inheritdoc
 	 */
 	public function tear_down() {
-		remove_all_filters( 'genesis_custom_blocks_data' );
+		remove_all_filters( 'coywolf_custom_blocks_data' );
 		parent::tear_down();
 	}
 
 	/**
 	 * Test init.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Loader::init()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Loader::init()
 	 */
 	public function test_init() {
 		$this->instance->init();
 		$assets = $this->get_protected_property( 'assets' );
-		$this->assertEquals( 'Genesis\\CustomBlocks\\Blocks\\Loader', get_class( $this->instance->init() ) );
+		$this->assertEquals( 'Coywolf\\CustomBlocks\\Blocks\\Loader', get_class( $this->instance->init() ) );
 		$this->assertStringContainsString( 'js/dist/block-editor.js', $assets['path']['entry'] );
 		$this->assertStringContainsString( 'css/dist/blocks.editor.css', $assets['path']['editor_style'] );
 		$this->assertStringContainsString( 'js/dist/block-editor.js', $assets['url']['entry'] );
@@ -96,7 +96,7 @@ class TestLoader extends AbstractTemplate {
 	/**
 	 * Test register_hooks.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Loader::register_hooks()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Loader::register_hooks()
 	 */
 	public function test_register_hooks() {
 		$this->instance->register_hooks();
@@ -111,7 +111,7 @@ class TestLoader extends AbstractTemplate {
 	/**
 	 * Test get_data.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Loader::get_data()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Loader::get_data()
 	 */
 	public function test_get_data() {
 		$config_key     = 'config';
@@ -138,17 +138,17 @@ class TestLoader extends AbstractTemplate {
 
 			return $data;
 		};
-		add_filter( 'genesis_custom_blocks_data', $data_callback, 10, 2 );
+		add_filter( 'coywolf_custom_blocks_data', $data_callback, 10, 2 );
 
 		// The filter should change the return value.
 		$this->assertEquals( $attributes, $this->instance->get_data( $attributes_key ) );
-		remove_all_filters( 'genesis_custom_blocks_data' );
+		remove_all_filters( 'coywolf_custom_blocks_data' );
 
 		$data_callback_for_key = static function ( $data ) use ( $attributes ) {
 			unset( $data );
 			return $attributes;
 		};
-		$filter                = "genesis_custom_blocks_data_{$attributes_key}";
+		$filter                = "coywolf_custom_blocks_data_{$attributes_key}";
 		add_filter( $filter, $data_callback_for_key );
 
 		// The filter specific to the key should also change the return value.
@@ -159,33 +159,32 @@ class TestLoader extends AbstractTemplate {
 	/**
 	 * Test editor_assets.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Loader::editor_assets()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Loader::editor_assets()
 	 */
 	public function test_editor_assets() {
-		$script_handle = 'genesis-custom-blocks-blocks';
-		$style_handle  = 'genesis-custom-blocks-editor-css';
+		$script_handle = 'coywolf-custom-blocks-blocks';
+		$style_handle  = 'coywolf-custom-blocks-editor-css';
 
 		$this->instance->init();
 		$this->instance->editor_assets();
 
 		$this->assertTrue( wp_script_is( $script_handle ) );
 		$this->assertStringContainsString(
-			'var genesisCustomBlocks = {"authorBlocks"',
+			'var coywolfCustomBlocks = {"authorBlocks"',
 			wp_scripts()->registered[ $script_handle ]->extra['data']
 		);
 		$this->assertStringContainsString(
-			'const gcbBlocks =',
+			'const ccbBlocks =',
 			wp_scripts()->registered[ $script_handle ]->extra['before'][1]
 		);
 
-		$this->assertFalse( wp_script_is( Loader::ANALYTICS_SCRIPT_SLUG ) );
 		$this->assertTrue( wp_style_is( $style_handle ) );
 	}
 
 	/**
 	 * Test render_block_template.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Loader::render_block_template()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Loader::render_block_template()
 	 */
 	public function test_render_block_template() {
 		$slug       = 'gcb-testing-slug';
@@ -197,7 +196,7 @@ class TestLoader extends AbstractTemplate {
 
 		// Test that the do_action() call with this action runs, and that it allows enqueuing a script.
 		add_action(
-			'genesis_custom_blocks_render_template',
+			'coywolf_custom_blocks_render_template',
 			function ( $block ) use ( $block_name, $slug, $script_url ) {
 				if ( $block_name === $block->name ) {
 					wp_enqueue_script( $slug, $script_url, [], '0.1', true );
@@ -218,7 +217,7 @@ class TestLoader extends AbstractTemplate {
 		$script_url = 'https://example.com/another-script.js';
 
 		add_action(
-			"genesis_custom_blocks_render_template_{$block_name}",
+			"coywolf_custom_blocks_render_template_{$block_name}",
 			function () use ( $block_name, $slug, $script_url ) {
 				wp_enqueue_script( $slug, $script_url, [], '0.1', true );
 			}
@@ -236,11 +235,11 @@ class TestLoader extends AbstractTemplate {
 	/**
 	 * Test enqueue_block_styles.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Loader::enqueue_block_styles()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Loader::enqueue_block_styles()
 	 */
 	public function test_enqueue_block_styles() {
 		$wp_styles    = wp_styles();
-		$block_handle = "genesis-custom-blocks__block-{$this->mock_block_name}";
+		$block_handle = "coywolf-custom-blocks__block-{$this->mock_block_name}";
 
 		// Check that the correct stylesheet is enqueued.
 		foreach ( $this->get_template_css_paths() as $key => $file ) {
@@ -267,7 +266,7 @@ class TestLoader extends AbstractTemplate {
 	/**
 	 * Test get_block_attributes.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Loader::get_block_attributes()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Loader::get_block_attributes()
 	 */
 	public function test_get_block_attributes() {
 		$taxonomy_name         = 'foo-taxonomy';
@@ -301,7 +300,7 @@ class TestLoader extends AbstractTemplate {
 	/**
 	 * Test get_attributes_from_field.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Loader::get_attributes_from_field()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Loader::get_attributes_from_field()
 	 */
 	public function test_get_attributes_from_field() {
 		$image_name    = 'testing-image';
@@ -330,11 +329,11 @@ class TestLoader extends AbstractTemplate {
 	/**
 	 * Test enqueue_global_styles.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Loader::enqueue_global_styles()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Loader::enqueue_global_styles()
 	 */
 	public function test_enqueue_global_styles() {
 		$wp_styles          = wp_styles();
-		$enqueue_handle     = 'genesis-custom-blocks__global-styles';
+		$enqueue_handle     = 'coywolf-custom-blocks__global-styles';
 		$global_style_paths = [
 			"{$this->theme_directory}/blocks/blocks.css",
 			"{$this->theme_directory}/blocks/css/blocks.css",
@@ -360,7 +359,7 @@ class TestLoader extends AbstractTemplate {
 	/**
 	 * Test block_template.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Loader::block_template()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Loader::block_template()
 	 */
 	public function test_block_template() {
 		ob_start();
@@ -402,7 +401,7 @@ class TestLoader extends AbstractTemplate {
 
 		// Test that this filter changes the template used.
 		add_filter(
-			'genesis_custom_blocks_override_theme_template',
+			'coywolf_custom_blocks_override_theme_template',
 			function ( $directory ) use ( $overridden_theme_template_path ) {
 				unset( $directory );
 				return $overridden_theme_template_path;
@@ -417,7 +416,7 @@ class TestLoader extends AbstractTemplate {
 	/**
 	 * Test add_block.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Loader::add_block()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Loader::add_block()
 	 */
 	public function test_add_block() {
 		// The block config does not have a name, so it should not be added to the $blocks property.
@@ -429,18 +428,18 @@ class TestLoader extends AbstractTemplate {
 		$actual_blocks = $this->get_protected_property( 'blocks' );
 		$this->assertEquals(
 			$this->block_config_with_name,
-			$actual_blocks[ "genesis-custom-blocks/{$this->block_config_with_name['name']}" ]
+			$actual_blocks[ "coywolf-custom-blocks/{$this->block_config_with_name['name']}" ]
 		);
 	}
 
 	/**
 	 * Test add_field.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Loader::add_field()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Loader::add_field()
 	 */
 	public function test_add_field() {
 		$block_name                = 'example-block';
-		$full_block_name           = "genesis-custom-blocks/{$block_name}";
+		$full_block_name           = "coywolf-custom-blocks/{$block_name}";
 		$field_name                = 'baz-field';
 		$field_config_with_name    = [ 'name' => $field_name ];
 		$field_config_without_name = [ 'baz' => 'example' ];
@@ -466,7 +465,7 @@ class TestLoader extends AbstractTemplate {
 	/**
 	 * Test add_rest_method when there is no GCB block.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Loader::add_rest_method()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Loader::add_rest_method()
 	 */
 	public function test_add_rest_method_no_gcb_block() {
 		$initial_methods     = [ 'GET' ];
@@ -494,11 +493,11 @@ class TestLoader extends AbstractTemplate {
 	/**
 	 * Test add_rest_method when there is a GCB block.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Loader::add_rest_method()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Loader::add_rest_method()
 	 */
 	public function test_add_rest_method_with_gcb_block() {
 		$expected_methods = [ 'GET', 'POST' ];
-		$gcb_block_route  = $this->rest_api_route . '(?P<name>genesis-custom-blocks/main-hero)';
+		$gcb_block_route  = $this->rest_api_route . '(?P<name>coywolf-custom-blocks/main-hero)';
 		$initial_routes   = [
 			$gcb_block_route => $this->mock_handler,
 		];

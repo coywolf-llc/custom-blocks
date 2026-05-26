@@ -27,7 +27,7 @@ const GcbColorControl = ( props ) => {
 	const id = `gcb-color-${ field ? field.name : '' }`;
 
 	return (
-		<BaseControl label={ field.label } id={ id } className="genesis-custom-blocks-color-control" help={ field.help }>
+		<BaseControl label={ field.label } id={ id } className="coywolf-custom-blocks-color-control" help={ field.help }>
 			<TextControl
 				__next40pxDefaultSize
 				id={ id }
@@ -35,8 +35,8 @@ const GcbColorControl = ( props ) => {
 				onChange={ onChange }
 			/>
 			<BaseControl
-				className="genesis-custom-blocks-color-popover"
-				id={ __( 'Color control picker', 'genesis-custom-blocks' ) }
+				className="coywolf-custom-blocks-color-popover"
+				id={ __( 'Color control picker', 'coywolf-custom-blocks' ) }
 			>
 				<ColorIndicator
 					colorValue={ value }

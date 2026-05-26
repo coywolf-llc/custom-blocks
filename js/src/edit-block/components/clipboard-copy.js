@@ -43,7 +43,7 @@ const ClipboardCopy = ( { text } ) => {
 		() => {
 			speak( sprintf(
 				/* translators: %1$s: the text that was copied */
-				__( 'Copied the text %1$s', 'genesis-custom-blocks' ),
+				__( 'Copied the text %1$s', 'coywolf-custom-blocks' ),
 				text
 			) );
 
@@ -57,7 +57,7 @@ const ClipboardCopy = ( { text } ) => {
 
 	const label = sprintf(
 		/* translators: %1$s: the field name */
-		__( 'Copy the field name of %1$s', 'genesis-custom-blocks' ),
+		__( 'Copy the field name of %1$s', 'coywolf-custom-blocks' ),
 		text
 	);
 

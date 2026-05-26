@@ -43,7 +43,7 @@ const GcbFileControl = ( props ) => {
 	const id = `gcb-file-${ parentBlockProps?.clientId }`;
 
 	return (
-		<BaseControl className="genesis-custom-blocks-media-controls" label={ field.label } id={ id }>
+		<BaseControl className="coywolf-custom-blocks-media-controls" label={ field.label } id={ id }>
 			{ !! field.help
 				? <p className="components-base-control__help">{ field.help }</p>
 				: null
@@ -64,15 +64,15 @@ const GcbFileControl = ( props ) => {
 								removeMedia();
 							} }
 						>
-							{ __( 'Remove', 'genesis-custom-blocks' ) }
+							{ __( 'Remove', 'coywolf-custom-blocks' ) }
 						</Button>
 					</>
 				) : (
 					<Placeholder
 						className="gcb-image__placeholder"
 						icon="media-default"
-						label={ __( 'File', 'genesis-custom-blocks' ) }
-						instructions={ __( 'Drag a file, upload a new one or select a file from your library.', 'genesis-custom-blocks' ) }
+						label={ __( 'File', 'coywolf-custom-blocks' ) }
+						instructions={ __( 'Drag a file, upload a new one or select a file from your library.', 'coywolf-custom-blocks' ) }
 					>
 						<DropZone
 							onFilesDrop={ ( files ) => {
@@ -96,7 +96,7 @@ const GcbFileControl = ( props ) => {
 										accept="*"
 										multiple={ false }
 									>
-										{ __( 'Upload', 'genesis-custom-blocks' ) }
+										{ __( 'Upload', 'coywolf-custom-blocks' ) }
 									</FormFileUpload>
 									<MediaUploadCheck>
 										<MediaUpload
@@ -112,7 +112,7 @@ const GcbFileControl = ( props ) => {
 														className={ MEDIA_LIBRARY_BUTTON_CLASS }
 														onClick={ open }
 													>
-														{ __( 'Media Library', 'genesis-custom-blocks' ) }
+														{ __( 'Media Library', 'coywolf-custom-blocks' ) }
 													</Button>
 												</div>
 											) }

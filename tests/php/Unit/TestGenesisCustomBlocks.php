@@ -2,25 +2,25 @@
 /**
  * TestGenesisCustomBlocks
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
 /**
  * Class TestGenesisCustomBlocks
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 class TestGenesisCustomBlocks extends \WP_UnitTestCase {
 
 	/**
-	 * Test genesis_custom_blocks().
+	 * Test coywolf_custom_blocks().
 	 *
-	 * @covers \genesis_custom_blocks()
+	 * @covers \coywolf_custom_blocks()
 	 */
 	public function test_singleton() {
-		$this->assertEquals( 'Genesis\CustomBlocks\\Plugin', get_class( genesis_custom_blocks() ) );
+		$this->assertEquals( 'Coywolf\CustomBlocks\\Plugin', get_class( coywolf_custom_blocks() ) );
 
-		// Calling genesis_custom_blocks() twice should return the same instance.
-		$this->assertEquals( genesis_custom_blocks(), genesis_custom_blocks() );
+		// Calling coywolf_custom_blocks() twice should return the same instance.
+		$this->assertEquals( coywolf_custom_blocks(), coywolf_custom_blocks() );
 	}
 }

@@ -95,13 +95,13 @@ const FieldSettings = ( {
 						setSelectedField( NO_FIELD_SELECTED );
 					} }
 				>
-					{ __( 'Delete', 'genesis-custom-blocks' ) }
+					{ __( 'Delete', 'coywolf-custom-blocks' ) }
 				</button>
 				<button
 					className="flex items-center bg-blue-200 text-sm h-6 px-2 rounded-sm leading-none text-blue-900 hover:bg-blue-500 hover:text-blue-100"
 					onClick={ duplicateField }
 				>
-					{ __( 'Duplicate', 'genesis-custom-blocks' ) }
+					{ __( 'Duplicate', 'coywolf-custom-blocks' ) }
 				</button>
 			</div>
 		</>

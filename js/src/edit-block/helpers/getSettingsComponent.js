@@ -40,7 +40,7 @@ const getSettingsComponent = ( settingType ) => {
 
 	const componentName = snakeCaseToPascalCase( settingType );
 	const component = settingsComponents[ componentName ] ? settingsComponents[ componentName ] : null; /* eslint-disable-line import/namespace */
-	return applyFilters( 'genesisCustomBlocks.getSettingsComponent', component, componentName );
+	return applyFilters( 'coywolfCustomBlocks.getSettingsComponent', component, componentName );
 };
 
 export default getSettingsComponent;

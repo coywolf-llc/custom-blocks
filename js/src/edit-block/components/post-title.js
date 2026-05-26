@@ -75,7 +75,7 @@ const PostTitle = () => {
 			isAutoSlugging.current = false;
 		}
 	};
-	const placeholder = __( 'Block title', 'genesis-custom-blocks' );
+	const placeholder = __( 'Block title', 'coywolf-custom-blocks' );
 
 	return (
 		<div className="wp-block editor-post-title editor-post-title__block">

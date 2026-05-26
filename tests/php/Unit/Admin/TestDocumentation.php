@@ -2,10 +2,10 @@
 /**
  * Tests for class Documentation.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Admin\Documentation;
+use Coywolf\CustomBlocks\Admin\Documentation;
 use function Brain\Monkey\setup;
 use function Brain\Monkey\tearDown;
 use function Brain\Monkey\Functions\expect;
@@ -27,7 +27,7 @@ class TestDocumentation extends \WP_UnitTestCase {
 	 *
 	 * @var string
 	 */
-	const SUBMENU_PARENT_SLUG = 'edit.php?post_type=genesis_custom_block';
+	const SUBMENU_PARENT_SLUG = 'edit.php?post_type=coywolf_custom_block';
 
 	/**
 	 * Setup.
@@ -38,7 +38,7 @@ class TestDocumentation extends \WP_UnitTestCase {
 		parent::set_up();
 		setUp();
 		$this->instance = new Documentation();
-		$this->instance->set_plugin( genesis_custom_blocks() );
+		$this->instance->set_plugin( coywolf_custom_blocks() );
 	}
 
 	/**
@@ -57,7 +57,7 @@ class TestDocumentation extends \WP_UnitTestCase {
 	/**
 	 * Test register_hooks.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Documentation::register_hooks()
+	 * @covers \Coywolf\CustomBlocks\Admin\Documentation::register_hooks()
 	 */
 	public function test_register_hooks() {
 		$this->instance->register_hooks();
@@ -69,7 +69,7 @@ class TestDocumentation extends \WP_UnitTestCase {
 	/**
 	 * Test add_submenu_page.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Documentation::add_submenu_page()
+	 * @covers \Coywolf\CustomBlocks\Admin\Documentation::add_submenu_page()
 	 */
 	public function test_add_submenu_page() {
 		global $submenu;
@@ -97,7 +97,7 @@ class TestDocumentation extends \WP_UnitTestCase {
 	/**
 	 * Test maybe_redirect_to_documentation when not on a page.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Documentation::maybe_redirect()
+	 * @covers \Coywolf\CustomBlocks\Admin\Documentation::maybe_redirect()
 	 */
 	public function test_maybe_redirect_to_documentation_not_on_page() {
 		$this->assertFalse( $this->was_there_a_redirect() );
@@ -106,11 +106,11 @@ class TestDocumentation extends \WP_UnitTestCase {
 	/**
 	 * Test maybe_redirect_to_documentation when it is on the wrong page.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Documentation::maybe_redirect()
+	 * @covers \Coywolf\CustomBlocks\Admin\Documentation::maybe_redirect()
 	 */
 	public function test_maybe_redirect_to_documentation_wrong_page() {
 		expect( 'filter_input' )
-			->andReturn( 'genesis-custom-blocks-pro' );
+			->andReturn( 'coywolf-custom-blocks-pro' );
 
 		$this->assertFalse( $this->was_there_a_redirect() );
 	}
@@ -118,11 +118,11 @@ class TestDocumentation extends \WP_UnitTestCase {
 	/**
 	 * Test maybe_redirect_to_documentation when it should redirect.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Documentation::maybe_redirect()
+	 * @covers \Coywolf\CustomBlocks\Admin\Documentation::maybe_redirect()
 	 */
 	public function test_maybe_redirect_to_documentation_with_redirect() {
 		expect( 'filter_input' )
-			->andReturn( 'genesis-custom-blocks-documentation' );
+			->andReturn( 'coywolf-custom-blocks-documentation' );
 
 		$this->assertTrue( $this->was_there_a_redirect() );
 	}
@@ -130,7 +130,7 @@ class TestDocumentation extends \WP_UnitTestCase {
 	/**
 	 * Test maybe_redirect_to_documentation when it should redirect.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\Documentation::add_redirect_host()
+	 * @covers \Coywolf\CustomBlocks\Admin\Documentation::add_redirect_host()
 	 */
 	public function test_add_redirect_host() {
 		$initial_host = 'blog.example.com';

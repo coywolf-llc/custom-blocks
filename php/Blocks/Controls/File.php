@@ -2,12 +2,12 @@
 /**
  * File control.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-namespace Genesis\CustomBlocks\Blocks\Controls;
+namespace Coywolf\CustomBlocks\Blocks\Controls;
 
 /**
  * Class File
@@ -35,7 +35,7 @@ class File extends ControlAbstract {
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->label = __( 'File', 'genesis-custom-blocks' );
+		$this->label = __( 'File', 'coywolf-custom-blocks' );
 	}
 
 	/**

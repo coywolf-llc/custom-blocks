@@ -2,12 +2,12 @@
 /**
  * Helper functions.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-use Genesis\CustomBlocks\Blocks\Field;
+use Coywolf\CustomBlocks\Blocks\Field;
 
 /**
  * Return the value of a block field.
@@ -18,8 +18,8 @@ use Genesis\CustomBlocks\Blocks\Field;
  * @return mixed
  */
 function block_field( $name, $is_echo = true ) {
-	$attributes = genesis_custom_blocks()->loader->get_data( 'attributes' );
-	$config     = genesis_custom_blocks()->loader->get_data( 'config' );
+	$attributes = coywolf_custom_blocks()->loader->get_data( 'attributes' );
+	$config     = coywolf_custom_blocks()->loader->get_data( 'config' );
 
 	if ( ! $config ) {
 		return null;
@@ -39,7 +39,7 @@ function block_field( $name, $is_echo = true ) {
 	 * @param array  $default_fields An associative array of $field_name => $field_type.
 	 * @param string $name The name of value to get.
 	 */
-	$default_fields = apply_filters( 'genesis_custom_blocks_default_fields', $default_fields, $name );
+	$default_fields = apply_filters( 'coywolf_custom_blocks_default_fields', $default_fields, $name );
 
 	if ( ! isset( $config->fields[ $name ] ) && ! isset( $default_fields[ $name ] ) ) {
 		return null;
@@ -71,7 +71,7 @@ function block_field( $name, $is_echo = true ) {
 	 * @param string|null $control The type of the control, like 'user', or null if this is the 'className', which has no control.
 	 * @param bool        $is_echo    Whether or not this value will be echoed.
 	 */
-	$value = apply_filters( 'genesis_custom_blocks_field_value', $value, $control, $is_echo );
+	$value = apply_filters( 'coywolf_custom_blocks_field_value', $value, $control, $is_echo );
 
 	if ( $is_echo ) {
 		if ( $field ) {
@@ -110,7 +110,7 @@ function block_value( $name ) {
  * @return array
  */
 function block_config() {
-	$config = genesis_custom_blocks()->loader->get_data( 'config' );
+	$config = coywolf_custom_blocks()->loader->get_data( 'config' );
 
 	if ( ! $config ) {
 		return null;
@@ -127,7 +127,7 @@ function block_config() {
  * @return array|null
  */
 function block_field_config( $name ) {
-	$config = genesis_custom_blocks()->loader->get_data( 'config' );
+	$config = coywolf_custom_blocks()->loader->get_data( 'config' );
 
 	if ( ! $config || ! isset( $config->fields[ $name ] ) ) {
 		return null;

@@ -2,10 +2,10 @@
 /**
  * Tests for class Url.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Blocks\Controls\Url;
+use Coywolf\CustomBlocks\Blocks\Controls\Url;
 
 /**
  * Tests for class Url.
@@ -34,7 +34,7 @@ class TestUrl extends \WP_UnitTestCase {
 	/**
 	 * Test __construct.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\Url::__construct()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\Url::__construct()
 	 */
 	public function test_construct() {
 		$this->assertEquals( 'URL', $this->instance->label );
@@ -46,7 +46,7 @@ class TestUrl extends \WP_UnitTestCase {
 	 *
 	 * The parent constructor calls register_settings(), so there's no need to call it again here.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\Url::register_settings()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\Url::register_settings()
 	 */
 	public function test_register_settings() {
 		$expected_settings = [

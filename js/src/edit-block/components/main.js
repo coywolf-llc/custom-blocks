@@ -1,4 +1,4 @@
-/* global gcbEditor */
+/* global ccbEditor */
 
 /**
  * External dependencies
@@ -30,7 +30,7 @@ import { BottomNotice, PostTitle, TopNotice } from './';
  */
 const Main = ( { children, editorMode, setEditorMode } ) => {
 	// @ts-ignore
-	const { isOnboardingPost: initialIsOnboarding } = gcbEditor;
+	const { isOnboardingPost: initialIsOnboarding } = ccbEditor;
 	const isPublished = useSelect( ( select ) => select( 'core/editor' ).isCurrentPostPublished() );
 	const isOnboarding = initialIsOnboarding && ! isPublished;
 
