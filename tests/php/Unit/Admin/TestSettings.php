@@ -76,7 +76,7 @@ class TestSettings extends WP_UnitTestCase {
 			'Settings',
 			'manage_options',
 			Settings::PAGE_SLUG,
-			'Genesis Custom Blocks Settings',
+			'Coywolf Custom Blocks Settings',
 		];
 
 		wp_set_current_user( $this->factory()->user->create( [ 'role' => 'author' ] ) );

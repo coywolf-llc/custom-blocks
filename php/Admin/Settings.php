@@ -31,18 +31,18 @@ class Settings extends ComponentAbstract {
 	const SETTINGS_GROUP = 'genesis-custom-blocks-settings-page';
 
 	/**
-	 * Option name to opt into analytics.
+	 * Option name controlling whether uninstall.php should drop plugin data.
 	 *
 	 * @var string
 	 */
-	const ANALYTICS_OPTION_NAME = 'genesis_custom_blocks_analytics_opt_in';
+	const DELETE_ON_UNINSTALL_OPTION_NAME = 'coywolf_custom_blocks_delete_on_uninstall';
 
 	/**
-	 * The value when a user has opted into analytics.
+	 * The value stored when the user has opted into uninstall cleanup.
 	 *
 	 * @var string
 	 */
-	const ANALYTICS_OPTED_IN_VALUE = 'genesis_custom_blocks_analytics_opt_in';
+	const DELETE_ON_UNINSTALL_VALUE = '1';
 
 	/**
 	 * Page slug.
@@ -65,7 +65,7 @@ class Settings extends ComponentAbstract {
 	public function add_submenu_pages() {
 		add_submenu_page(
 			'edit.php?post_type=' . genesis_custom_blocks()->get_post_type_slug(),
-			__( 'Genesis Custom Blocks Settings', 'genesis-custom-blocks' ),
+			__( 'Coywolf Custom Blocks Settings', 'genesis-custom-blocks' ),
 			__( 'Settings', 'genesis-custom-blocks' ),
 			'manage_options',
 			self::PAGE_SLUG,
@@ -84,6 +84,6 @@ class Settings extends ComponentAbstract {
 	 * Register Genesis Custom Blocks settings.
 	 */
 	public function register_settings() {
-		register_setting( self::SETTINGS_GROUP, self::ANALYTICS_OPTION_NAME );
+		register_setting( self::SETTINGS_GROUP, self::DELETE_ON_UNINSTALL_OPTION_NAME );
 	}
 }

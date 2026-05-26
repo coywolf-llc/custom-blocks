@@ -491,6 +491,17 @@ class Loader extends ComponentAbstract {
 			}
 		}
 
+		// Database-stored Custom HTML wins over theme template files. This is the
+		// no-SFTP-required workflow — when an author has entered markup in the
+		// in-admin Custom HTML panel, render that instead of any blocks/block-*.php
+		// file that may exist in the theme. Empty markup falls through to the file
+		// template lookup below so existing installs that rely on theme files
+		// keep working without migration.
+		if ( ! empty( $this->blocks[ "genesis-custom-blocks/{$name}" ]['templateMarkup'] ) ) {
+			$this->template_editor->render_markup( $this->blocks[ "genesis-custom-blocks/{$name}" ]['templateMarkup'] );
+			return;
+		}
+
 		if ( ! empty( $located ) ) {
 			/**
 			 * Allows overriding the theme template.
@@ -501,11 +512,6 @@ class Loader extends ComponentAbstract {
 
 			// This is not a load once template, so require_once is false.
 			load_template( $theme_template, false );
-			return;
-		}
-
-		if ( ! empty( $this->blocks[ "genesis-custom-blocks/{$name}" ]['templateMarkup'] ) ) {
-			$this->template_editor->render_markup( $this->blocks[ "genesis-custom-blocks/{$name}" ]['templateMarkup'] );
 			return;
 		}
 
