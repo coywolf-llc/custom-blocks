@@ -95,8 +95,6 @@ playwright-report/
 test-results/
 
 # Builds
-js/dist/
-css/dist/
 package/
 built/
 *.asset.php
