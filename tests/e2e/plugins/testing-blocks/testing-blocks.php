@@ -51,7 +51,7 @@ add_action(
 			[
 				'title'    => __( 'Test Text', 'coywolf-custom-blocks' ),
 				'category' => 'common',
-				'icon'     => 'coywolf/CcbBlockDefault',
+				'icon'     => 'lu/LuSquareCode',
 				'excluded' => [ 'page' ],
 				'keywords' => [ 'example', 'foo' ],
 			]

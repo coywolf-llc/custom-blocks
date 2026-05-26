@@ -16,7 +16,7 @@ const getDefaultBlock = ( postId = null ) => {
 		name,
 		title: name,
 		excluded: [],
-		icon: 'coywolf/CcbBlockDefault',
+		icon: 'lu/LuSquareCode',
 		category: {
 			icon: null,
 			slug: 'text',

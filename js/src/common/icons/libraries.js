@@ -1,9 +1,9 @@
 /**
  * Registry of every icon library available via react-icons.
  *
- * The default library — BoxIcons — is imported eagerly so the icon picker
- * (and any block whose icon comes from BoxIcons) renders synchronously
- * with no flash. All 30 other libraries use a dynamic `import()` so each
+ * The default library — Lucide — is imported eagerly so the icon picker
+ * (and any block whose icon comes from Lucide) renders synchronously
+ * with no flash. All other libraries use a dynamic `import()` so each
  * one becomes its own webpack chunk and only downloads when the user
  * actually picks it. Eagerly bundling all 50,000+ icons would put 20+ MB
  * of admin JS on the page; this code-splits to ~50 KB-1 MB per library.
@@ -13,8 +13,7 @@
  * fetch a known subset.
  */
 
-import * as bi from 'react-icons/bi';
-import builtinIcons from './builtinIcons';
+import * as lu from 'react-icons/lu';
 
 /**
  * @typedef {Object} IconLibrary
@@ -24,13 +23,8 @@ import builtinIcons from './builtinIcons';
 
 /** @type {Record<string, IconLibrary>} */
 export const LIBRARIES = {
-	// Plugin-shipped icons (currently just the block-default glyph that
-	// matches the wp-admin nav). Bundled into the main entry so it's
-	// always resolvable — used as the default for new blocks and the
-	// fallback when a stored slug doesn't resolve in any other library.
-	coywolf: { name: 'Coywolf Custom Blocks', load: () => Promise.resolve( builtinIcons ) },
 	ai:  { name: 'Ant Design Icons',  load: () => import( /* webpackChunkName: "icons-ai"  */ 'react-icons/ai'  ) },
-	bi:  { name: 'BoxIcons',          load: () => Promise.resolve( bi ) },
+	bi:  { name: 'BoxIcons',          load: () => import( /* webpackChunkName: "icons-bi"  */ 'react-icons/bi'  ) },
 	bs:  { name: 'Bootstrap Icons',   load: () => import( /* webpackChunkName: "icons-bs"  */ 'react-icons/bs'  ) },
 	cg:  { name: 'css.gg',            load: () => import( /* webpackChunkName: "icons-cg"  */ 'react-icons/cg'  ) },
 	ci:  { name: 'Circum Icons',      load: () => import( /* webpackChunkName: "icons-ci"  */ 'react-icons/ci'  ) },
@@ -48,7 +42,7 @@ export const LIBRARIES = {
 	io:  { name: 'Ionicons 4',        load: () => import( /* webpackChunkName: "icons-io"  */ 'react-icons/io'  ) },
 	io5: { name: 'Ionicons 5',        load: () => import( /* webpackChunkName: "icons-io5" */ 'react-icons/io5' ) },
 	lia: { name: 'Line Awesome',      load: () => import( /* webpackChunkName: "icons-lia" */ 'react-icons/lia' ) },
-	lu:  { name: 'Lucide',            load: () => import( /* webpackChunkName: "icons-lu"  */ 'react-icons/lu'  ) },
+	lu:  { name: 'Lucide',            load: () => Promise.resolve( lu ) },
 	md:  { name: 'Material Design',   load: () => import( /* webpackChunkName: "icons-md"  */ 'react-icons/md'  ) },
 	pi:  { name: 'Phosphor',          load: () => import( /* webpackChunkName: "icons-pi"  */ 'react-icons/pi'  ) },
 	ri:  { name: 'Remix Icons',       load: () => import( /* webpackChunkName: "icons-ri"  */ 'react-icons/ri'  ) },
@@ -63,7 +57,10 @@ export const LIBRARIES = {
 };
 
 /** Library key used for the picker's initial state and as the migration target for legacy slugs. */
-export const DEFAULT_LIBRARY = 'bi';
+export const DEFAULT_LIBRARY = 'lu';
+
+/** Canonical default icon slug for new blocks and for blocks whose stored icon doesn't resolve. */
+export const DEFAULT_ICON_SLUG = 'lu/LuSquareCode';
 
 /** Picker's persisted preference for the user's last-selected library. */
 export const LIBRARY_STORAGE_KEY = 'coywolf-custom-blocks/icon-library';
