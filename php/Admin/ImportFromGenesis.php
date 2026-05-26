@@ -187,12 +187,18 @@ class ImportFromGenesis extends ComponentAbstract {
 	 * @return \WP_REST_Response
 	 */
 	public function rest_rewrite_post_content( $request ) {
-		$raw   = (array) $request->get_param( 'slugs' );
-		$slugs = array_values( array_unique( array_filter( array_map( 'strval', $raw ) ) ) );
-		if ( empty( $slugs ) ) {
-			return new \WP_REST_Response( [ 'updated' => 0 ], 200 );
-		}
-		$count = $this->rewrite_post_content( $slugs );
+		// Ignore the JS-supplied slugs and sweep every block that exists
+		// in Coywolf. Originally this endpoint rewrote only the slugs the
+		// JS collected during its per-block import responses — but that
+		// path turned out not to actually rewrite anything in practice
+		// (the standalone "Rewrite post content now" button, which uses
+		// the post-name lookup below, works on the same posts). Routing
+		// both flows through the same slug-discovery query gives identical
+		// behaviour and means re-running an import also catches stale
+		// references to blocks imported in a *previous* batch.
+		unset( $request ); // params no longer consulted
+		$slugs = $this->get_existing_coywolf_block_slugs();
+		$count = empty( $slugs ) ? 0 : $this->rewrite_post_content( $slugs );
 		return new \WP_REST_Response( [ 'updated' => (int) $count ], 200 );
 	}
 
@@ -389,7 +395,7 @@ class ImportFromGenesis extends ComponentAbstract {
 					</label>
 				</p>
 				<p class="description" style="max-width: 60em;">
-					<?php esc_html_e( 'Scans every post, page, custom post type entry, reusable block, and block template on this site for the imported blocks and rewrites their HTML comments from wp:genesis-custom-blocks/{slug} to wp:coywolf-custom-blocks/{slug}. Only block names that were imported in this run are rewritten; references to blocks you did not import are left alone so they keep rendering through the upstream plugin (if it is still active). Post content updates cannot be undone from this screen — back up your database before proceeding on a production site.', 'coywolf-custom-blocks' ); ?>
+					<?php esc_html_e( 'Scans every post, page, custom post type entry, reusable block, and block template on this site and rewrites HTML comments from wp:genesis-custom-blocks/{slug} to wp:coywolf-custom-blocks/{slug} for every block that exists in Coywolf — including blocks imported in earlier runs. Block names that don\'t exist in Coywolf are left alone so they keep rendering through the upstream plugin (if it is still active). Post content updates cannot be undone from this screen — back up your database before proceeding on a production site.', 'coywolf-custom-blocks' ); ?>
 				</p>
 
 				<p class="submit">
@@ -863,8 +869,16 @@ class ImportFromGenesis extends ComponentAbstract {
 		}
 
 		$rewrite_count = 0;
-		if ( $should_rewrite && ! empty( $rewrite_slugs ) ) {
-			$rewrite_count = $this->rewrite_post_content( array_values( array_unique( $rewrite_slugs ) ) );
+		if ( $should_rewrite ) {
+			// Sweep every Coywolf-known slug rather than only the ones
+			// imported in this batch — matches the standalone "Rewrite
+			// post content now" button and catches references to blocks
+			// imported in a prior batch that still live under
+			// wp:genesis-custom-blocks/ in existing post content.
+			$slugs = $this->get_existing_coywolf_block_slugs();
+			if ( ! empty( $slugs ) ) {
+				$rewrite_count = $this->rewrite_post_content( $slugs );
+			}
 		}
 
 		// Send each title as its own `imported[]=…` array entry rather
