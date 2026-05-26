@@ -1232,6 +1232,10 @@ body{
   grid-column:span 4/span 4
 }
 
+.components-button svg[fill=none],.block-editor-block-icon svg[fill=none],.block-editor-block-icon.has-colors svg[fill=none]{
+  fill:none
+}
+
 .components-form-token-field__label{
   font-size:.875rem
 }
