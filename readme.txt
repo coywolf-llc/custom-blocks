@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -99,6 +99,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.1 =
+* Fix fatal error on activation when installed from a fresh GitHub checkout / zipball (no vendor/ directory). The main file now falls back to a PSR-4 autoloader scoped to the plugin's namespace when Composer hasn't been run.
 
 = 1.0.0 =
 * Initial release as Coywolf Custom Blocks, forked from Genesis Custom Blocks 1.7.3.

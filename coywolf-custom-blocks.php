@@ -9,7 +9,7 @@
  * Plugin Name: Coywolf Custom Blocks
  * Plugin URI: https://github.com/coywolf-llc/custom-blocks
  * Description: The easy way to build custom blocks for Gutenberg. A fork of Genesis Custom Blocks by WP Engine / StudioPress, with telemetry and external update servers removed.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Coywolf
  * Author URI: https://coywolf.com
  * License: GPL2
@@ -25,7 +25,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once __DIR__ . '/vendor/autoload.php';
+/**
+ * Class autoloading.
+ *
+ * Prefer Composer's PSR-4 autoloader when `vendor/` is present (development
+ * checkouts that ran `composer install`, plus release zips built with the
+ * vendor directory included). When the directory is missing — e.g. a fresh
+ * clone, a zipball downloaded straight from GitHub's auto-archives, or any
+ * other "just drop the repo into wp-content/plugins" install path — fall
+ * back to a tiny PSR-4 autoloader scoped to this plugin's namespace.
+ *
+ * Without this fallback, `require_once 'vendor/autoload.php'` is a fatal
+ * error on activation when Composer hasn't been run, which is exactly the
+ * symptom users hit when installing from the GitHub UI.
+ */
+if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
+	require_once __DIR__ . '/vendor/autoload.php';
+} else {
+	spl_autoload_register(
+		static function ( $class ) {
+			$prefix = 'Coywolf\\CustomBlocks\\';
+			if ( 0 !== strpos( $class, $prefix ) ) {
+				return;
+			}
+			$relative = substr( $class, strlen( $prefix ) );
+			$path     = __DIR__ . '/php/' . str_replace( '\\', '/', $relative ) . '.php';
+			if ( file_exists( $path ) ) {
+				require_once $path;
+			}
+		}
+	);
+}
 
 /**
  * Get the plugin object.
