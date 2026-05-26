@@ -69,6 +69,87 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 		add_filter( 'upgrader_source_selection', array( $this, 'fix_source_dirname' ), 10, 4 );
 		add_filter( 'plugin_row_meta', array( $this, 'override_view_details' ), 10, 2 );
 		add_filter( 'upgrader_pre_download', array( $this, 'guard_pre_download' ), 10, 3 );
+		add_action( 'upgrader_process_complete', array( $this, 'flush_after_update' ), 10, 2 );
+	}
+
+	/**
+	 * After WordPress finishes installing this plugin's update, refresh
+	 * our installed-version cache and clear the GitHub-release + WP
+	 * `update_plugins` site transients (and every layer of the plugins
+	 * cache).
+	 *
+	 * The version-refresh is the critical part. The OLD plugin code is
+	 * still loaded in this PHP request (PHP doesn't re-`include` a file
+	 * just because it changed on disk), so `$this->current_version` is
+	 * the pre-upgrade version constant. Anything that calls
+	 * `wp_update_plugins()` later in the *same* request — admin notices,
+	 * an auto-update tick, the Updates page itself when it renders the
+	 * post-install state — would otherwise run our `inject_update`
+	 * filter, compare the just-fetched GitHub release against the stale
+	 * in-memory version, and helpfully re-inject the now-installed
+	 * release as "an update is available." That's the second update
+	 * prompt the user kept seeing.
+	 *
+	 * Reading the version off disk via `get_plugin_data()` returns the
+	 * NEW header (it parses the file as text, not the cached opcode), so
+	 * the comparison from this point on uses the correct installed
+	 * version.
+	 *
+	 * Scoped to runs where WP reports this plugin's basename in the
+	 * upgrader's hook_extra, so unrelated plugin/theme/core updates
+	 * don't trigger the flush.
+	 *
+	 * @param WP_Upgrader $upgrader   Upgrader instance (unused).
+	 * @param array       $hook_extra { action, type, plugins, ... }
+	 */
+	public function flush_after_update( $upgrader, $hook_extra ) {
+		unset( $upgrader );
+		if ( ! is_array( $hook_extra ) ) {
+			return;
+		}
+		if ( ( $hook_extra['action'] ?? '' ) !== 'update' ) {
+			return;
+		}
+		if ( ( $hook_extra['type'] ?? '' ) !== 'plugin' ) {
+			return;
+		}
+		$plugins = isset( $hook_extra['plugins'] ) && is_array( $hook_extra['plugins'] )
+			? $hook_extra['plugins']
+			: array();
+		// Some upgrader paths use 'plugin' (singular) when only one is updated.
+		if ( empty( $plugins ) && ! empty( $hook_extra['plugin'] ) ) {
+			$plugins = array( (string) $hook_extra['plugin'] );
+		}
+		if ( ! in_array( $this->plugin_basename, $plugins, true ) ) {
+			return;
+		}
+
+		// 1. Refresh `current_version` from the upgraded plugin file on disk.
+		if ( ! function_exists( 'get_plugin_data' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		$main = WP_PLUGIN_DIR . '/' . $this->plugin_basename;
+		if ( file_exists( $main ) ) {
+			$data = get_plugin_data( $main, false, false );
+			if ( ! empty( $data['Version'] ) ) {
+				$this->current_version = (string) $data['Version'];
+			}
+		}
+
+		// 2. Clear our cached GitHub release.
+		delete_site_transient( self::TRANSIENT_KEY );
+		delete_site_transient( self::TRANSIENT_KEY . '_neg' );
+
+		// 3. Clear every layer of the plugins update cache — site
+		//    transient (option + object cache) and the `plugins` cache
+		//    group `get_plugins()` reads from. `wp_clean_plugins_cache(
+		//    true )` does both: deletes the update_plugins transient
+		//    and the `plugins` cache group entry.
+		if ( function_exists( 'wp_clean_plugins_cache' ) ) {
+			wp_clean_plugins_cache( true );
+		} else {
+			delete_site_transient( 'update_plugins' );
+		}
 	}
 
 	/**
@@ -93,12 +174,11 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 			return $reply;
 		}
 
-		// upgrader_pre_download fires for ANY plugin operation, including
-		// manual zip uploads from Plugins → Add New → Upload Plugin. In that
-		// case `$package` is a local filesystem path (no scheme), not a URL.
-		// The host allowlist below is meaningless for local files and would
-		// false-positive every upload whose filename happens to contain our
-		// slug — so leave non-URL packages alone and let WP proceed.
+		// upgrader_pre_download also fires for manual zip uploads from
+		// Plugins → Add New → Upload Plugin, where `$package` is a local
+		// filesystem path. The host allowlist below is meaningless for
+		// local files and would false-positive every upload whose filename
+		// contains our slug — leave non-URL packages alone.
 		if ( ! preg_match( '#^https?://#i', $package ) ) {
 			return $reply;
 		}
@@ -107,7 +187,6 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 		if ( ! is_array( $parts ) || empty( $parts['path'] ) ) {
 			return $reply;
 		}
-		// Only inspect URLs that look like they're targeting this plugin.
 		$looks_like_ours = ( false !== stripos( $parts['path'], self::REPO ) )
 			|| ( false !== stripos( $parts['path'], $this->plugin_slug ) );
 		if ( ! $looks_like_ours ) {
