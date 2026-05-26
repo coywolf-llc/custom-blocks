@@ -1,16 +1,28 @@
 /**
- * Block icon library.
+ * Block icon library entry point.
  *
- * Re-exports every BoxIcon from `react-icons/bi` so the icon picker on the
- * block editor screen surfaces the full BoxIcons set (≈1,600 icons). The
- * picker iterates `Object.keys()` of this module and renders each entry,
- * so anything exported here becomes a selectable block icon.
+ * Surfaces every react-icons library through one set of helpers. The
+ * picker on the block editor reads from `LIBRARIES` / `LIBRARY_OPTIONS`
+ * to populate its dropdown, and uses `loadLibrary( key )` to fetch the
+ * selected library's named-exports module on demand. Components that
+ * just need to render a single stored icon use `<LazyIcon slug={ … } />`,
+ * which handles cache lookup + dynamic import + re-render transparently.
  *
- * Persistence format: the block's `icon` field stores the snake_cased
- * version of the exported name — e.g. `BiBox` is saved as `bi_box`,
- * `BiUserCircle` as `bi_user_circle`. `getIconComponent()` round-trips
- * by snake-case → PascalCase → keyed lookup.
- *
- * @see https://react-icons.github.io/react-icons/icons/bi/
+ * @see ./libraries.js   Registry of every library with display name + dynamic loader.
+ * @see ./iconCache.js   Module-level cache + slug parsing/formatting helpers.
+ * @see ./LazyIcon.js    Lazy-render React component for a single stored slug.
  */
-export * from 'react-icons/bi';
+
+export { default as LazyIcon } from './LazyIcon';
+export {
+	LIBRARIES,
+	LIBRARY_OPTIONS,
+	LIBRARY_STORAGE_KEY,
+	DEFAULT_LIBRARY,
+} from './libraries';
+export {
+	formatIconSlug,
+	getCachedLibrary,
+	loadLibrary,
+	parseIconSlug,
+} from './iconCache';

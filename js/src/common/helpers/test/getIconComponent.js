@@ -7,18 +7,32 @@ global.ccbEditor = { controls: {} };
 
 describe( 'getIconComponent', () => {
 	it.each( [
+		// Canonical {libKey}/{ComponentName} format.
+		[ 'bi/BiBox', 'BiBox' ],
+		[ 'bi/BiHeart', 'BiHeart' ],
+		[ 'bi/BiUserCircle', 'BiUserCircle' ],
+		// Legacy snake_case slugs from v1.0.10 — assume BoxIcons + snake→Pascal.
 		[ 'bi_box', 'BiBox' ],
-		[ 'account_balance', 'AccountBalance' ],
-		[ 'brightness_2', 'Brightness2' ],
-		[ 'flight', 'Flight' ],
-		[ 'toggle_on', 'ToggleOn' ],
-	] )( 'should have the icon component',
-		( settingName, expected ) => {
-			expect( getIconComponent( settingName ).name ).toEqual( expected );
+		[ 'bi_heart', 'BiHeart' ],
+	] )( 'resolves %s to the %s react-icons component',
+		( slug, expectedName ) => {
+			const component = getIconComponent( slug );
+			expect( component ).not.toBeNull();
+			// react-icons named exports preserve their name on the
+			// function for ergonomic dev-tools display.
+			expect( component.name ).toEqual( expectedName );
 		}
 	);
 
-	it( 'should not have an icon that does not exist', () => {
-		expect( getIconComponent( 'does_not_exist' ) ).toEqual( null );
+	it( 'returns null when the library is loaded and the icon name does not exist', () => {
+		// BoxIcons is eagerly imported, so a misspelled name resolves
+		// synchronously to null rather than a lazy wrapper.
+		expect( getIconComponent( 'bi/BiDoesNotExist' ) ).toBeNull();
+	} );
+
+	it( 'returns null for malformed input', () => {
+		expect( getIconComponent( '' ) ).toBeNull();
+		expect( getIconComponent( null ) ).toBeNull();
+		expect( getIconComponent( undefined ) ).toBeNull();
 	} );
 } );

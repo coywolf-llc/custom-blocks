@@ -25,6 +25,18 @@ module.exports = {
 	output: {
 		path: path.resolve( __dirname ),
 		filename: '[name].js',
+		// Dynamic `import()` calls (notably from the icon library
+		// registry in js/src/common/icons/libraries.js) produce
+		// separate chunks. Park them under js/dist/ — same folder as
+		// the entry bundles — so the plugin root doesn't get
+		// polluted with stray icons-*.js files.
+		//
+		// The runtime publicPath that pairs with this is set in each
+		// entry's index.js by reading document.currentScript.src and
+		// stripping the "js/dist/<entry>.js" tail, leaving the plugin
+		// folder URL as the public path. The browser then fetches
+		// each chunk from `${pluginUrl}/js/dist/[name].chunk.js`.
+		chunkFilename: 'js/dist/[name].chunk.js',
 	},
 	watch: false,
 	mode: isProduction ? 'production' : 'development',

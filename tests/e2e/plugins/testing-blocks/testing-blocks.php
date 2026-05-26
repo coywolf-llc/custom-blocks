@@ -51,7 +51,7 @@ add_action(
 			[
 				'title'    => __( 'Test Text', 'coywolf-custom-blocks' ),
 				'category' => 'common',
-				'icon'     => 'bi_box',
+				'icon'     => 'bi/BiBox',
 				'excluded' => [ 'page' ],
 				'keywords' => [ 'example', 'foo' ],
 			]
