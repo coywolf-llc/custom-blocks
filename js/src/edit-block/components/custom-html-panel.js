@@ -80,7 +80,7 @@ const CustomHtmlPanel = () => {
 				{ __( 'Custom HTML', 'coywolf-custom-blocks' ) }
 			</h2>
 			<p className="text-sm text-gray-700 mb-3">
-				{ __( 'Define the front-end markup for this block here. This is saved in the database — no theme file is required. Any HTML, CSS, or JavaScript you enter is rendered as-is.', 'coywolf-custom-blocks' ) }
+				{ __( 'Define the front-end markup for this block here. This is saved in the database — no theme file is required. Any HTML, CSS, JavaScript, or PHP you enter is rendered as-is; embedded <?php …  ?> tags execute on the server at render time (same trust level as Appearance → Theme File Editor).', 'coywolf-custom-blocks' ) }
 			</p>
 			<p className="text-sm text-gray-700 mb-3">
 				{

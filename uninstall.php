@@ -74,3 +74,31 @@ foreach ( $options as $option_name ) {
 delete_transient( 'coywolf_custom_blocks_show_welcome' );
 delete_site_transient( 'coywolf_ccb_gh_release' );
 delete_site_transient( 'coywolf_ccb_gh_release_neg' );
+
+/**
+ * Compiled-template cache directory.
+ *
+ * `TemplateEditor::render_markup()` writes per-content PHP files
+ * to `wp-content/uploads/coywolf-custom-blocks/templates/` so the
+ * embedded PHP in a block's Custom HTML can be `include`d at render
+ * time. Drop the whole directory on uninstall — its only callers
+ * are gone.
+ */
+$uploads = wp_get_upload_dir();
+if ( isset( $uploads['basedir'] ) && is_string( $uploads['basedir'] ) ) {
+	$dir = rtrim( $uploads['basedir'], '/' ) . '/coywolf-custom-blocks';
+	if ( is_dir( $dir ) ) {
+		$it = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
+			\RecursiveIteratorIterator::CHILD_FIRST
+		);
+		foreach ( $it as $node ) {
+			if ( $node->isDir() ) {
+				@rmdir( $node->getPathname() ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+			} else {
+				@unlink( $node->getPathname() ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+			}
+		}
+		@rmdir( $dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+	}
+}

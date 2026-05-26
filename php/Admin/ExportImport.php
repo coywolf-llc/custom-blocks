@@ -70,7 +70,15 @@ class ExportImport extends ComponentAbstract {
 		$post_type = coywolf_custom_blocks()->get_post_type_slug();
 		add_filter( 'bulk_actions-edit-' . $post_type, [ $this, 'add_bulk_export_action' ], 11 );
 		add_filter( 'handle_bulk_actions-edit-' . $post_type, [ $this, 'handle_bulk_export' ], 10, 3 );
+		// Hook both row-action filters. `coywolf_custom_block` is
+		// registered with `hierarchical => true`, so WordPress applies
+		// `page_row_actions` (not `post_row_actions`) for its list
+		// table — which silently dropped this row link in v1.0.6
+		// through v1.0.18. We hook the page filter too, and keep the
+		// post filter for forward-compat if the post type is ever
+		// changed back to non-hierarchical.
 		add_filter( 'post_row_actions', [ $this, 'add_row_export_action' ], 10, 2 );
+		add_filter( 'page_row_actions', [ $this, 'add_row_export_action' ], 10, 2 );
 		add_action( 'admin_notices', [ $this, 'maybe_render_bulk_notice' ] );
 	}
 
@@ -295,13 +303,37 @@ class ExportImport extends ComponentAbstract {
 			self::EXPORT_ACTION
 		);
 
-		$actions['ccb-export'] = sprintf(
+		$export_link = sprintf(
 			'<a href="%s">%s</a>',
 			esc_url( $url ),
 			esc_html__( 'Export', 'coywolf-custom-blocks' )
 		);
 
-		return $actions;
+		// Slot the link in between Edit and Trash so the row reads
+		// "Edit | Export | Trash" rather than "Edit | Trash | Export"
+		// (the natural result of just `$actions['ccb-export'] = …`,
+		// which appends to the end of the associative array).
+		//
+		// WP's default row-action keys for a hierarchical CPT are
+		// `edit`, `inline hide-if-no-js` (Quick Edit, which BlockPost
+		// strips elsewhere), `trash`, and `view`. Walk the existing
+		// array and rebuild it in the right order so the result is
+		// deterministic regardless of which keys are present.
+		$reordered = [];
+		foreach ( $actions as $key => $markup ) {
+			$reordered[ $key ] = $markup;
+			if ( 'edit' === $key ) {
+				$reordered['ccb-export'] = $export_link;
+			}
+		}
+		// Defensive: if there was no `edit` key (e.g. a custom row
+		// action filter ran before us and removed it), still surface
+		// our Export at the tail rather than dropping it on the floor.
+		if ( ! isset( $reordered['ccb-export'] ) ) {
+			$reordered['ccb-export'] = $export_link;
+		}
+
+		return $reordered;
 	}
 
 	/**
