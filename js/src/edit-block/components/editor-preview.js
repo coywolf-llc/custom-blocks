@@ -7,6 +7,7 @@ import * as React from 'react';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import ServerSideRender from '@wordpress/server-side-render';
 
 /**
  * Internal dependencies
@@ -34,6 +35,8 @@ const EditorPreview = ( { setEditorMode } ) => {
 	const { getFields } = useField();
 	const { previewAttributes = {} } = block;
 	const fields = getFields();
+	const hasFields = getFieldsAsArray( fields ).length > 0;
+	const hasPreviewHtml = Boolean( block.showPreview && block.previewMarkup );
 
 	/** @param {Object} newAttributes Attribute (field) names and values. */
 	const setAttributes = ( newAttributes ) => {
@@ -45,7 +48,7 @@ const EditorPreview = ( { setEditorMode } ) => {
 		} );
 	};
 
-	if ( ! getFieldsAsArray( fields ).length ) {
+	if ( ! hasFields && ! hasPreviewHtml ) {
 		return (
 			<PreviewNotice>
 				<button
@@ -60,16 +63,30 @@ const EditorPreview = ( { setEditorMode } ) => {
 
 	return (
 		<div className="gcb-editor-form">
-			<Fields
-				key="example-fields"
-				fields={ fields }
-				parentBlockProps={ {
-					setAttributes,
-					attributes: previewAttributes,
-				} }
-				parentBlock={ {} }
-				context={ EDIT_BLOCK_CONTEXT }
-			/>
+			{ hasFields
+				? (
+					<Fields
+						key="example-fields"
+						fields={ fields }
+						parentBlockProps={ {
+							setAttributes,
+							attributes: previewAttributes,
+						} }
+						parentBlock={ {} }
+						context={ EDIT_BLOCK_CONTEXT }
+					/>
+				) : null
+			}
+			{ hasPreviewHtml && block.name
+				? (
+					<ServerSideRender
+						block={ `coywolf-custom-blocks/${ block.name }` }
+						attributes={ previewAttributes }
+						className="coywolf-custom-blocks-editor__ssr mt-6 w-full"
+						httpMethod="POST"
+					/>
+				) : null
+			}
 		</div>
 	);
 };
