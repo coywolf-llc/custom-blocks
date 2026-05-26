@@ -35,6 +35,23 @@ class Loader extends ComponentAbstract {
 	protected $blocks = [];
 
 	/**
+	 * Map of block slug => post_author id, populated alongside `$this->blocks`.
+	 *
+	 * Used by editor_assets() to derive the current user's authored-block
+	 * slugs without firing a second `get_posts()` on every editor pageview.
+	 *
+	 * @var array<string,int>
+	 */
+	protected $block_authors = [];
+
+	/**
+	 * Object-cache group used for the assembled blocks payload.
+	 *
+	 * @var string
+	 */
+	const CACHE_GROUP = 'coywolf-custom-blocks';
+
+	/**
 	 * A data store for sharing data to helper functions.
 	 *
 	 * @var array
@@ -190,17 +207,17 @@ class Loader extends ComponentAbstract {
 			'before'
 		);
 
-		// Used to conditionally show notices for blocks belonging to an author.
-		$author_blocks = get_posts(
-			[
-				'author'         => get_current_user_id(),
-				'post_type'      => 'coywolf_custom_block',
-				// We could use -1 here, but that could be dangerous. 99 is more than enough.
-				'posts_per_page' => 99,
-			]
+		// Derive the current user's block slugs from the in-memory author map
+		// that retrieve_blocks() built — no second get_posts() needed.
+		$current_user_id    = (int) get_current_user_id();
+		$author_block_slugs = array_keys(
+			array_filter(
+				$this->block_authors,
+				static function ( $author_id ) use ( $current_user_id ) {
+					return $author_id === $current_user_id;
+				}
+			)
 		);
-
-		$author_block_slugs = wp_list_pluck( $author_blocks, 'post_name' );
 		wp_localize_script(
 			$js_handle,
 			'coywolfCustomBlocks',
@@ -594,38 +611,84 @@ class Loader extends ComponentAbstract {
 
 	/**
 	 * Load all the published blocks and blocks/block.json files.
+	 *
+	 * The DB-driven portion (the `WP_Query` over `coywolf_custom_block`
+	 * posts plus the per-post JSON decode) is cached in the object cache
+	 * keyed by `get_lastpostmodified()`, so subsequent requests skip the
+	 * query entirely until any block post is saved/trashed. Without this
+	 * the plugin was running an extra `WP_Query` on every WordPress
+	 * request — admin, frontend, REST, AJAX — even when no Coywolf block
+	 * could possibly render on that page.
+	 *
+	 * The `coywolf_custom_blocks_add_blocks` action and the
+	 * `coywolf_custom_blocks_available_blocks` filter still fire on every
+	 * call so plugins that register blocks dynamically keep working.
 	 */
 	public function retrieve_blocks() {
-		// Reverse to preserve order of preference when using array_merge.
-		$blocks_files = array_reverse( coywolf_custom_blocks()->locate_template( 'blocks/blocks.json', '', false ) );
-		foreach ( $blocks_files as $blocks_file ) {
-			// This is expected to be on the local filesystem, so file_get_contents() is ok to use here.
-			$json       = file_get_contents( $blocks_file ); // @codingStandardsIgnoreLine
-			$block_data = json_decode( $json, true );
-
-			// Merge if no json_decode error occurred.
-			if ( json_last_error() == JSON_ERROR_NONE ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-				$this->blocks = array_merge( $this->blocks, $block_data );
-			}
-		}
-
 		$is_edit_context = 'edit' === filter_input( INPUT_GET, 'context' );
-		$block_posts     = new WP_Query(
-			[
-				'post_type'      => coywolf_custom_blocks()->get_post_type_slug(),
-				'post_status'    => $is_edit_context ? 'any' : 'publish',
-				'posts_per_page' => 100,
-			]
-		);
+		$post_type       = coywolf_custom_blocks()->get_post_type_slug();
+		$last_modified   = get_lastpostmodified( 'GMT', $post_type );
+		$cache_key       = 'blocks_v1_' . md5( ( $last_modified ?: '0' ) . '|' . ( $is_edit_context ? 'edit' : 'pub' ) );
 
-		if ( $block_posts->post_count > 0 ) {
-			foreach ( $block_posts->posts as $post ) {
-				$block_data = json_decode( $post->post_content, true );
+		$cached = wp_cache_get( $cache_key, self::CACHE_GROUP );
+		if ( is_array( $cached ) && isset( $cached['blocks'], $cached['authors'] ) ) {
+			$this->blocks        = $cached['blocks'];
+			$this->block_authors = $cached['authors'];
+		} else {
+			// Reverse to preserve order of preference when using array_merge.
+			$blocks_files = array_reverse( coywolf_custom_blocks()->locate_template( 'blocks/blocks.json', '', false ) );
+			foreach ( $blocks_files as $blocks_file ) {
+				// This is expected to be on the local filesystem, so file_get_contents() is ok to use here.
+				$json       = file_get_contents( $blocks_file ); // @codingStandardsIgnoreLine
+				$block_data = json_decode( $json, true );
 
+				// Merge if no json_decode error occurred.
 				if ( json_last_error() == JSON_ERROR_NONE ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					$this->blocks = array_merge( $this->blocks, $block_data );
 				}
 			}
+
+			$block_posts = new WP_Query(
+				[
+					'post_type'              => $post_type,
+					'post_status'            => $is_edit_context ? 'any' : 'publish',
+					'posts_per_page'         => 100,
+					'no_found_rows'          => true,
+					'update_post_meta_cache' => false,
+					'update_post_term_cache' => false,
+				]
+			);
+
+			if ( $block_posts->post_count > 0 ) {
+				foreach ( $block_posts->posts as $post ) {
+					$block_data = json_decode( $post->post_content, true );
+
+					if ( json_last_error() != JSON_ERROR_NONE ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+						continue;
+					}
+
+					$this->blocks = array_merge( $this->blocks, $block_data );
+
+					// Remember which user authored each block so editor_assets()
+					// can derive `authorBlocks` without a second get_posts().
+					foreach ( array_keys( $block_data ) as $block_name ) {
+						$slug = $this->slug_from_block_name( (string) $block_name );
+						if ( '' !== $slug ) {
+							$this->block_authors[ $slug ] = (int) $post->post_author;
+						}
+					}
+				}
+			}
+
+			wp_cache_set(
+				$cache_key,
+				[
+					'blocks'  => $this->blocks,
+					'authors' => $this->block_authors,
+				],
+				self::CACHE_GROUP,
+				HOUR_IN_SECONDS
+			);
 		}
 
 		/**
@@ -642,6 +705,21 @@ class Loader extends ComponentAbstract {
 		 * @param array $blocks An associative array of blocks.
 		 */
 		$this->blocks = apply_filters( 'coywolf_custom_blocks_available_blocks', $this->blocks );
+	}
+
+	/**
+	 * Strip the `coywolf-custom-blocks/` namespace prefix off a block name
+	 * so it lines up with `post_name` slugs.
+	 *
+	 * @param string $block_name e.g. `coywolf-custom-blocks/hero` or `hero`.
+	 * @return string
+	 */
+	protected function slug_from_block_name( $block_name ) {
+		$prefix = 'coywolf-custom-blocks/';
+		if ( 0 === strpos( $block_name, $prefix ) ) {
+			return substr( $block_name, strlen( $prefix ) );
+		}
+		return $block_name;
 	}
 
 	/**

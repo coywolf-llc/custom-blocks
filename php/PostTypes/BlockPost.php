@@ -444,42 +444,115 @@ class BlockPost extends ComponentAbstract {
 	 * Count posts/pages of the given type whose post_content includes
 	 * the opening block-comment marker for the block.
 	 *
-	 * Direct $wpdb LIKE query rather than WP_Query so the cost is a
-	 * single COUNT(*) per cell — list-table rendering already issues a
-	 * pair of queries per row (one for posts, one for pages), and a
-	 * full WP_Query (with post-meta cache priming, term cache, etc.)
-	 * per cell would be unnecessarily heavy.
-	 *
-	 * Excludes the `auto-draft`, `inherit`, and `trash` statuses so the
-	 * count reflects real editorial content (published, draft, pending,
-	 * private, future). Matches the list-table default visible set.
+	 * Backed by `get_block_usage_tally()` so all blocks on the list
+	 * table share a single full-table scan instead of issuing two
+	 * unindexed LIKE queries per row (which on a 50-blocks × 100k-posts
+	 * site added seconds of admin lag).
 	 *
 	 * @param string $block_name The block name (slug).
 	 * @param string $post_type  `post` or `page`.
 	 * @return int
 	 */
 	protected function count_posts_using_block( $block_name, $post_type ) {
+		$tally = $this->get_block_usage_tally();
+		if ( ! isset( $tally[ $post_type ][ $block_name ] ) ) {
+			return 0;
+		}
+		return (int) $tally[ $post_type ][ $block_name ];
+	}
+
+	/**
+	 * Per-request memo of the block-usage tally returned by load_block_usage_tally().
+	 *
+	 * @var array<string,array<string,int>>|null
+	 */
+	protected $block_usage_tally;
+
+	/**
+	 * Returns a [`post`|`page` => [block-slug => count]] tally of which
+	 * post/page entries reference each Coywolf block.
+	 *
+	 * Reads from a transient keyed by the latest post + page modification
+	 * timestamps, so a single full-table scan of `wp_posts` is amortised
+	 * across the entire list-table render. Falls through to a fresh scan
+	 * when no posts have been modified since the cached tally was built.
+	 *
+	 * @return array<string,array<string,int>>
+	 */
+	protected function get_block_usage_tally() {
+		if ( null !== $this->block_usage_tally ) {
+			return $this->block_usage_tally;
+		}
+
+		$last_post = get_lastpostmodified( 'GMT', 'post' );
+		$last_page = get_lastpostmodified( 'GMT', 'page' );
+		$cache_key = 'coywolf_ccb_usage_v1_' . md5( ( $last_post ?: '0' ) . '|' . ( $last_page ?: '0' ) );
+		$cached    = get_transient( $cache_key );
+
+		if ( is_array( $cached ) ) {
+			$this->block_usage_tally = $cached;
+			return $this->block_usage_tally;
+		}
+
+		$this->block_usage_tally = $this->load_block_usage_tally();
+		set_transient( $cache_key, $this->block_usage_tally, DAY_IN_SECONDS );
+
+		return $this->block_usage_tally;
+	}
+
+	/**
+	 * Scans wp_posts once for every `<!-- wp:coywolf-custom-blocks/{slug}`
+	 * occurrence in `post` and `page` content, and tallies per slug. The
+	 * regex matches the same marker that render_usage_cell()'s `?s=` link
+	 * uses, so counts and the filtered view agree.
+	 *
+	 * Excludes auto-draft / inherit / trash so the tally reflects real
+	 * editorial content (published, draft, pending, private, future) —
+	 * matches the list-table default visible set.
+	 *
+	 * @return array<string,array<string,int>>
+	 */
+	protected function load_block_usage_tally() {
 		global $wpdb;
 
-		// The substring we look for in post_content. Same marker used
-		// by render_usage_cell()'s ?s= link so the count and the
-		// filtered view always agree.
-		$needle = '<!-- wp:coywolf-custom-blocks/' . $block_name;
-		$like   = '%' . $wpdb->esc_like( $needle ) . '%';
+		$tally = [
+			'post' => [],
+			'page' => [],
+		];
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- targeted count query, no caching layer fits.
-		$count = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->posts}
-				WHERE post_type = %s
-				AND post_status NOT IN ( 'auto-draft', 'inherit', 'trash' )
-				AND post_content LIKE %s",
-				$post_type,
-				$like
-			)
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- aggregate scan; result is cached in a transient.
+		$rows = $wpdb->get_results(
+			"SELECT post_type, post_content
+			FROM {$wpdb->posts}
+			WHERE post_type IN ( 'post', 'page' )
+			AND post_status NOT IN ( 'auto-draft', 'inherit', 'trash' )
+			AND post_content LIKE '%<!-- wp:coywolf-custom-blocks/%'"
 		);
 
-		return (int) $count;
+		if ( ! is_array( $rows ) ) {
+			return $tally;
+		}
+
+		foreach ( $rows as $row ) {
+			$type = (string) $row->post_type;
+			if ( ! isset( $tally[ $type ] ) ) {
+				continue;
+			}
+			if ( ! preg_match_all( '/<!-- wp:coywolf-custom-blocks\/([a-z0-9-]+)/i', (string) $row->post_content, $matches ) ) {
+				continue;
+			}
+			// Count each block at most once per post so the tally matches
+			// the list-table filter (which shows posts containing the
+			// block, not occurrences of the block).
+			foreach ( array_unique( $matches[1] ) as $slug ) {
+				if ( ! isset( $tally[ $type ][ $slug ] ) ) {
+					$tally[ $type ][ $slug ] = 0;
+				}
+				++$tally[ $type ][ $slug ];
+			}
+		}
+
+		return $tally;
 	}
 
 	/**
