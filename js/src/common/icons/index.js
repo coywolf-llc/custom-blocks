@@ -1,4 +1,4 @@
-export { default as GenesisCustomBlocks } from './coywolf-custom-blocks';
+export { default as CoywolfCustomBlocks } from './coywolf-custom-blocks';
 export { default as AccountBalance } from './account-balance';
 export { default as AccountCircle } from './account-circle';
 export { default as Alarm } from './alarm';
