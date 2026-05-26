@@ -32,9 +32,9 @@ import { Notice } from '../../common/components';
  * @return {React.ReactElement} The top notice.
  */
 const TopNotice = ( { editorMode, isOnboarding, setEditorMode } ) => {
-	const urlBlockTemplates = 'https://developer.wpengine.com/genesis-custom-blocks/get-started/add-a-custom-block-to-your-website-content/';
-	const urlGetStarted = 'https://developer.wpengine.com/genesis-custom-blocks/get-started/';
-	const urlTemplateFunctions = 'https://developer.wpengine.com/genesis-custom-blocks/functions/';
+	const urlBlockTemplates = 'https://github.com/coywolf-llc/custom-blocks#getting-startedadd-a-custom-block-to-your-website-content/';
+	const urlGetStarted = 'https://github.com/coywolf-llc/custom-blocks#getting-started';
+	const urlTemplateFunctions = 'https://github.com/coywolf-llc/custom-blocks#template-functions';
 	const isNewPost = useSelect( ( select ) => select( 'core/editor' ).isEditedPostNew() );
 	const { block } = useBlock();
 	const { getFields } = useField();
