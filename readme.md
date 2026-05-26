@@ -4,7 +4,7 @@
 
 Build custom Gutenberg blocks in the WordPress admin — no SFTP, no theme files. A privacy-respecting fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) with WP Engine telemetry, the WPE update server, and Genesis Pro upsells removed; ships an inline Custom HTML editor, native JSON export/import, and a one-shot importer for migrating off upstream.
 
-- **Version:** 1.0.2
+- **Version:** 1.0.3
 - **Requires WordPress:** 6.0 or later
 - **Tested up to:** 7.0
 - **Requires PHP:** 7.0 or later
@@ -54,6 +54,9 @@ Yes. The field is intended for use by site administrators (editing `coywolf_cust
 This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) by WP Engine / StudioPress, originally created by Luke Carbis, Ryan Kienstra, Stino11, Rheinard Korf, and the StudioPress / WP Engine team. All credit for the original plugin and its design belongs to them; this fork exists to keep the codebase alive and self-contained for Coywolf sites. Released under the same GPL-2.0-or-later license.
 
 ## Changelog
+
+### 1.0.3
+- Add the canonical release workflow (`.github/workflows/release.yml`): on every PR merge to `main`, auto-bump the patch version (if the PR didn't bump it), prepend a changelog entry crediting the PR, build the JS/CSS bundles, package a slim plugin zip excluding `vendor/`, `js/src/`, `css/src/`, dev configs, and tests, and publish a GitHub Release tagged `vX.Y.Z`. Without this, the GitHub-Releases self-updater has no releases to surface — which is why Coywolf Reset Plugin Update couldn't find any updates to this plugin.
 
 ### 1.0.2
 - Remove the Genesis-branded onboarding/welcome notice ("👋 Hi, and welcome! Genesis Custom Blocks makes it easy…") that showed on the Plugins screen after activation, along with the entire `Onboarding` component that displayed it and auto-inserted an "Example Block" post on activation.

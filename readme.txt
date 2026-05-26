@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -99,6 +99,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.3 =
+* Add the canonical release workflow: every PR merge to main now auto-bumps the patch version, prepends a changelog entry, builds the JS/CSS bundles, packages a slim plugin zip, and publishes a GitHub Release tagged vX.Y.Z. The Coywolf Reset Plugin Update button can now surface updates to this plugin.
 
 = 1.0.2 =
 * Remove the Genesis-branded "Hi, and welcome!" notice that showed on the Plugins screen after activation, along with the Onboarding component that displayed it and auto-inserted an "Example Block" post.
