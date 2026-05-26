@@ -927,6 +927,25 @@ class ImportFromGenesis extends ComponentAbstract {
 			$dirty          = true;
 		}
 
+		// Strip the legacy "Imported from Genesis Custom Blocks
+		// template. Untranslated PHP remains below — review and
+		// convert ..." notice from any pre-v1.0.20 imports that still
+		// carry it at the top of templateMarkup. v1.0.19 made PHP
+		// execute through the Custom HTML pipeline, so the notice
+		// became misleading (it says "review and convert" when the
+		// PHP would just run fine). Only the exact notice line is
+		// removed; the rest of the markup is untouched.
+		$raw_markup = isset( $config['templateMarkup'] ) ? (string) $config['templateMarkup'] : '';
+		$cleaned    = preg_replace(
+			'#^<!-- Imported from Genesis Custom Blocks template\.[^>]*-->\r?\n?#',
+			'',
+			$raw_markup
+		);
+		if ( null !== $cleaned && $cleaned !== $raw_markup ) {
+			$config['templateMarkup'] = $cleaned;
+			$dirty                    = true;
+		}
+
 		// Template markup: only back-fill an empty field from a
 		// translated theme file. Never overwrite user content.
 		$current_markup = isset( $config['templateMarkup'] ) ? trim( (string) $config['templateMarkup'] ) : '';
@@ -1104,13 +1123,11 @@ class ImportFromGenesis extends ComponentAbstract {
 			$result = preg_replace( $re, '{{$1}}', $result );
 		}
 
-		// Add a heads-up comment when the file still contains PHP tags that we
-		// did not translate, so the user is told to review it.
-		if ( false !== strpos( $result, '<?' ) ) {
-			$notice = "<!-- Imported from Genesis Custom Blocks template. Untranslated PHP remains below — review and convert to {{field-slug}} syntax or remove. -->\n";
-			$result = $notice . $result;
-		}
-
+		// Untranslated PHP tags are left as-is. Pre-v1.0.19 we
+		// prepended a "<!-- review and convert -->" notice because
+		// raw PHP wouldn't execute through the renderer; v1.0.19's
+		// PHP-execution pipeline runs whatever PHP survives, so the
+		// notice is misleading — nothing to fix.
 		return $result;
 	}
 
