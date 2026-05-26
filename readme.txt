@@ -103,11 +103,11 @@ the same GPL-2.0-or-later license.
 
 == Changelog ==
 
-= 1.0.23 =
-* Remove the standalone Template Editor page (#32).
+= 1.0.24 =
+* Editor Preview tab now renders the Preview HTML when one is set, in addition to the field inputs — matches what the post editor user sees when `showPreview` is on.
 
 = 1.0.23 =
-* Remove the standalone Template Editor page; the Custom HTML panel on the Builder screen already covers it. Drops the `react-ace`/`ace-builds` dependencies (~500 KB off the edit-block bundle).
+* Remove the standalone Template Editor page (#32).
 
 = 1.0.22 =
 * Fix block icons rendering as solid black squares in Post editor (#31).
