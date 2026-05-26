@@ -59,6 +59,13 @@ class Admin extends ComponentAbstract {
 	public $import_from_genesis;
 
 	/**
+	 * Native Coywolf JSON export/import admin page.
+	 *
+	 * @var ExportImport
+	 */
+	public $export_import;
+
+	/**
 	 * Initialise the Admin component.
 	 */
 	public function init() {
@@ -81,6 +88,11 @@ class Admin extends ComponentAbstract {
 		// legacy JSON-file import below.
 		$this->import_from_genesis = new ImportFromGenesis();
 		coywolf_custom_blocks()->register_component( $this->import_from_genesis );
+
+		// Native JSON export/import — its own submenu page + row/bulk actions
+		// on the block list table.
+		$this->export_import = new ExportImport();
+		coywolf_custom_blocks()->register_component( $this->export_import );
 
 		if ( defined( 'WP_LOAD_IMPORTERS' ) && WP_LOAD_IMPORTERS ) {
 			// Ensure WP_Filesystem() is defined.
