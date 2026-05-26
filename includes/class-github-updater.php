@@ -22,11 +22,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Coywolf_Custom_Blocks_GitHub_Updater {
 
 	const REPO          = 'coywolf-llc/custom-blocks';
-	const TRANSIENT_KEY = 'coywolf_ccb_gh_release';
+	const TRANSIENT_KEY = 'coywolf_custom_blocks_gh_release';
 	const CACHE_HOURS   = 6;
 
 	/**
-	 * Plugin file relative to wp-content/plugins.
+	 * Plugin file relative to wp-content/plugins, e.g.
+	 * "coywolf-broken-link-checker/coywolf-broken-link-checker.php".
 	 *
 	 * @var string
 	 */
@@ -59,74 +60,36 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 		$this->current_version = (string) $current_version;
 	}
 
+	/**
+	 * Wire into the WordPress update flow.
+	 */
 	public function init() {
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'inject_update' ) );
 		add_filter( 'plugins_api', array( $this, 'plugin_info' ), 10, 3 );
 		add_filter( 'upgrader_source_selection', array( $this, 'fix_source_dirname' ), 10, 4 );
 		add_filter( 'plugin_row_meta', array( $this, 'override_view_details' ), 10, 2 );
 		add_filter( 'upgrader_pre_download', array( $this, 'guard_pre_download' ), 10, 3 );
-		add_action( 'upgrader_process_complete', array( $this, 'flush_after_update' ), 10, 2 );
-	}
-
-	/**
-	 * After WordPress finishes installing this plugin's update, refresh
-	 * our installed-version cache and clear the GitHub-release + WP
-	 * `update_plugins` site transients. Without this, the Dashboard
-	 * Updates page keeps offering the just-installed version until the
-	 * next scheduled refresh.
-	 *
-	 * @param WP_Upgrader $upgrader   Upgrader instance (unused).
-	 * @param array       $hook_extra { action, type, plugins, ... }
-	 */
-	public function flush_after_update( $upgrader, $hook_extra ) {
-		unset( $upgrader );
-		if ( ! is_array( $hook_extra ) ) {
-			return;
-		}
-		if ( ( $hook_extra['action'] ?? '' ) !== 'update' ) {
-			return;
-		}
-		if ( ( $hook_extra['type'] ?? '' ) !== 'plugin' ) {
-			return;
-		}
-		$plugins = isset( $hook_extra['plugins'] ) && is_array( $hook_extra['plugins'] )
-			? $hook_extra['plugins']
-			: array();
-		if ( empty( $plugins ) && ! empty( $hook_extra['plugin'] ) ) {
-			$plugins = array( (string) $hook_extra['plugin'] );
-		}
-		if ( ! in_array( $this->plugin_basename, $plugins, true ) ) {
-			return;
-		}
-
-		if ( ! function_exists( 'get_plugin_data' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
-		$main = WP_PLUGIN_DIR . '/' . $this->plugin_basename;
-		if ( file_exists( $main ) ) {
-			$data = get_plugin_data( $main, false, false );
-			if ( ! empty( $data['Version'] ) ) {
-				$this->current_version = (string) $data['Version'];
-			}
-		}
-
-		delete_site_transient( self::TRANSIENT_KEY );
-		delete_site_transient( self::TRANSIENT_KEY . '_neg' );
-
-		if ( function_exists( 'wp_clean_plugins_cache' ) ) {
-			wp_clean_plugins_cache( true );
-		} else {
-			delete_site_transient( 'update_plugins' );
-		}
 	}
 
 	/**
 	 * Last-line defence before WordPress actually downloads the update
 	 * package: refuse to fetch a URL that is not on the GitHub-owned host
-	 * allowlist.
+	 * allowlist. Catches a transient cache that was tampered with after
+	 * inject_update() ran, or any other plugin that filters the package
+	 * URL between the update check and the download step.
+	 *
+	 * Returning a WP_Error makes WP abort this upgrade and surface the
+	 * message in the admin notice; returning $reply (false by default)
+	 * lets WP proceed with its normal download.
+	 *
+	 * @param mixed         $reply    Filtered reply (default false → "go ahead").
+	 * @param string        $package  Package URL WP is about to download.
+	 * @param WP_Upgrader   $upgrader Upgrader instance (unused).
+	 * @return mixed
 	 */
 	public function guard_pre_download( $reply, $package, $upgrader ) {
 		unset( $upgrader );
+		// Only inspect updates that are clearly ours.
 		if ( ! is_string( $package ) || '' === $package ) {
 			return $reply;
 		}
@@ -141,7 +104,7 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 		}
 		if ( '' === $this->validate_package_url( $package ) ) {
 			return new WP_Error(
-				'coywolf_ccb_untrusted_package',
+				'coywolf_custom_blocks_untrusted_package',
 				__( 'Refusing to download a plugin update from an untrusted host.', 'coywolf-custom-blocks' )
 			);
 		}
@@ -149,8 +112,17 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 	}
 
 	/**
-	 * Replace WordPress's "View details" thickbox link on the Plugins list
-	 * with a direct link to the project's GitHub repository.
+	 * Replace the auto-generated "View details" link on the Plugins list row
+	 * (which would otherwise open the plugins_api thickbox iframe) with a
+	 * direct link to the project's GitHub repository.
+	 *
+	 * The {@see plugin_info()} handler is kept registered because WordPress
+	 * still calls plugins_api during the update flow itself; only the row
+	 * meta link is rerouted.
+	 *
+	 * @param string[] $plugin_meta Row meta links.
+	 * @param string   $plugin_file Plugin basename being rendered.
+	 * @return string[]
 	 */
 	public function override_view_details( $plugin_meta, $plugin_file ) {
 		if ( $plugin_file !== $this->plugin_basename || ! is_array( $plugin_meta ) ) {
@@ -158,6 +130,9 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 		}
 		$repo_url = 'https://github.com/' . self::REPO;
 		foreach ( $plugin_meta as $i => $item ) {
+			// WP's "View details" entry uses the plugin-install thickbox iframe.
+			// Match on either the URL or the thickbox class so a different
+			// translation of "View details" still gets caught.
 			if ( false !== strpos( $item, 'plugin-install.php?tab=plugin-information' )
 				|| false !== strpos( $item, 'class="thickbox' )
 				|| false !== strpos( $item, "class='thickbox" ) ) {
@@ -174,6 +149,9 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 	/**
 	 * If a newer GitHub release exists, append this plugin to the list of
 	 * available updates so WordPress shows it on the Updates screen.
+	 *
+	 * @param object $transient The update_plugins transient.
+	 * @return object
 	 */
 	public function inject_update( $transient ) {
 		if ( empty( $transient ) || ! is_object( $transient ) ) {
@@ -192,10 +170,16 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 
 		$update_obj = $this->build_update_obj( $release, $remote_version );
 
+		// Refuse to advertise an update we wouldn't actually install: if
+		// the release's package URL didn't survive validate_package_url
+		// (host not on the GitHub allowlist), there's nothing safe to
+		// download — leave the transient untouched so WP doesn't show
+		// a broken Update Now button.
 		if ( empty( $update_obj->package ) ) {
 			return $transient;
 		}
 
+		// Only offer an update when the remote version is strictly newer.
 		if ( version_compare( $remote_version, $this->current_version, '<=' ) ) {
 			if ( isset( $transient->no_update ) ) {
 				$transient->no_update[ $this->plugin_basename ] = $update_obj;
@@ -211,6 +195,10 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 		return $transient;
 	}
 
+	/**
+	 * Build the update object WordPress expects in the update_plugins
+	 * transient.
+	 */
 	private function build_update_obj( $release, $remote_version ) {
 		$obj                = new stdClass();
 		$obj->id            = self::REPO;
@@ -228,6 +216,14 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 		return $obj;
 	}
 
+	/**
+	 * Populate the "View details" modal on the Plugins / Updates screen.
+	 *
+	 * @param mixed  $result Filtered value (false by default).
+	 * @param string $action Requested action.
+	 * @param object $args   Request args.
+	 * @return mixed
+	 */
 	public function plugin_info( $result, $action, $args ) {
 		if ( 'plugin_information' !== $action ) {
 			return $result;
@@ -250,15 +246,32 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 		$info->download_link = $this->pick_package_url( $release );
 		$info->last_updated  = isset( $release['published_at'] ) ? $release['published_at'] : '';
 		$info->sections      = array(
-			'description' => 'Coywolf Custom Blocks — a fork of Genesis Custom Blocks with telemetry and external update servers removed. The easy way to build custom blocks for the WordPress block editor.',
+			'description' => 'Coywolf Custom Blocks — a fork of Genesis Custom Blocks with telemetry and external update servers removed.',
 			'changelog'   => $this->render_changelog( isset( $release['body'] ) ? $release['body'] : '' ),
 		);
 		$info->icons         = $this->icon_urls();
 		return $info;
 	}
 
+	/**
+	 * Icon URLs for the Plugins / Updates / View-details screens.
+	 *
+	 * WordPress's plugin-update UI reads the icon URLs straight from the
+	 * `icons` array on the plugin object in the `update_plugins` transient
+	 * (and from the same key on the `plugins_api` "plugin_information"
+	 * response). Without this, WP falls back to its generic plug icon — the
+	 * `.wordpress-org/icon-*.png` files in the repo are never picked up,
+	 * partly because they aren't shipped in the release zip (the release
+	 * workflow excludes the `.wordpress-org` directory) and partly because
+	 * even if they were, WP doesn't know to look for them by path.
+	 *
+	 * Point at the canonical PNGs on `raw.githubusercontent.com` so the
+	 * Coywolf logo renders on the Updates row and the View-details modal.
+	 *
+	 * @return array<string,string>
+	 */
 	private function icon_urls() {
-		$base = 'https://raw.githubusercontent.com/' . self::REPO . '/develop/.wordpress-org/';
+		$base = 'https://raw.githubusercontent.com/' . self::REPO . '/main/.wordpress-org/';
 		return array(
 			'1x'      => $base . 'icon-128x128.png',
 			'2x'      => $base . 'icon-256x256.png',
@@ -266,6 +279,11 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 		);
 	}
 
+	/**
+	 * Convert the release notes (GitHub-flavored markdown) into very simple
+	 * HTML for the "View details" modal. We avoid a full markdown parser —
+	 * just turn headings, lists, code spans, and links into HTML.
+	 */
 	private function render_changelog( $markdown ) {
 		$md = trim( (string) $markdown );
 		if ( '' === $md ) {
@@ -294,6 +312,9 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 		return $html;
 	}
 
+	/**
+	 * Inline markdown: backtick code, [text](url), and entity-safe escaping.
+	 */
 	private function inline_md( $text ) {
 		$text = esc_html( $text );
 		$text = preg_replace( '/`([^`]+)`/', '<code>$1</code>', $text );
@@ -310,7 +331,16 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 	/**
 	 * After WordPress extracts the downloaded zip but before it moves it
 	 * into place, rename the source directory to match this plugin's slug.
-	 * GitHub's auto-generated zipballs unpack to "<owner>-<repo>-<sha>/".
+	 *
+	 * GitHub's auto-generated zipballs unpack to "<owner>-<repo>-<sha>/",
+	 * which would otherwise be installed as a different plugin. A zip
+	 * asset whose top-level folder is already correct is left untouched.
+	 *
+	 * @param string       $source        Extracted source path.
+	 * @param string       $remote_source Remote source path.
+	 * @param WP_Upgrader  $upgrader      Upgrader instance.
+	 * @param array        $hook_extra    Extra data; includes 'plugin' on plugin upgrades.
+	 * @return string|WP_Error
 	 */
 	public function fix_source_dirname( $source, $remote_source, $upgrader, $hook_extra = array() ) {
 		if ( empty( $hook_extra['plugin'] ) || $hook_extra['plugin'] !== $this->plugin_basename ) {
@@ -330,11 +360,17 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 		}
 
 		return new WP_Error(
-			'coywolf_ccb_rename_failed',
+			'coywolf_custom_blocks_rename_failed',
 			__( 'Could not rename the downloaded update folder to match the plugin slug.', 'coywolf-custom-blocks' )
 		);
 	}
 
+	/**
+	 * Read the cached latest-release data, or fetch it from the GitHub API
+	 * if the cache is empty.
+	 *
+	 * @return array|null Decoded release object, or null on failure.
+	 */
 	private function get_latest_release() {
 		$cached = get_site_transient( self::TRANSIENT_KEY );
 		if ( is_array( $cached ) ) {
@@ -357,6 +393,8 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 		}
 		$code = (int) wp_remote_retrieve_response_code( $res );
 		if ( 200 !== $code ) {
+			// Cache a tiny negative result so we don't hammer GitHub when
+			// there are no releases yet (404) or we're rate-limited.
 			set_site_transient( self::TRANSIENT_KEY . '_neg', $code, 15 * MINUTE_IN_SECONDS );
 			return null;
 		}
@@ -366,6 +404,7 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 			return null;
 		}
 
+		// Reduce stored payload — we only need a few fields.
 		$keep = array(
 			'tag_name'     => isset( $data['tag_name'] ) ? (string) $data['tag_name'] : '',
 			'name'         => isset( $data['name'] ) ? (string) $data['name'] : '',
@@ -390,6 +429,10 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 		return $keep;
 	}
 
+	/**
+	 * Pick the best zip URL from the release: prefer a .zip asset (which
+	 * we control the layout of); fall back to GitHub's auto-zipball.
+	 */
 	private function pick_package_url( $release ) {
 		$candidate = '';
 		if ( ! empty( $release['assets'] ) ) {
@@ -406,6 +449,21 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 		return $this->validate_package_url( $candidate );
 	}
 
+	/**
+	 * Reject anything we wouldn't recognise as a GitHub-served release
+	 * artefact. The Releases API can in principle return any URL (the
+	 * cached transient is also writable by other privileged code), so
+	 * before WordPress's upgrader downloads and executes whatever is at
+	 * the other end, confirm the host is one GitHub actually uses for
+	 * release zips and auto-zipballs.
+	 *
+	 * Returns an empty string when the URL is unacceptable, which causes
+	 * WP to skip the update gracefully rather than installing it from a
+	 * stranger.
+	 *
+	 * @param string $url Candidate package URL.
+	 * @return string Validated URL, or '' if not trusted.
+	 */
 	private function validate_package_url( $url ) {
 		$url = trim( (string) $url );
 		if ( '' === $url ) {
@@ -435,6 +493,9 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 		return $url;
 	}
 
+	/**
+	 * Strip a leading "v" from a tag and return a clean semver-ish string.
+	 */
 	private function normalize_version( $tag ) {
 		$tag = trim( (string) $tag );
 		if ( '' !== $tag && ( 'v' === $tag[0] || 'V' === $tag[0] ) ) {
