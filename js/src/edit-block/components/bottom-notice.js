@@ -20,7 +20,7 @@ import { QuestionIcon } from './';
  */
 const BottomNotice = () => {
 	const textClasses = 'text-sm mt-2 ml-2';
-	const fieldTypesUrl = 'https://developer.wpengine.com/genesis-custom-blocks/fields/';
+	const fieldTypesUrl = 'https://github.com/coywolf-llc/custom-blocks#fields';
 
 	return (
 		<div className="mt-4 p-5 bg-blue-100 text-blue-700 border-l-4 border-blue-700 rounded-sm">

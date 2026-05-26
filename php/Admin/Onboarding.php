@@ -164,7 +164,7 @@ class Onboarding extends ComponentAbstract {
 				esc_html_e( 'Prefer to look at the docs?', 'genesis-custom-blocks' );
 				printf(
 					'&nbsp;<a href="%1$s" target="_blank" rel="noreferrer noopener">%2$s</a>',
-					'https://developer.wpengine.com/genesis-custom-blocks',
+					'https://github.com/coywolf-llc/custom-blocks#readme',
 					esc_html__( 'Start here', 'genesis-custom-blocks' )
 				);
 				?>
@@ -216,7 +216,7 @@ class Onboarding extends ComponentAbstract {
 				esc_html_e( 'Learn more:', 'genesis-custom-blocks' );
 				printf(
 					'&nbsp;<a href="%1$s" target="_blank" rel="noreferrer noopener">%2$s</a>',
-					'https://developer.wpengine.com/genesis-custom-blocks/get-started/',
+					'https://github.com/coywolf-llc/custom-blocks#getting-started',
 					esc_html__( 'Get Started', 'genesis-custom-blocks' )
 				);
 				?>
@@ -248,7 +248,7 @@ class Onboarding extends ComponentAbstract {
 				esc_html_e( 'Learn more:', 'genesis-custom-blocks' );
 				printf(
 					'&nbsp;<a href="%1$s" target="_blank" rel="noreferrer noopener">%2$s</a>',
-					'https://developer.wpengine.com/genesis-custom-blocks/fields/',
+					'https://github.com/coywolf-llc/custom-blocks#fields',
 					esc_html__( 'Field Types', 'genesis-custom-blocks' )
 				);
 				?>
@@ -294,7 +294,7 @@ class Onboarding extends ComponentAbstract {
 				esc_html_e( 'Learn more:', 'genesis-custom-blocks' );
 				printf(
 					'&nbsp;<a href="%1$s" target="_blank" rel="noreferrer noopener">%2$s</a>',
-					'https://developer.wpengine.com/genesis-custom-blocks/get-started/',
+					'https://github.com/coywolf-llc/custom-blocks#getting-started',
 					esc_html__( 'Get Started', 'genesis-custom-blocks' )
 				);
 				?>

@@ -38,13 +38,6 @@ class Admin extends ComponentAbstract {
 	public $onboarding;
 
 	/**
-	 * Plugin upgrade.
-	 *
-	 * @var Upgrade
-	 */
-	public $upgrade;
-
-	/**
 	 * The 'Edit Block' UI.
 	 *
 	 * @var EditBlock
@@ -75,9 +68,6 @@ class Admin extends ComponentAbstract {
 
 		$this->onboarding = new Onboarding();
 		genesis_custom_blocks()->register_component( $this->onboarding );
-
-		$this->upgrade = new Upgrade();
-		genesis_custom_blocks()->register_component( $this->upgrade );
 
 		if ( defined( 'WP_LOAD_IMPORTERS' ) && WP_LOAD_IMPORTERS ) {
 			// Ensure WP_Filesystem() is defined.

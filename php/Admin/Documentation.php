@@ -54,7 +54,7 @@ class Documentation extends ComponentAbstract {
 		$page = filter_input( INPUT_GET, 'page' );
 
 		if ( $this->slug === $page ) {
-			wp_safe_redirect( 'https://developer.wpengine.com/genesis-custom-blocks/' );
+			wp_safe_redirect( 'https://github.com/coywolf-llc/custom-blocks#readme' );
 			exit();
 		}
 	}
@@ -66,6 +66,6 @@ class Documentation extends ComponentAbstract {
 	 * @return string[] The filtered allowed hosts.
 	 */
 	public function add_redirect_host( $allowed_hosts ) {
-		return array_merge( $allowed_hosts, [ 'developer.wpengine.com' ] );
+		return array_merge( $allowed_hosts, [ 'github.com' ] );
 	}
 }

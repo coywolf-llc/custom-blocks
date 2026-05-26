@@ -32,7 +32,7 @@ about: Report a problem
 ## Versions
 
  - WordPress version:
- - Genesis Custom Blocks version: <!-- Please ensure the latest version of Genesis Custom Blocks is running: https://github.com/studiopress/genesis-custom-blocks -->
+ - Coywolf Custom Blocks version: <!-- Please ensure the latest version is running: https://github.com/coywolf-llc/custom-blocks/releases -->
  - Gutenberg plugin version (if active):
  - Other block-related plugins (if active):
  - OS:

@@ -1,16 +1,17 @@
 <?php
 /**
- * Genesis Custom Blocks
+ * Coywolf Custom Blocks
  *
  * @package   Genesis\CustomBlocks
- * @copyright Copyright(c) 2022, Genesis Custom Blocks
+ * @copyright Copyright(c) 2022, Genesis Custom Blocks; (c) 2026, Coywolf LLC
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  *
- * Plugin Name: Genesis Custom Blocks
- * Description: The easy way to build custom blocks for Gutenberg.
+ * Plugin Name: Coywolf Custom Blocks
+ * Plugin URI: https://github.com/coywolf-llc/custom-blocks
+ * Description: The easy way to build custom blocks for Gutenberg. A fork of Genesis Custom Blocks by WP Engine / StudioPress, with telemetry and external update servers removed.
  * Version: 1.7.3
- * Author: Genesis Custom Blocks
- * Author URI: https://studiopress.com
+ * Author: Coywolf
+ * Author URI: https://coywolf.com
  * License: GPL2
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: genesis-custom-blocks
@@ -57,19 +58,14 @@ add_action( 'plugins_loaded', [ genesis_custom_blocks(), 'plugin_loaded' ] );
 add_action( 'plugins_loaded', [ genesis_custom_blocks(), 'require_deprecated' ], 11 );
 
 /**
- * Initialize checking of plugin updates from WP Engine.
+ * GitHub-releases-based self-updater. Replaces the original WP Engine update
+ * server integration so this plugin only ever talks to github.com.
  */
-function genesis_custom_blocks_check_for_upgrades() {
-	if ( ! file_exists( __DIR__ . '/php/PluginUpdater.php' ) ) {
-		return;
+require_once __DIR__ . '/includes/class-github-updater.php';
+add_action(
+	'init',
+	function () {
+		$version = get_file_data( __FILE__, [ 'Version' => 'Version' ] )['Version'];
+		( new Coywolf_Custom_Blocks_GitHub_Updater( __FILE__, $version ) )->init();
 	}
-
-	$properties = [
-		'plugin_slug'     => 'genesis-custom-blocks',
-		'plugin_basename' => plugin_basename( __FILE__ ),
-	];
-
-	require_once __DIR__ . '/php/PluginUpdater.php';
-	new \Genesis\CustomBlocks\PluginUpdater( $properties );
-}
-add_action( 'admin_init', 'genesis_custom_blocks_check_for_upgrades' );
+);

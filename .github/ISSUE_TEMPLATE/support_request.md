@@ -1,11 +1,11 @@
 ---
 name: Support request
-about: Please direct support requests to the support forum
+about: Please open a discussion instead
 
 ---
 
-For questions about how to use a feature, or whether a feature exists, please go to the [WordPress.org support forum](https://wordpress.org/support/plugin/genesis-custom-blocks/).
+For questions about how to use a feature, or whether a feature exists, please open a [GitHub Discussion](https://github.com/coywolf-llc/custom-blocks/discussions) on this repository.
 
-Here's the plugin's [documentation](https://developer.wpengine.com/genesis-custom-blocks).
+Documentation lives in the [project README](https://github.com/coywolf-llc/custom-blocks#readme).
 
 Thanks!

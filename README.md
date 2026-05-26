@@ -1,6 +1,5 @@
-# Genesis Custom Blocks
+# Coywolf Custom Blocks
 
-Contributors: lukecarbis, ryankienstra, Stino11, rheinardkorf, studiopress, wpengine
 Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
@@ -11,17 +10,30 @@ License URI: http://www.gnu.org/licenses/gpl
 
 Custom blocks for WordPress made easy.
 
+## About this fork
+
+**Coywolf Custom Blocks is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks)** by WP Engine / StudioPress, originally created by Luke Carbis, Ryan Kienstra, Stino11, Rheinard Korf, and the StudioPress / WP Engine team. All credit for the original plugin and its design belongs to them, and this fork would not exist without their open-source work under GPL-2.0.
+
+This fork exists to keep the plugin alive and self-contained for Coywolf sites. The changes vs. upstream are:
+
+- **No external server calls.** The WP Engine plugin update server integration (`scripts/PluginUpdater.php` and `scripts/create-info.js`, which fetched from `wpe-plugin-updates.wpengine.com`) has been removed. Updates are now pulled directly from this repository's GitHub Releases.
+- **No "Genesis Pro" upgrade nag.** The submenu that pointed at WP Engine's signup page is gone.
+- **Documentation links** point at this repository instead of `developer.wpengine.com`.
+- **Branding** (plugin header, author, package metadata) is set to Coywolf.
+
+Internal PHP namespaces, the `genesis-custom-blocks` text domain, and the `genesis_custom_block` post type are unchanged so existing block content keeps working.
+
 ## Description
 
-Genesis Custom Blocks provides WordPress developers with the tools they need to take control of the block-first reality of modern WordPress.
+Coywolf Custom Blocks provides WordPress developers with the tools they need to take control of the block-first reality of modern WordPress.
 
-The WordPress block editor (AKA Gutenberg) opens up a whole new world for the way we build pages, posts, and websites with WordPress. Genesis Custom Blocks makes it easy to harness this and build custom blocks the way you want them to be built. Whether you want to implement a custom design, deliver unique functionality, or even remove your dependence on other plugins, Genesis Custom Blocks equips you with the tools you need to hit “Publish” sooner.
+The WordPress block editor (AKA Gutenberg) opens up a whole new world for the way we build pages, posts, and websites with WordPress. This plugin makes it easy to harness that and build custom blocks the way you want them to be built. Whether you want to implement a custom design, deliver unique functionality, or even remove your dependence on other plugins, Coywolf Custom Blocks equips you with the tools you need to hit "Publish" sooner.
 
-**Take control of design** - Implement beautiful, custom designs with fine-tuned front-end templating control.
+**Take control of design** — Implement beautiful, custom designs with fine-tuned front-end templating control.
 
-**Build unique functionality** - Build blocks that function and behave exactly as you need.
+**Build unique functionality** — Build blocks that function and behave exactly as you need.
 
-**Extend & Integrate** - Easily extend your custom blocks to integrate with third-party apps and plugins.
+**Extend & Integrate** — Easily extend your custom blocks to integrate with third-party apps and plugins.
 
 ## Features
 
@@ -32,7 +44,7 @@ Work within the WordPress admin with an interface you already know.
 Add from a growing list of available fields to your custom blocks.
 
 ### Simple Templating
-Let the plugin do the heavy lifting so you can use the built-in editor, or familiar WordPress development practices to build block templates.
+Let the plugin do the heavy lifting so you can use the built-in editor, or familiar WordPress development practices, to build block templates.
 
 ### Developer Friendly Functions
 As an alternative to the built-in editor, there are simple functions, ready to render and work with the data stored through your custom block fields.
@@ -54,62 +66,33 @@ As an alternative to the built-in editor, there are simple functions, ready to r
 * Color Field
 * Checkbox Field
 
-## Do more with Genesis Pro
-For those wanting to level-up with Genesis Custom Blocks, a Genesis Pro subscription brings some serious power-user features:
-
-### Genesis Custom Blocks Pro Features
-* Repeater Field
-* Taxonomy Field
-* Post Field
-* User Field
-* Rich Text Field
-* Classic Text Field
-* Block Level Import/Export
-* 24/7 Support
-
-Genesis Pro includes even more value for modern WordPress content creators, marketers, and developers. [Learn more about Genesis Pro here](https://www.studiopress.com/genesis-pro/).
-
-## Developer docs you can rely on.
-Developer tools are only as good as their docs. That's why we take them seriously. Here are a few links to get you started:
-
-* [Getting Started](https://developer.wpengine.com/genesis-custom-blocks/get-started/)
-* [FAQs](https://developer.wpengine.com/genesis-custom-blocks/faqs/)
-* [Block Fields](https://developer.wpengine.com/genesis-custom-blocks/fields/)
-* [PHP Functions](https://developer.wpengine.com/genesis-custom-blocks/functions/)
-
 ## Installation
-This plugin can be installed directly from your site.
-1. Log in and navigate to Plugins → Add New.
-2. Type “Genesis Custom Blocks” into the Search and hit Enter.
-3. Locate the Genesis Custom Blocks plugin in the list of search results and click Install Now.
-4. Once installed, click the Activate link.
+1. Download the latest release zip from the [GitHub Releases page](https://github.com/coywolf-llc/custom-blocks/releases).
+2. In WordPress, go to Plugins → Add New → Upload Plugin and upload the zip.
+3. Activate the plugin.
 
-It can also be installed manually.
-1. Download the Genesis Custom Blocks plugin from WordPress.org.
-2. Unzip the package and move to your plugins directory.
-3. Log into WordPress and navigate to the Plugins screen.
-4. Locate Genesis Custom Blocks in the list and click the Activate link.
+Once installed, the plugin will check GitHub for new releases and surface updates on Dashboard → Updates just like a plugin installed from wordpress.org.
 
 ## Frequently Asked Questions
-### Do I need to work with the Genesis Framework or any of the other Genesis plugins/themes to use this plugin?
 
-No. You can use this plugin completely independently. All you need is to have the block editor enabled on your WordPress site.
+### Do I need to work with the Genesis Framework or any of the other Genesis plugins/themes to use this plugin?
+No. You can use this plugin completely independently. All you need is the block editor on your WordPress site.
 
 ### Do I need to change to the new built-in Template Editor in /wp-admin?
+No. You can keep using your PHP block templates like `block-example.php`.
 
-No. You can keep using your PHP block templates like block-example.php.
+### Does this plugin call home to WP Engine, StudioPress, or anyone else?
+No. The only outbound request it makes is to `api.github.com` to check for new releases of this repository. Update package downloads are restricted to GitHub-owned hosts (`github.com`, `codeload.github.com`, `objects.githubusercontent.com`, etc.).
 
 ## Links
-* [WordPress.org](https://wordpress.org/plugins/genesis-custom-blocks)
-* [GitHub](https://github.com/studiopress/genesis-custom-blocks)
-* [Documentation](https://developer.wpengine.com/genesis-custom-blocks)
-
-## Screenshots
-1. See all of your blocks from Genesis Custom Blocks.
-2. Create your block like you create any other content.
-3. Create the markup for your block in wp-admin, if you'd like.
-4. Your custom block in the block editor.
-5. Create the markup for your block in a PHP template in your editor, if you'd like.
+* [GitHub repository](https://github.com/coywolf-llc/custom-blocks)
+* [Upstream project (Genesis Custom Blocks)](https://github.com/studiopress/genesis-custom-blocks)
 
 ## Changelog
-See the [GitHub Releases page](https://github.com/studiopress/genesis-custom-blocks/releases).
+See the [GitHub Releases page](https://github.com/coywolf-llc/custom-blocks/releases).
+
+For the pre-fork history through v1.7.3, see the [upstream releases](https://github.com/studiopress/genesis-custom-blocks/releases).
+
+## License
+
+GPL-2.0-or-later. Original work copyright © 2020-2024 WP Engine / StudioPress. Fork changes copyright © 2026 Coywolf LLC.
