@@ -16,7 +16,7 @@ const getDefaultBlock = ( postId = null ) => {
 		name,
 		title: name,
 		excluded: [],
-		icon: 'coywolf_custom_blocks',
+		icon: 'bi_box',
 		category: {
 			icon: null,
 			slug: 'text',

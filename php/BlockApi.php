@@ -17,7 +17,7 @@ namespace Coywolf\CustomBlocks;
  *     An associative array containing the block configuration.
  *
  *     @type string   $title    The block title.
- *     @type string   $icon     The block icon. See assets/icons.json for a JSON array of all possible values. Default: 'coywolf_custom_blocks'.
+ *     @type string   $icon     The block icon. Snake-cased name of any react-icons/bi icon — e.g. 'bi_box', 'bi_heart', 'bi_user_circle'. See https://react-icons.github.io/react-icons/icons/bi/ for the full set. Default: 'bi_box'.
  *     @type string   $category The slug of a registered category. Categories include: common, formatting, layout, widgets, embed. Default: 'common'.
  *     @type array    $excluded Exclude the block in these post types. Default: [].
  *     @type string[] $keywords An array of up to three keywords. Default: [].
@@ -35,7 +35,7 @@ function add_block( $block_name, $block_config = [] ) {
 
 	$default_config = [
 		'title'    => str_replace( '-', ' ', ucwords( $block_config['name'], '-' ) ),
-		'icon'     => 'coywolf_custom_blocks',
+		'icon'     => 'bi_box',
 		'category' => 'common',
 		'excluded' => [],
 		'keywords' => [],

@@ -44,7 +44,7 @@ class TestBlockApi extends \WP_UnitTestCase {
 			'category' => 'common',
 			'excluded' => [],
 			'fields'   => [],
-			'icon'     => 'coywolf_custom_blocks',
+			'icon'     => 'bi_box',
 			'keywords' => [],
 			'name'     => $block_name,
 			'title'    => 'Example Block',
