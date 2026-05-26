@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.28
+Stable tag: 1.0.29
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -102,6 +102,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.29 =
+* Make import-time rewrite use the same path as the standalone button (#38).
 
 = 1.0.29 =
 * Fix the import-time "rewrite post content" checkbox: it now sweeps every Coywolf-known slug just like the standalone "Rewrite post content now" button does, instead of relying on JS-collected slugs (which weren't actually rewriting anything in practice).
