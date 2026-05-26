@@ -52,6 +52,13 @@ class Admin extends ComponentAbstract {
 	public $import;
 
 	/**
+	 * Import-from-Genesis admin page.
+	 *
+	 * @var ImportFromGenesis
+	 */
+	public $import_from_genesis;
+
+	/**
 	 * Initialise the Admin component.
 	 */
 	public function init() {
@@ -68,6 +75,12 @@ class Admin extends ComponentAbstract {
 
 		$this->onboarding = new Onboarding();
 		coywolf_custom_blocks()->register_component( $this->onboarding );
+
+		// Always loaded — its submenu page is the only way users discover the
+		// importer, so it must not be hidden behind WP_LOAD_IMPORTERS like the
+		// legacy JSON-file import below.
+		$this->import_from_genesis = new ImportFromGenesis();
+		coywolf_custom_blocks()->register_component( $this->import_from_genesis );
 
 		if ( defined( 'WP_LOAD_IMPORTERS' ) && WP_LOAD_IMPORTERS ) {
 			// Ensure WP_Filesystem() is defined.
