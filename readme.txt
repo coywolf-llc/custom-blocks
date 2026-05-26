@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.25
+Stable tag: 1.0.26
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -102,6 +102,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.26 =
+* Strip the broken logo image from the Documentation page (#35).
 
 = 1.0.26 =
 * Strip the leading logo `<img>` from the Documentation page — its `.wordpress-org/` asset isn't shipped in the plugin install, so it rendered as a broken image.
