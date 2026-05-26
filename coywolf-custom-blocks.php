@@ -9,7 +9,7 @@
  * Plugin Name: Coywolf Custom Blocks
  * Plugin URI: https://github.com/coywolf-llc/custom-blocks
  * Description: The easy way to build custom blocks for Gutenberg. A fork of Genesis Custom Blocks by WP Engine / StudioPress, with telemetry and external update servers removed.
- * Version: 1.7.3
+ * Version: 1.0.0
  * Author: Coywolf
  * Author URI: https://coywolf.com
  * License: GPL2
@@ -60,12 +60,16 @@ add_action( 'plugins_loaded', [ coywolf_custom_blocks(), 'require_deprecated' ],
 /**
  * GitHub-releases-based self-updater. Replaces the original WP Engine update
  * server integration so this plugin only ever talks to github.com.
+ *
+ * Initialised inline (not on a hook) so the
+ * `pre_set_site_transient_update_plugins` filter is registered before
+ * WordPress's first call to `wp_update_plugins()` in the request — without
+ * this, a forced re-check (e.g. via Coywolf Reset Plugin Update) that runs
+ * before our `init` callback would set the transient with no entry for
+ * this plugin and the Dashboard → Updates screen would skip it.
  */
 require_once __DIR__ . '/includes/class-github-updater.php';
-add_action(
-	'init',
-	function () {
-		$version = get_file_data( __FILE__, [ 'Version' => 'Version' ] )['Version'];
-		( new Coywolf_Custom_Blocks_GitHub_Updater( __FILE__, $version ) )->init();
-	}
-);
+( new Coywolf_Custom_Blocks_GitHub_Updater(
+	__FILE__,
+	get_file_data( __FILE__, [ 'Version' => 'Version' ] )['Version']
+) )->init();
