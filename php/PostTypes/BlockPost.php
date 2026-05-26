@@ -319,6 +319,8 @@ class BlockPost extends ComponentAbstract {
 			'template' => __( 'Template', 'coywolf-custom-blocks' ),
 			'category' => __( 'Category', 'coywolf-custom-blocks' ),
 			'keywords' => __( 'Keywords', 'coywolf-custom-blocks' ),
+			'posts'    => __( 'Posts', 'coywolf-custom-blocks' ),
+			'pages'    => __( 'Pages', 'coywolf-custom-blocks' ),
 		];
 		return $new_columns;
 	}
@@ -364,6 +366,120 @@ class BlockPost extends ComponentAbstract {
 			$block = new Block( $post_id );
 			echo esc_html( $block->category['title'] );
 		}
+
+		if ( 'posts' === $column ) {
+			$block = new Block( $post_id );
+			echo $this->render_usage_cell( $block->name, 'post' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes
+		}
+
+		if ( 'pages' === $column ) {
+			$block = new Block( $post_id );
+			echo $this->render_usage_cell( $block->name, 'page' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes
+		}
+	}
+
+	/**
+	 * Render the count cell for the Posts / Pages columns.
+	 *
+	 * Counts published, draft, pending, and private entries of the given
+	 * post type whose post_content contains a block comment for this
+	 * Custom Block. When the count is zero, renders a plain `0`. When
+	 * the count is one or more, renders the number as a link to the
+	 * post-type list table filtered to that block — using WordPress's
+	 * `?s=…` search parameter, which already searches post_content and
+	 * is the closest thing to a built-in "filter by block" query.
+	 *
+	 * @param string $block_name The block's name (slug), e.g. `hero`.
+	 * @param string $post_type  Target post type — `post` or `page`.
+	 * @return string Escaped HTML for the table cell.
+	 */
+	protected function render_usage_cell( $block_name, $post_type ) {
+		if ( ! is_string( $block_name ) || '' === $block_name ) {
+			return '0';
+		}
+
+		$count       = $this->count_posts_using_block( $block_name, $post_type );
+		$count_label = number_format_i18n( $count );
+
+		if ( 0 === $count ) {
+			return esc_html( $count_label );
+		}
+
+		// The block-comment opening marker — the search string WP uses
+		// to filter `post_content` on the list table. Including the
+		// leading `<!-- ` and trailing space narrows the match to the
+		// block delimiter itself, so unrelated plain-text mentions of
+		// the slug aren't false positives in the filtered view.
+		$needle = sprintf( '<!-- wp:coywolf-custom-blocks/%s', $block_name );
+
+		$url = add_query_arg(
+			[
+				'post_type' => $post_type,
+				's'         => $needle,
+			],
+			admin_url( 'edit.php' )
+		);
+
+		return sprintf(
+			'<a href="%1$s" title="%2$s">%3$s</a>',
+			esc_url( $url ),
+			esc_attr(
+				sprintf(
+					/* translators: %1$d count, %2$s post type label (e.g. "post(s)") */
+					_n(
+						'View the %1$d %2$s using this block',
+						'View the %1$d %2$ss using this block',
+						$count,
+						'coywolf-custom-blocks'
+					),
+					$count,
+					$post_type
+				)
+			),
+			esc_html( $count_label )
+		);
+	}
+
+	/**
+	 * Count posts/pages of the given type whose post_content includes
+	 * the opening block-comment marker for the block.
+	 *
+	 * Direct $wpdb LIKE query rather than WP_Query so the cost is a
+	 * single COUNT(*) per cell — list-table rendering already issues a
+	 * pair of queries per row (one for posts, one for pages), and a
+	 * full WP_Query (with post-meta cache priming, term cache, etc.)
+	 * per cell would be unnecessarily heavy.
+	 *
+	 * Excludes the `auto-draft`, `inherit`, and `trash` statuses so the
+	 * count reflects real editorial content (published, draft, pending,
+	 * private, future). Matches the list-table default visible set.
+	 *
+	 * @param string $block_name The block name (slug).
+	 * @param string $post_type  `post` or `page`.
+	 * @return int
+	 */
+	protected function count_posts_using_block( $block_name, $post_type ) {
+		global $wpdb;
+
+		// The substring we look for in post_content. Same marker used
+		// by render_usage_cell()'s ?s= link so the count and the
+		// filtered view always agree.
+		$needle = '<!-- wp:coywolf-custom-blocks/' . $block_name;
+		$like   = '%' . $wpdb->esc_like( $needle ) . '%';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- targeted count query, no caching layer fits.
+		$count = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->posts}
+				WHERE post_type = %s
+				AND post_status NOT IN ( 'auto-draft', 'inherit', 'trash' )
+				AND post_content LIKE %s",
+				$post_type,
+				$like
+			)
+		);
+
+		return (int) $count;
 	}
 
 	/**
