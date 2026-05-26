@@ -18,6 +18,7 @@ import {
 	IconSection,
 	KeywordsSection,
 	PostTypesSection,
+	ShowPreviewSection,
 	SlugSection,
 } from './';
 
@@ -36,6 +37,7 @@ const BlockPanel = () => (
 		<CategorySection />
 		<KeywordsSection />
 		<DisplayModalSection />
+		<ShowPreviewSection />
 		<PostTypesSection />
 		<div className="mt-4">
 			<PostTrash />

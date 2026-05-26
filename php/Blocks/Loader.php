@@ -523,43 +523,60 @@ class Loader extends ComponentAbstract {
 			$wp_query = new WP_Query(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		}
 
-		$types   = (array) $type;
-		$located = '';
+		$types        = (array) $type;
+		$block_config = isset( $this->blocks[ "coywolf-custom-blocks/{$name}" ] )
+			? $this->blocks[ "coywolf-custom-blocks/{$name}" ]
+			: [];
 
-		foreach ( $types as $type ) {
-			$templates = coywolf_custom_blocks()->get_template_locations( $name, $type );
-			$located   = coywolf_custom_blocks()->locate_template( $templates );
+		// Walk each requested type in priority order. For the editor
+		// preview path we get ['preview', 'block'] from
+		// render_block_template, so the preview sources are consulted
+		// first and we fall through to the regular block sources only
+		// if no preview is set. For frontend rendering we get just
+		// ['block'] and preview sources are skipped entirely.
+		//
+		// Within each type, the DB-stored markup (entered via the
+		// in-admin Custom HTML / Preview HTML panels) wins over the
+		// matching theme file (`blocks/block-{slug}.php` /
+		// `blocks/preview-{slug}.php`). That preserves the
+		// no-SFTP-required v1.0.3 workflow.
+		$last_templates_checked = [];
+		foreach ( $types as $current_type ) {
 
+			// 1. DB-stored markup for this type.
+			$db_markup = '';
+			if ( 'preview' === $current_type
+				&& ! empty( $block_config['showPreview'] )
+				&& ! empty( $block_config['previewMarkup'] )
+			) {
+				$db_markup = $block_config['previewMarkup'];
+			} elseif ( 'block' === $current_type && ! empty( $block_config['templateMarkup'] ) ) {
+				$db_markup = $block_config['templateMarkup'];
+			}
+			if ( '' !== $db_markup ) {
+				$this->template_editor->render_markup( $db_markup );
+				return;
+			}
+
+			// 2. Theme file fallback for this type.
+			$templates              = coywolf_custom_blocks()->get_template_locations( $name, $current_type );
+			$last_templates_checked = $templates;
+			$located                = coywolf_custom_blocks()->locate_template( $templates );
 			if ( ! empty( $located ) ) {
-				break;
+				/**
+				 * Allows overriding the theme template.
+				 *
+				 * @param string $located The located template.
+				 */
+				$theme_template = apply_filters( 'coywolf_custom_blocks_override_theme_template', $located );
+
+				// This is not a load once template, so require_once is false.
+				load_template( $theme_template, false );
+				return;
 			}
 		}
 
-		// Database-stored Custom HTML wins over theme template files. This is the
-		// no-SFTP-required workflow — when an author has entered markup in the
-		// in-admin Custom HTML panel, render that instead of any blocks/block-*.php
-		// file that may exist in the theme. Empty markup falls through to the file
-		// template lookup below so existing installs that rely on theme files
-		// keep working without migration.
-		if ( ! empty( $this->blocks[ "coywolf-custom-blocks/{$name}" ]['templateMarkup'] ) ) {
-			$this->template_editor->render_markup( $this->blocks[ "coywolf-custom-blocks/{$name}" ]['templateMarkup'] );
-			return;
-		}
-
-		if ( ! empty( $located ) ) {
-			/**
-			 * Allows overriding the theme template.
-			 *
-			 * @param string $located The located template.
-			 */
-			$theme_template = apply_filters( 'coywolf_custom_blocks_override_theme_template', $located );
-
-			// This is not a load once template, so require_once is false.
-			load_template( $theme_template, false );
-			return;
-		}
-
-		if ( ! current_user_can( 'edit_posts' ) || ! isset( $templates[0] ) ) {
+		if ( ! current_user_can( 'edit_posts' ) || empty( $last_templates_checked[0] ) ) {
 			return;
 		}
 
@@ -569,7 +586,7 @@ class Loader extends ComponentAbstract {
 				'<div class="notice notice-warning">%s</div>',
 				wp_kses_post(
 					/* translators: %1$s: file path */
-					sprintf( __( 'No Template Editor markup or template file was found: %1$s', 'coywolf-custom-blocks' ), '<code>' . esc_html( $templates[0] ) . '</code>' )
+					sprintf( __( 'No Template Editor markup or template file was found: %1$s', 'coywolf-custom-blocks' ), '<code>' . esc_html( $last_templates_checked[0] ) . '</code>' )
 				)
 			);
 		}
