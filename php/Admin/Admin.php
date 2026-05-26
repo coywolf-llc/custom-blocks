@@ -31,25 +31,11 @@ class Admin extends ComponentAbstract {
 	public $documentation;
 
 	/**
-	 * User onboarding.
-	 *
-	 * @var Onboarding
-	 */
-	public $onboarding;
-
-	/**
 	 * The 'Edit Block' UI.
 	 *
 	 * @var EditBlock
 	 */
 	public $edit_block;
-
-	/**
-	 * JSON import.
-	 *
-	 * @var Import
-	 */
-	public $import;
 
 	/**
 	 * Import-from-Genesis admin page.
@@ -69,8 +55,6 @@ class Admin extends ComponentAbstract {
 	 * Initialise the Admin component.
 	 */
 	public function init() {
-		global $wp_filesystem;
-
 		$this->settings = new Settings();
 		coywolf_custom_blocks()->register_component( $this->settings );
 
@@ -80,12 +64,7 @@ class Admin extends ComponentAbstract {
 		$this->edit_block = new EditBlock();
 		coywolf_custom_blocks()->register_component( $this->edit_block );
 
-		$this->onboarding = new Onboarding();
-		coywolf_custom_blocks()->register_component( $this->onboarding );
-
-		// Always loaded — its submenu page is the only way users discover the
-		// importer, so it must not be hidden behind WP_LOAD_IMPORTERS like the
-		// legacy JSON-file import below.
+		// Migration tool: list and import upstream genesis_custom_block posts.
 		$this->import_from_genesis = new ImportFromGenesis();
 		coywolf_custom_blocks()->register_component( $this->import_from_genesis );
 
@@ -93,14 +72,6 @@ class Admin extends ComponentAbstract {
 		// on the block list table.
 		$this->export_import = new ExportImport();
 		coywolf_custom_blocks()->register_component( $this->export_import );
-
-		if ( defined( 'WP_LOAD_IMPORTERS' ) && WP_LOAD_IMPORTERS ) {
-			// Ensure WP_Filesystem() is defined.
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-			WP_Filesystem();
-			$this->import = new Import( $wp_filesystem );
-			coywolf_custom_blocks()->register_component( $this->import );
-		}
 	}
 
 	/**
