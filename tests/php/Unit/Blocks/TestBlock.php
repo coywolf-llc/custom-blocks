@@ -106,7 +106,7 @@ class TestBlock extends \WP_UnitTestCase {
 
 		// Check all the base attributes.
 		$this->assertEquals( 'Simple Test Block', $this->instance->title );
-		$this->assertEquals( 'coywolf_custom_blocks', $this->instance->icon );
+		$this->assertEquals( 'bi_box', $this->instance->icon );
 		$this->assertEquals(
 			[
 				'icon'  => null,
