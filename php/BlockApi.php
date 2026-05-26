@@ -17,7 +17,7 @@ namespace Coywolf\CustomBlocks;
  *     An associative array containing the block configuration.
  *
  *     @type string   $title    The block title.
- *     @type string   $icon     The block icon, in the format "{libKey}/{ComponentName}" — e.g. 'bi/BiBox', 'fa6/Fa6Heart', 'hi2/HiHome'. Library keys are the react-icons subpackage names (bi, fa, fa6, hi, hi2, md, pi, ri, tb, etc.); component names are the literal react-icons named exports. See https://react-icons.github.io/react-icons/ for the full catalog. Default: 'bi/BiBox'.
+ *     @type string   $icon     The block icon, in the format "{libKey}/{ComponentName}" — e.g. 'bi/BiBox', 'fa6/Fa6Heart', 'hi2/HiHome'. Library keys are the react-icons subpackage names (bi, fa, fa6, hi, hi2, md, pi, ri, tb, etc.); component names are the literal react-icons named exports. The 'coywolf' library exposes the plugin's built-in default-block glyph as 'coywolf/CcbBlockDefault'. See https://react-icons.github.io/react-icons/ for the full catalog. Default: 'coywolf/CcbBlockDefault' (the block-default glyph used in the wp-admin sidebar nav).
  *     @type string   $category The slug of a registered category. Categories include: common, formatting, layout, widgets, embed. Default: 'common'.
  *     @type array    $excluded Exclude the block in these post types. Default: [].
  *     @type string[] $keywords An array of up to three keywords. Default: [].
@@ -35,7 +35,7 @@ function add_block( $block_name, $block_config = [] ) {
 
 	$default_config = [
 		'title'    => str_replace( '-', ' ', ucwords( $block_config['name'], '-' ) ),
-		'icon'     => 'bi/BiBox',
+		'icon'     => 'coywolf/CcbBlockDefault',
 		'category' => 'common',
 		'excluded' => [],
 		'keywords' => [],

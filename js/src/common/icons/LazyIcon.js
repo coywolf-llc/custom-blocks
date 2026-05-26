@@ -12,6 +12,7 @@ import { useEffect, useState } from '@wordpress/element';
  * Internal dependencies
  */
 import { getCachedLibrary, loadLibrary, parseIconSlug } from './iconCache';
+import { CcbBlockDefault } from './builtinIcons';
 
 /**
  * Lazy-loading wrapper for an icon stored as a `{lib}/{ComponentName}`
@@ -70,11 +71,13 @@ const LazyIcon = ( { slug, className, style, size } ) => {
 		};
 	}, [ lib, name, IconComponent ] );
 
-	if ( ! IconComponent ) {
-		return null;
-	}
+	// Render the built-in block-default glyph while the library is in
+	// flight (or if the resolved name turned out to be missing). Keeps
+	// the picker preview and Gutenberg inserter from flashing blank
+	// when an existing block uses an icon from a not-yet-loaded library.
+	const Renderable = IconComponent || CcbBlockDefault;
 
-	return <IconComponent className={ className } style={ style } size={ size } />;
+	return <Renderable className={ className } style={ style } size={ size } />;
 };
 
 export default LazyIcon;

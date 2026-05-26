@@ -14,25 +14,36 @@ describe( 'getIconComponent', () => {
 		// Legacy snake_case slugs from v1.0.10 — assume BoxIcons + snake→Pascal.
 		[ 'bi_box', 'BiBox' ],
 		[ 'bi_heart', 'BiHeart' ],
-	] )( 'resolves %s to the %s react-icons component',
+		// Built-in coywolf library — the block-default fallback glyph
+		// that matches the wp-admin nav icon.
+		[ 'coywolf/CcbBlockDefault', 'CcbBlockDefault' ],
+	] )( 'resolves %s to the %s component',
 		( slug, expectedName ) => {
 			const component = getIconComponent( slug );
 			expect( component ).not.toBeNull();
-			// react-icons named exports preserve their name on the
-			// function for ergonomic dev-tools display.
 			expect( component.name ).toEqual( expectedName );
 		}
 	);
 
-	it( 'returns null when the library is loaded and the icon name does not exist', () => {
+	it( 'falls back to CcbBlockDefault when the icon name does not exist in a loaded library', () => {
 		// BoxIcons is eagerly imported, so a misspelled name resolves
-		// synchronously to null rather than a lazy wrapper.
-		expect( getIconComponent( 'bi/BiDoesNotExist' ) ).toBeNull();
+		// synchronously to the built-in default rather than null.
+		const component = getIconComponent( 'bi/BiDoesNotExist' );
+		expect( component ).not.toBeNull();
+		expect( component.name ).toEqual( 'CcbBlockDefault' );
 	} );
 
-	it( 'returns null for malformed input', () => {
-		expect( getIconComponent( '' ) ).toBeNull();
-		expect( getIconComponent( null ) ).toBeNull();
-		expect( getIconComponent( undefined ) ).toBeNull();
+	it( 'falls back to CcbBlockDefault for malformed input', () => {
+		expect( getIconComponent( '' ).name ).toEqual( 'CcbBlockDefault' );
+		expect( getIconComponent( null ).name ).toEqual( 'CcbBlockDefault' );
+		expect( getIconComponent( undefined ).name ).toEqual( 'CcbBlockDefault' );
+	} );
+
+	it( 'falls back to CcbBlockDefault for legacy pre-BoxIcons slugs', () => {
+		// 'coywolf_custom_blocks' was the default before the react-icons
+		// swap and no longer maps to anything; falling back keeps blocks
+		// rendering with the same glyph the user sees in the nav.
+		expect( getIconComponent( 'coywolf_custom_blocks' ).name ).toEqual( 'CcbBlockDefault' );
+		expect( getIconComponent( 'attach_file' ).name ).toEqual( 'CcbBlockDefault' );
 	} );
 } );
