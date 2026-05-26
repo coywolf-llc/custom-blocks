@@ -669,6 +669,10 @@ video {
   display: grid;
 }
 
+.hidden {
+  display: none;
+}
+
 .flex-row {
   flex-direction: row;
 }
@@ -836,6 +840,10 @@ video {
 
 .mb-6 {
   margin-bottom: 1.5rem;
+}
+
+.ml-6 {
+  margin-left: 1.5rem;
 }
 
 .mt-8 {
@@ -1099,6 +1107,10 @@ video {
 
 .visible {
   visibility: visible;
+}
+
+.invisible {
+  visibility: hidden;
 }
 
 .w-0 {

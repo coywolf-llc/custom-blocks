@@ -4,6 +4,8 @@ export { default as BrowserURL } from './browser-url';
 export { default as CategorySection } from './category-section';
 export { default as ClipboardCopy } from './clipboard-copy';
 export { default as CustomHtmlPanel } from './custom-html-panel';
+export { default as PreviewHtmlPanel } from './preview-html-panel';
+export { default as ShowPreviewSection } from './show-preview-section';
 export { default as DisplayModalSection } from './display-modal-section';
 export { default as Editor } from './editor';
 export { default as EditorPreview } from './editor-preview';

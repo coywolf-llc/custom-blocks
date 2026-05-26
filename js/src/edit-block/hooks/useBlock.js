@@ -35,6 +35,8 @@ import {
  * @property {Object}   [previewAttributes] The block attributes to show in the GCB 'Editor Preview'.
  * @property {string}   [templateCss]       The template editor CSS.
  * @property {string}   [templateMarkup]    The template editor markup.
+ * @property {string}   [previewMarkup]     Optional editor-only preview markup; rendered when the post editor requests `?context=edit` and only when `showPreview` is true.
+ * @property {boolean}  [showPreview]       Whether to show the Preview HTML panel and have `previewMarkup` participate in editor-preview rendering.
  */
 
 /**

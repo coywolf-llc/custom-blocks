@@ -825,6 +825,18 @@ class ImportFromGenesis extends ComponentAbstract {
 			$theme_markup = $this->translate_php_template( $this->read_file_safely( $template_path ) );
 		}
 
+		// Same lookup for the optional `blocks/preview-{slug}.php` —
+		// upstream Genesis's convention for "what should this block
+		// look like in the editor when its real output is invisible
+		// (e.g. Schema.org JSON-LD)". When found, we import it as the
+		// new block's previewMarkup AND flip showPreview on so the
+		// Preview HTML panel appears on the edit-block UI.
+		$preview_path   = $this->locate_theme_template( $slug, 'preview' );
+		$preview_markup = '';
+		if ( $preview_path ) {
+			$preview_markup = $this->translate_php_template( $this->read_file_safely( $preview_path ) );
+		}
+
 		// Existing-block handling. The slug already exists in Coywolf
 		// (typical when re-running the importer to pick up theme
 		// templates added between runs, or simply to back-fill a block
@@ -842,7 +854,7 @@ class ImportFromGenesis extends ComponentAbstract {
 			// ask is "every block imported from Genesis uses
 			// LuSquareCode" — including blocks imported by a previous
 			// run that still carry stale upstream icon slugs.
-			$this->update_existing_block( $existing, $slug, $theme_markup );
+			$this->update_existing_block( $existing, $slug, $theme_markup, $preview_markup );
 			return [
 				'post_id' => (int) $existing->ID,
 				'slug'    => $slug,
@@ -852,6 +864,11 @@ class ImportFromGenesis extends ComponentAbstract {
 
 		if ( '' !== $theme_markup ) {
 			$config['templateMarkup'] = $theme_markup;
+		}
+
+		if ( '' !== $preview_markup ) {
+			$config['previewMarkup'] = $preview_markup;
+			$config['showPreview']   = true;
 		}
 
 		// Force the icon to the plugin's default Lucide glyph for every
@@ -906,13 +923,15 @@ class ImportFromGenesis extends ComponentAbstract {
 	 *      Custom HTML — re-runs stay idempotent for blocks the
 	 *      admin has hand-edited.
 	 *
-	 * @param \WP_Post $existing      The existing Coywolf block post.
-	 * @param string   $slug          The block slug (also its post_name).
-	 * @param string   $theme_markup  Translated theme-template content, or
-	 *                                '' if no theme file was found.
+	 * @param \WP_Post $existing       The existing Coywolf block post.
+	 * @param string   $slug           The block slug (also its post_name).
+	 * @param string   $theme_markup   Translated `block-{slug}.php` content,
+	 *                                 or '' if no theme file was found.
+	 * @param string   $preview_markup Translated `preview-{slug}.php` content,
+	 *                                 or '' if no preview file was found.
 	 * @return void
 	 */
-	protected function update_existing_block( $existing, $slug, $theme_markup ) {
+	protected function update_existing_block( $existing, $slug, $theme_markup, $preview_markup = '' ) {
 		$config = $this->decode_block_config( $existing->post_content );
 		if ( ! is_array( $config ) ) {
 			$config = [ 'name' => $slug ];
@@ -952,6 +971,18 @@ class ImportFromGenesis extends ComponentAbstract {
 		if ( '' === $current_markup && '' !== $theme_markup ) {
 			$config['templateMarkup'] = $theme_markup;
 			$dirty                    = true;
+		}
+
+		// Same conservative back-fill for the editor preview. Empty
+		// previewMarkup + a theme `preview-{slug}.php` translation in
+		// hand → fold the preview into the existing block AND flip
+		// `showPreview` so the panel opens up on the next edit. Never
+		// overwrite a previewMarkup the admin has already authored.
+		$current_preview = isset( $config['previewMarkup'] ) ? trim( (string) $config['previewMarkup'] ) : '';
+		if ( '' === $current_preview && '' !== $preview_markup ) {
+			$config['previewMarkup'] = $preview_markup;
+			$config['showPreview']   = true;
+			$dirty                   = true;
 		}
 
 		if ( ! $dirty ) {
@@ -1014,13 +1045,21 @@ class ImportFromGenesis extends ComponentAbstract {
 	 * back to the parent theme. Returns an empty string when no template
 	 * file is present.
 	 *
-	 * @param string $slug Block slug (e.g. "hero").
+	 * Pass `'preview'` for `$prefix` to find the matching
+	 * `blocks/preview-{slug}.php` upstream-style placeholder template
+	 * (used to render something visible in the editor when the real
+	 * block output is invisible, e.g. Schema.org JSON-LD only).
+	 *
+	 * @param string $slug   Block slug (e.g. "hero").
+	 * @param string $prefix `'block'` (default, → `block-{slug}.php`) or
+	 *                       `'preview'` (→ `preview-{slug}.php`).
 	 * @return string Absolute path or '' if not found.
 	 */
-	protected function locate_theme_template( $slug ) {
+	protected function locate_theme_template( $slug, $prefix = 'block' ) {
+		$filename   = $prefix . '-' . $slug . '.php';
 		$candidates = [
-			get_stylesheet_directory() . '/blocks/block-' . $slug . '.php',
-			get_template_directory() . '/blocks/block-' . $slug . '.php',
+			get_stylesheet_directory() . '/blocks/' . $filename,
+			get_template_directory() . '/blocks/' . $filename,
 		];
 		foreach ( $candidates as $path ) {
 			if ( file_exists( $path ) && is_readable( $path ) ) {

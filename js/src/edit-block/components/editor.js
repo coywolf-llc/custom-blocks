@@ -32,6 +32,7 @@ import {
 	BlockPanel,
 	BrowserURL,
 	CustomHtmlPanel,
+	PreviewHtmlPanel,
 	EditorPreview,
 	EditorProvider,
 	FieldPanel,
@@ -169,6 +170,7 @@ const Editor = ( { onError, postId, postType, settings } ) => {
 													setSelectedField={ setSelectedField }
 												/>
 												<CustomHtmlPanel />
+												{ block.showPreview ? <PreviewHtmlPanel /> : null }
 											</>
 										) : null
 									}

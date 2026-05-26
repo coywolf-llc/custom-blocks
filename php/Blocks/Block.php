@@ -89,6 +89,36 @@ class Block {
 	public $template_markup = '';
 
 	/**
+	 * Preview markup. Optional alternative to `$template_markup` that is
+	 * only rendered when the block is loaded via Gutenberg's
+	 * `?context=edit` request — i.e. inside the post editor. Lets a
+	 * block show a placeholder/summary in the editor while emitting
+	 * something completely different (e.g. invisible Schema.org JSON-LD)
+	 * on the front end. Mirrors upstream Genesis Custom Blocks' theme
+	 * `blocks/preview-{slug}.php` convention.
+	 *
+	 * @var string
+	 */
+	public $preview_markup = '';
+
+	/**
+	 * Whether to surface the Preview HTML panel on the edit-block UI
+	 * AND have `preview_markup` participate in editor-preview rendering.
+	 * Hidden by default — the user opts in via a checkbox in Block
+	 * Settings — so the panel doesn't clutter the edit screen for the
+	 * common case of a block whose Custom HTML works fine in both
+	 * places.
+	 *
+	 * When `false`, `preview_markup` is preserved in storage but
+	 * ignored at render time. The Genesis importer flips this to
+	 * `true` automatically when it imports a block that ships a
+	 * matching `blocks/preview-{slug}.php` file.
+	 *
+	 * @var bool
+	 */
+	public $show_preview = false;
+
+	/**
 	 * Block constructor.
 	 *
 	 * @param int|bool $post_id Post ID.
@@ -167,6 +197,14 @@ class Block {
 			$this->template_markup = $config['templateMarkup'];
 		}
 
+		if ( isset( $config['previewMarkup'] ) ) {
+			$this->preview_markup = (string) $config['previewMarkup'];
+		}
+
+		if ( isset( $config['showPreview'] ) ) {
+			$this->show_preview = (bool) $config['showPreview'];
+		}
+
 		if ( isset( $config['fields'] ) ) {
 			foreach ( $config['fields'] as $key => $field ) {
 				$this->fields[ $key ] = new Field( $field );
@@ -189,6 +227,8 @@ class Block {
 		$config['displayModal']   = $this->display_modal;
 		$config['templateCss']    = $this->template_css;
 		$config['templateMarkup'] = $this->template_markup;
+		$config['previewMarkup']  = $this->preview_markup;
+		$config['showPreview']    = $this->show_preview;
 
 		$config['fields'] = [];
 		foreach ( $this->fields as $key => $field ) {
