@@ -147,7 +147,7 @@ class Util extends ComponentAbstract {
 		_deprecated_function(
 			sprintf(
 				/* translators: %s: the function name */
-				esc_html__( "Genesis Custom Blocks's %s", 'coywolf-custom-blocks' ),
+				esc_html__( "Coywolf Custom Blocks's %s", 'coywolf-custom-blocks' ),
 				'get_icons'
 			),
 			'1.1.0'

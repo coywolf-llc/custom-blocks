@@ -10,7 +10,6 @@
 namespace Coywolf\CustomBlocks;
 
 use Coywolf\CustomBlocks\Admin\Admin;
-use Coywolf\CustomBlocks\Admin\Onboarding;
 use Coywolf\CustomBlocks\Blocks\Loader;
 use Coywolf\CustomBlocks\PostTypes\BlockPost;
 
@@ -58,14 +57,6 @@ class Plugin extends PluginAbstract {
 
 		$this->loader = new Loader();
 		$this->register_component( $this->loader );
-
-		register_activation_hook(
-			$this->get_file(),
-			function () {
-				$onboarding = new Onboarding();
-				$onboarding->plugin_activation();
-			}
-		);
 
 		$this->require_helpers();
 	}
