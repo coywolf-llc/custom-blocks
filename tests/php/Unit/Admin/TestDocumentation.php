@@ -135,7 +135,7 @@ class TestDocumentation extends \WP_UnitTestCase {
 	public function test_add_redirect_host() {
 		$initial_host = 'blog.example.com';
 		$this->assertEquals(
-			[ $initial_host, 'developer.wpengine.com' ],
+			[ $initial_host, 'github.com' ],
 			$this->instance->add_redirect_host( [ $initial_host ] )
 		);
 	}

@@ -1,8 +1,8 @@
 {
-    "name": "studiopress/genesis-custom-blocks",
+    "name": "coywolf-llc/custom-blocks",
     "type": "wordpress-plugin",
-    "description": "The easy way to build custom blocks for Gutenberg.",
-    "homepage": "https://github.com/studiopress/genesis-custom-blocks",
+    "description": "Coywolf Custom Blocks — a fork of Genesis Custom Blocks. The easy way to build custom blocks for the WordPress block editor.",
+    "homepage": "https://github.com/coywolf-llc/custom-blocks",
     "license": "GPL-2.0",
     "require": {
         "php": "^7 || ^8"

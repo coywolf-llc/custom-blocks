@@ -1,22 +1,22 @@
 {
-  "name": "genesis-custom-blocks",
-  "title": "Genesis Custom Blocks",
+  "name": "coywolf-custom-blocks",
+  "title": "Coywolf Custom Blocks",
   "version": "1.7.3",
-  "description": "WordPress plugin with a simple templating system for building custom blocks.",
-  "author": "Genesis Custom Blocks",
+  "description": "Coywolf Custom Blocks — a fork of Genesis Custom Blocks. WordPress plugin with a simple templating system for building custom blocks.",
+  "author": "Coywolf",
   "license": "GPL-2.0-or-later",
   "keywords": [
     "block-editor",
     "wordpress",
     "wordpress-plugin"
   ],
-  "homepage": "https://studiopress.com",
+  "homepage": "https://github.com/coywolf-llc/custom-blocks",
   "repository": {
     "type": "git",
-    "url": "https://github.com/studiopress/genesis-custom-blocks"
+    "url": "https://github.com/coywolf-llc/custom-blocks"
   },
   "bugs": {
-    "url": "https://github.com/studiopress/genesis-custom-blocks/issues"
+    "url": "https://github.com/coywolf-llc/custom-blocks/issues"
   },
   "engines": {
     "node": "20"
@@ -117,11 +117,10 @@
     "test:e2e:ui": "playwright test --ui",
     "test:js": "wp-scripts test-unit-js --config=tests/js/jest.config.js",
     "test:js:coverage": "npm run test:js -- --coverage --coverageDirectory=tests/coverage/js",
-    "test:js:watch": "npm run test:js -- --watch",
-    "zip:info": "node scripts/create-info.js"
+    "test:js:watch": "npm run test:js -- --watch"
   },
   "wp-env": {
     "plugin-dir": "genesis-custom-blocks",
-    "plugin-name": "Genesis Custom Blocks"
+    "plugin-name": "Coywolf Custom Blocks"
   }
 }
