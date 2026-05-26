@@ -91,12 +91,14 @@ class ImportFromGenesis extends ComponentAbstract {
 		$source_blocks = $this->get_source_blocks();
 		$result        = isset( $_GET['result'] ) ? sanitize_key( wp_unslash( $_GET['result'] ) ) : '';
 		$imported_csv  = isset( $_GET['imported'] ) ? sanitize_text_field( wp_unslash( $_GET['imported'] ) ) : '';
+		$skipped_csv   = isset( $_GET['skipped'] ) ? sanitize_text_field( wp_unslash( $_GET['skipped'] ) ) : '';
 		$errors_csv    = isset( $_GET['errors'] ) ? sanitize_text_field( wp_unslash( $_GET['errors'] ) ) : '';
+		$rewrite_count = isset( $_GET['rewrite_count'] ) && '' !== $_GET['rewrite_count'] ? (int) $_GET['rewrite_count'] : null;
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Import from Genesis Custom Blocks', 'coywolf-custom-blocks' ); ?></h1>
 
-			<?php $this->render_notice( $result, $imported_csv, $errors_csv ); ?>
+			<?php $this->render_notice( $result, $imported_csv, $skipped_csv, $errors_csv, $rewrite_count ); ?>
 
 			<p>
 				<?php esc_html_e( 'This page lists every block stored on this site under the upstream Genesis Custom Blocks post type. Select the blocks you want to copy into Coywolf Custom Blocks. The original blocks are not modified — Genesis Custom Blocks can stay installed and active.', 'coywolf-custom-blocks' ); ?>
@@ -157,6 +159,16 @@ class ImportFromGenesis extends ComponentAbstract {
 					</tbody>
 				</table>
 
+				<p style="margin-top: 1.5em;">
+					<label>
+						<input type="checkbox" name="rewrite_post_content" value="1" />
+						<strong><?php esc_html_e( 'After importing, also rewrite post content site-wide to use the new block names.', 'coywolf-custom-blocks' ); ?></strong>
+					</label>
+				</p>
+				<p class="description" style="max-width: 60em;">
+					<?php esc_html_e( 'Scans every post, page, custom post type entry, reusable block, and block template on this site for the imported blocks and rewrites their HTML comments from wp:genesis-custom-blocks/{slug} to wp:coywolf-custom-blocks/{slug}. Only block names that were imported in this run are rewritten; references to blocks you did not import are left alone so they keep rendering through the upstream plugin (if it is still active). Post content updates cannot be undone from this screen — back up your database before proceeding on a production site.', 'coywolf-custom-blocks' ); ?>
+				</p>
+
 				<p class="submit">
 					<button type="submit" class="button button-primary">
 						<?php esc_html_e( 'Import selected blocks', 'coywolf-custom-blocks' ); ?>
@@ -183,17 +195,21 @@ class ImportFromGenesis extends ComponentAbstract {
 	/**
 	 * Render the success / error notice after an import POST.
 	 *
-	 * @param string $result       Status flag from the redirect query string.
-	 * @param string $imported_csv Comma-separated titles that were imported.
-	 * @param string $errors_csv   Comma-separated error strings.
+	 * @param string   $result        Status flag from the redirect query string.
+	 * @param string   $imported_csv  Pipe-separated titles imported (newly created).
+	 * @param string   $skipped_csv   Pipe-separated titles skipped (already existed).
+	 * @param string   $errors_csv    Pipe-separated error strings.
+	 * @param int|null $rewrite_count Number of posts rewritten, or null if the
+	 *                                rewrite option was not selected.
 	 */
-	protected function render_notice( $result, $imported_csv, $errors_csv ) {
+	protected function render_notice( $result, $imported_csv, $skipped_csv, $errors_csv, $rewrite_count ) {
 		if ( '' === $result ) {
 			return;
 		}
 
 		if ( 'imported' === $result ) {
 			$imported = '' === $imported_csv ? [] : array_filter( array_map( 'trim', explode( '|', $imported_csv ) ) );
+			$skipped  = '' === $skipped_csv ? [] : array_filter( array_map( 'trim', explode( '|', $skipped_csv ) ) );
 			$errors   = '' === $errors_csv ? [] : array_filter( array_map( 'trim', explode( '|', $errors_csv ) ) );
 			?>
 			<div class="notice notice-success is-dismissible">
@@ -212,7 +228,37 @@ class ImportFromGenesis extends ComponentAbstract {
 						<?php echo esc_html( implode( ', ', $imported ) ); ?>
 					<?php endif; ?>
 				</p>
+				<?php if ( null !== $rewrite_count ) : ?>
+					<p>
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: %d: number of posts/pages whose content was rewritten */
+								_n(
+									'Rewrote block names in %d post.',
+									'Rewrote block names in %d posts.',
+									$rewrite_count,
+									'coywolf-custom-blocks'
+								),
+								$rewrite_count
+							)
+						);
+						?>
+					</p>
+				<?php endif; ?>
 			</div>
+			<?php if ( ! empty( $skipped ) ) : ?>
+				<div class="notice notice-info is-dismissible">
+					<p>
+						<strong><?php esc_html_e( 'Already imported (left alone):', 'coywolf-custom-blocks' ); ?></strong>
+						<?php echo esc_html( implode( ', ', $skipped ) ); ?>.
+						<?php if ( null !== $rewrite_count ) : ?>
+							<br />
+							<?php esc_html_e( 'Block-name rewrites in post content still ran for these slugs so any pages using them now resolve to your Coywolf blocks.', 'coywolf-custom-blocks' ); ?>
+						<?php endif; ?>
+					</p>
+				</div>
+			<?php endif; ?>
 			<?php if ( ! empty( $errors ) ) : ?>
 				<div class="notice notice-warning is-dismissible">
 					<p><strong><?php esc_html_e( 'Some blocks could not be imported:', 'coywolf-custom-blocks' ); ?></strong></p>
@@ -309,8 +355,12 @@ class ImportFromGenesis extends ComponentAbstract {
 			exit;
 		}
 
-		$imported = [];
-		$errors   = [];
+		$should_rewrite = ! empty( $_POST['rewrite_post_content'] );
+
+		$imported       = []; // Newly created — shown in success notice.
+		$skipped        = []; // Already existed — shown as a soft warning.
+		$rewrite_slugs  = []; // Both — eligible for the content sweep.
+		$errors         = [];
 
 		foreach ( $ids as $post_id ) {
 			$source = get_post( $post_id );
@@ -326,18 +376,32 @@ class ImportFromGenesis extends ComponentAbstract {
 			$result = $this->import_one( $source );
 			if ( is_wp_error( $result ) ) {
 				$errors[] = sprintf( '%s — %s', $source->post_title, $result->get_error_message() );
-			} else {
-				$imported[] = $source->post_title !== '' ? $source->post_title : $source->post_name;
+				continue;
 			}
+
+			$title           = $source->post_title !== '' ? $source->post_title : $result['slug'];
+			$rewrite_slugs[] = $result['slug'];
+			if ( $result['created'] ) {
+				$imported[] = $title;
+			} else {
+				$skipped[] = $title;
+			}
+		}
+
+		$rewrite_count = 0;
+		if ( $should_rewrite && ! empty( $rewrite_slugs ) ) {
+			$rewrite_count = $this->rewrite_post_content( array_values( array_unique( $rewrite_slugs ) ) );
 		}
 
 		// Use | as the separator so block titles containing commas survive.
 		wp_safe_redirect(
 			$this->page_url(
 				[
-					'result'   => 'imported',
-					'imported' => implode( '|', $imported ),
-					'errors'   => implode( '|', $errors ),
+					'result'        => 'imported',
+					'imported'      => implode( '|', $imported ),
+					'skipped'       => implode( '|', $skipped ),
+					'errors'        => implode( '|', $errors ),
+					'rewrite_count' => $should_rewrite ? $rewrite_count : '',
 				]
 			)
 		);
@@ -347,8 +411,13 @@ class ImportFromGenesis extends ComponentAbstract {
 	/**
 	 * Copy a single source post into a new `coywolf_custom_block` post.
 	 *
+	 * Returns an array on success or skip, so the caller can distinguish
+	 * "newly created" from "already exists, left alone" — both cases are
+	 * eligible for the post-content rewrite step because a Coywolf block
+	 * with that slug now exists on the site either way.
+	 *
 	 * @param \WP_Post $source The upstream block post.
-	 * @return int|\WP_Error New post ID on success.
+	 * @return array{post_id:int,slug:string,created:bool}|\WP_Error
 	 */
 	protected function import_one( $source ) {
 		$config = $this->decode_block_config( $source->post_content );
@@ -361,11 +430,15 @@ class ImportFromGenesis extends ComponentAbstract {
 
 		$slug = (string) $config['name'];
 
-		if ( $this->coywolf_block_exists( $slug ) ) {
-			return new \WP_Error(
-				'coywolf_ccb_already_exists',
-				__( 'A Coywolf Custom Block with this slug already exists. Skipped to avoid overwriting.', 'coywolf-custom-blocks' )
-			);
+		// Skip-but-still-eligible-for-rewrite: surface the existing post ID
+		// so the caller can include this slug in the post_content sweep.
+		$existing = get_page_by_path( $slug, OBJECT, coywolf_custom_blocks()->get_post_type_slug() );
+		if ( $existing instanceof \WP_Post ) {
+			return [
+				'post_id' => (int) $existing->ID,
+				'slug'    => $slug,
+				'created' => false,
+			];
 		}
 
 		// If the source has no in-admin templateMarkup but the active theme
@@ -382,13 +455,7 @@ class ImportFromGenesis extends ComponentAbstract {
 			}
 		}
 
-		$envelope_key = self::SOURCE_BLOCK_NAMESPACE . '/' . $slug;
 		$new_envelope = [ 'coywolf-custom-blocks/' . $slug => $config ];
-
-		// If the source's envelope key was something exotic (e.g. a plugin
-		// extended the namespace), still record the canonical mapping so the
-		// imported block round-trips through Coywolf's render path.
-		unset( $envelope_key );
 
 		$post_id = wp_insert_post(
 			[
@@ -405,7 +472,11 @@ class ImportFromGenesis extends ComponentAbstract {
 			return $post_id;
 		}
 
-		return (int) $post_id;
+		return [
+			'post_id' => (int) $post_id,
+			'slug'    => $slug,
+			'created' => true,
+		];
 	}
 
 	/**
@@ -548,6 +619,138 @@ class ImportFromGenesis extends ComponentAbstract {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Sweep every post on the site, rewriting block-comment markers for the
+	 * given slugs from `wp:genesis-custom-blocks/{slug}` to
+	 * `wp:coywolf-custom-blocks/{slug}`. Both opening (`<!-- wp:...`) and
+	 * closing (`<!-- /wp:...`) forms are handled by a single replacement
+	 * because the literal `wp:genesis-custom-blocks/{slug}` substring
+	 * appears verbatim in both.
+	 *
+	 * The candidate set is restricted via a single LIKE query on
+	 * `post_content` so most rows are skipped at the SQL level. Each row
+	 * is then processed in PHP with a per-slug regex that uses a negative
+	 * lookahead `(?![A-Za-z0-9_-])` to prevent partial matches when one
+	 * imported slug is a prefix of another (e.g. importing both `hero`
+	 * and `hero-two` — the `hero` pattern must not eat into `hero-two`).
+	 *
+	 * Posts whose content actually changed are updated via the WordPress
+	 * post API (so revision/cache hooks fire); posts whose content is
+	 * unchanged after substitution are skipped to avoid creating noisy
+	 * revisions. Returns the number of posts updated.
+	 *
+	 * Covers every post type with status `any` except auto-drafts,
+	 * revisions, inherit, and trash. That picks up regular posts, pages,
+	 * custom post types, reusable blocks (`wp_block`), and FSE template
+	 * artifacts (`wp_template`, `wp_template_part`).
+	 *
+	 * @param string[] $slugs The block slugs to rewrite.
+	 * @return int Number of posts updated.
+	 */
+	protected function rewrite_post_content( $slugs ) {
+		global $wpdb;
+
+		$slugs = array_values( array_unique( array_filter( array_map( 'strval', $slugs ) ) ) );
+		if ( empty( $slugs ) ) {
+			return 0;
+		}
+
+		// Process longer slugs first so a longer slug is rewritten before any
+		// shorter slug that happens to be its prefix. (We also use a negative
+		// lookahead, but ordering is belt-and-braces.)
+		usort(
+			$slugs,
+			static function ( $a, $b ) {
+				return strlen( $b ) - strlen( $a );
+			}
+		);
+
+		// Find candidate post IDs in chunks so a site with hundreds of
+		// thousands of posts doesn't blow up memory. The LIKE is intentional
+		// — `wp:genesis-custom-blocks/` is the only substring guaranteed to
+		// appear inside an upstream block comment, and the underscore in
+		// `wp_posts.post_content` doesn't need any escaping here because the
+		// pattern itself has no SQL wildcards beyond our own `%`s.
+		$batch_size = 200;
+		$offset     = 0;
+		$updated    = 0;
+
+		do {
+			$ids = $wpdb->get_col(
+				$wpdb->prepare(
+					"SELECT ID FROM {$wpdb->posts}
+					WHERE post_status NOT IN ( 'auto-draft', 'inherit', 'trash' )
+					AND post_content LIKE %s
+					ORDER BY ID ASC
+					LIMIT %d OFFSET %d",
+					'%wp:genesis-custom-blocks/%',
+					$batch_size,
+					$offset
+				)
+			);
+
+			if ( empty( $ids ) ) {
+				break;
+			}
+
+			foreach ( $ids as $post_id ) {
+				$post_id = (int) $post_id;
+				$post    = get_post( $post_id );
+				if ( ! $post instanceof \WP_Post ) {
+					continue;
+				}
+
+				$original = (string) $post->post_content;
+				$rewritten = $this->rewrite_block_namespaces_in( $original, $slugs );
+
+				if ( $rewritten === $original ) {
+					continue;
+				}
+
+				$result = wp_update_post(
+					[
+						'ID'           => $post_id,
+						'post_content' => wp_slash( $rewritten ),
+					],
+					true
+				);
+				if ( ! is_wp_error( $result ) ) {
+					$updated++;
+				}
+			}
+
+			$offset += $batch_size;
+		} while ( true );
+
+		return $updated;
+	}
+
+	/**
+	 * Rewrite block-comment markers in a single content string.
+	 *
+	 * Public so callers and tests can exercise the substitution directly
+	 * without booting the post query.
+	 *
+	 * @param string   $content Raw post_content.
+	 * @param string[] $slugs   Slugs whose namespace should be rewritten.
+	 * @return string
+	 */
+	public function rewrite_block_namespaces_in( $content, $slugs ) {
+		if ( '' === $content || false === strpos( $content, 'wp:genesis-custom-blocks/' ) ) {
+			return $content;
+		}
+
+		foreach ( $slugs as $slug ) {
+			if ( '' === $slug ) {
+				continue;
+			}
+			$pattern = '#wp:genesis-custom-blocks/' . preg_quote( $slug, '#' ) . '(?![A-Za-z0-9_\-])#';
+			$content = preg_replace( $pattern, 'wp:coywolf-custom-blocks/' . $slug, $content );
+		}
+
+		return $content;
 	}
 
 	/**
