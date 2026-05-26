@@ -14,6 +14,7 @@
  */
 
 import * as bi from 'react-icons/bi';
+import builtinIcons from './builtinIcons';
 
 /**
  * @typedef {Object} IconLibrary
@@ -23,6 +24,11 @@ import * as bi from 'react-icons/bi';
 
 /** @type {Record<string, IconLibrary>} */
 export const LIBRARIES = {
+	// Plugin-shipped icons (currently just the block-default glyph that
+	// matches the wp-admin nav). Bundled into the main entry so it's
+	// always resolvable — used as the default for new blocks and the
+	// fallback when a stored slug doesn't resolve in any other library.
+	coywolf: { name: 'Coywolf Custom Blocks', load: () => Promise.resolve( builtinIcons ) },
 	ai:  { name: 'Ant Design Icons',  load: () => import( /* webpackChunkName: "icons-ai"  */ 'react-icons/ai'  ) },
 	bi:  { name: 'BoxIcons',          load: () => Promise.resolve( bi ) },
 	bs:  { name: 'Bootstrap Icons',   load: () => import( /* webpackChunkName: "icons-bs"  */ 'react-icons/bs'  ) },
