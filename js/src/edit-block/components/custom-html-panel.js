@@ -23,9 +23,11 @@ import { useBlock, useField } from '../hooks';
  * `{theme}/blocks/block-{name}.php` template file workflow.
  *
  * Field references use the `{{field-name}}` syntax; substitution happens
- * server-side in TemplateEditor::render_markup(). The toolbar above the
- * textarea lets the user click a button to insert the right token at the
- * current caret position instead of having to remember the slug spelling.
+ * server-side in TemplateEditor::render_markup(). The dropdown above the
+ * textarea lets the user pick a field by name and inserts the matching
+ * token at the current caret position, so they don't have to memorize
+ * slug spellings or scroll past a row of chips when there are many
+ * fields defined on the block.
  *
  * @return {React.ReactElement} The Custom HTML panel.
  */
@@ -84,45 +86,55 @@ const CustomHtmlPanel = () => {
 				{
 					sprintf(
 						/* translators: %1$s: an example field name in the {{name}} syntax. */
-						__( 'Reference a field by wrapping its slug in double curly braces, e.g. %1$s. Use the buttons below to insert one at the cursor.', 'coywolf-custom-blocks' ),
+						__( 'Reference a field by wrapping its slug in double curly braces, e.g. %1$s. Use the dropdown below to insert one at the cursor.', 'coywolf-custom-blocks' ),
 						`{{${ exampleFieldName }}}`
 					)
 				}
 			</p>
 
-			<div
-				className="flex flex-wrap items-center gap-2 mb-2"
-				role="toolbar"
-				aria-label={ __( 'Insert field reference', 'coywolf-custom-blocks' ) }
-			>
-				<span className="text-xs uppercase tracking-wide text-gray-600 mr-1">
+			<div className="flex items-center gap-2 mb-2">
+				<label
+					htmlFor="ccb-insert-field-select"
+					className="text-xs uppercase tracking-wide text-gray-600"
+				>
 					{ __( 'Insert field:', 'coywolf-custom-blocks' ) }
-				</span>
+				</label>
 				{ fields.length > 0
-					? fields.map( ( field ) => {
-						const label = field.label && field.label !== '' ? field.label : field.name;
-						return (
-							<button
-								key={ field.name }
-								type="button"
-								onClick={ () => insertField( field.name ) }
-								className="inline-flex items-center px-2 py-1 text-xs font-mono bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-sm"
-								title={ sprintf(
-									/* translators: %s: the {{slug}} token that will be inserted. */
-									__( 'Insert %s at the cursor', 'coywolf-custom-blocks' ),
-									`{{${ field.name }}}`
-								) }
-							>
-								<span className="text-gray-500 mr-1">{ '{{' }</span>
-								<span className="text-gray-900">{ field.name }</span>
-								<span className="text-gray-500 ml-1">{ '}}' }</span>
-								{ label !== field.name
-									? <span className="ml-2 text-gray-500 font-sans normal-case">{ label }</span>
-									: null
+					? (
+						<select
+							id="ccb-insert-field-select"
+							className="text-sm border border-gray-300 rounded-sm py-1 pl-2 pr-7 bg-white"
+							value=""
+							onChange={ ( event ) => {
+								const slug = event.target.value;
+								if ( '' === slug ) {
+									return;
 								}
-							</button>
-						);
-					} )
+								insertField( slug );
+								// Reset the menu back to the placeholder so the
+								// same field can be picked again next time.
+								event.target.value = '';
+							} }
+							aria-label={ __( 'Insert field reference at the cursor', 'coywolf-custom-blocks' ) }
+						>
+							<option value="">
+								{ __( 'Choose a field…', 'coywolf-custom-blocks' ) }
+							</option>
+							{ fields.map( ( field ) => {
+								const label = field.label && field.label !== '' ? field.label : field.name;
+								// Show "{{slug}} — Label" so the user sees both the
+								// token they're inserting and which field it is.
+								return (
+									<option key={ field.name } value={ field.name }>
+										{ label !== field.name
+											? `{{${ field.name }}} — ${ label }`
+											: `{{${ field.name }}}`
+										}
+									</option>
+								);
+							} ) }
+						</select>
+					)
 					: (
 						<span className="text-xs text-gray-500 italic">
 							{ __( "Add a field above and it'll appear here.", 'coywolf-custom-blocks' ) }
