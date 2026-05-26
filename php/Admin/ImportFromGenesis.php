@@ -836,7 +836,13 @@ class ImportFromGenesis extends ComponentAbstract {
 		// its Custom HTML and we don't want to clobber that.
 		$existing = get_page_by_path( $slug, OBJECT, coywolf_custom_blocks()->get_post_type_slug() );
 		if ( $existing instanceof \WP_Post ) {
-			$this->maybe_backfill_template_markup( $existing, $slug, $theme_markup );
+			// Always re-key the icon to the Lucide default + maybe also
+			// back-fill the templateMarkup from the theme file. The icon
+			// update fires unconditionally because the user's explicit
+			// ask is "every block imported from Genesis uses
+			// LuSquareCode" — including blocks imported by a previous
+			// run that still carry stale upstream icon slugs.
+			$this->update_existing_block( $existing, $slug, $theme_markup );
 			return [
 				'post_id' => (int) $existing->ID,
 				'slug'    => $slug,
@@ -847,6 +853,16 @@ class ImportFromGenesis extends ComponentAbstract {
 		if ( '' !== $theme_markup ) {
 			$config['templateMarkup'] = $theme_markup;
 		}
+
+		// Force the icon to the plugin's default Lucide glyph for every
+		// imported block. Upstream Genesis icons referenced a Dashicons
+		// string ('genesis_custom_blocks', 'attach_file', etc.) that
+		// doesn't resolve in our react-icons-based picker, so without
+		// this override the imported block would land with a missing
+		// icon — and the user-facing intent here is "give me a fresh
+		// Coywolf block with the standard glyph, the upstream icon
+		// choice doesn't carry over."
+		$config['icon'] = 'lu/LuSquareCode';
 
 		$new_envelope = [ 'coywolf-custom-blocks/' . $slug => $config ];
 
@@ -873,14 +889,22 @@ class ImportFromGenesis extends ComponentAbstract {
 	}
 
 	/**
-	 * Patch an existing Coywolf block's templateMarkup with a translated
-	 * theme-template body — but ONLY if the existing block's
-	 * templateMarkup is empty. Never clobbers user-authored content.
+	 * Update an existing Coywolf block to align it with the latest
+	 * importer behaviour. Two changes can land here:
 	 *
-	 * Lets re-running the importer back-fill templates that were missed
-	 * the first time (e.g. the theme template file was added between
-	 * the first import and now, or the first run's logic skipped the
-	 * theme file in favour of an empty upstream templateMarkup).
+	 *   1. Icon re-key. ALWAYS overwrites the stored icon with the
+	 *      Lucide default `lu/LuSquareCode`. The user's explicit ask
+	 *      is "every block imported from Genesis uses LuSquareCode" —
+	 *      including blocks imported by an older version of this
+	 *      plugin where the importer preserved upstream's Dashicons-
+	 *      style icon name (which never resolved in the react-icons
+	 *      picker and showed as blank).
+	 *
+	 *   2. Optional templateMarkup back-fill. Only fires when the
+	 *      theme file is present AND the existing block's
+	 *      templateMarkup is empty. Never clobbers user-authored
+	 *      Custom HTML — re-runs stay idempotent for blocks the
+	 *      admin has hand-edited.
 	 *
 	 * @param \WP_Post $existing      The existing Coywolf block post.
 	 * @param string   $slug          The block slug (also its post_name).
@@ -888,25 +912,34 @@ class ImportFromGenesis extends ComponentAbstract {
 	 *                                '' if no theme file was found.
 	 * @return void
 	 */
-	protected function maybe_backfill_template_markup( $existing, $slug, $theme_markup ) {
-		if ( '' === $theme_markup ) {
-			return;
-		}
-
+	protected function update_existing_block( $existing, $slug, $theme_markup ) {
 		$config = $this->decode_block_config( $existing->post_content );
 		if ( ! is_array( $config ) ) {
 			$config = [ 'name' => $slug ];
 		}
+		$config['name'] = $slug; // safety: ensure name is set
+
+		$dirty = false;
+
+		// Icon: always re-key.
+		if ( ! isset( $config['icon'] ) || 'lu/LuSquareCode' !== $config['icon'] ) {
+			$config['icon'] = 'lu/LuSquareCode';
+			$dirty          = true;
+		}
+
+		// Template markup: only back-fill an empty field from a
+		// translated theme file. Never overwrite user content.
 		$current_markup = isset( $config['templateMarkup'] ) ? trim( (string) $config['templateMarkup'] ) : '';
-		if ( '' !== $current_markup ) {
-			// User has authored something here already — don't overwrite.
+		if ( '' === $current_markup && '' !== $theme_markup ) {
+			$config['templateMarkup'] = $theme_markup;
+			$dirty                    = true;
+		}
+
+		if ( ! $dirty ) {
 			return;
 		}
 
-		$config['templateMarkup'] = $theme_markup;
-		$config['name']           = $slug; // safety: ensure name is set
-		$envelope                 = [ 'coywolf-custom-blocks/' . $slug => $config ];
-
+		$envelope = [ 'coywolf-custom-blocks/' . $slug => $config ];
 		wp_update_post(
 			[
 				'ID'           => (int) $existing->ID,

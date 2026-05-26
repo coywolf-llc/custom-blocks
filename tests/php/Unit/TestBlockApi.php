@@ -44,7 +44,7 @@ class TestBlockApi extends \WP_UnitTestCase {
 			'category' => 'common',
 			'excluded' => [],
 			'fields'   => [],
-			'icon'     => 'coywolf/CcbBlockDefault',
+			'icon'     => 'lu/LuSquareCode',
 			'keywords' => [],
 			'name'     => $block_name,
 			'title'    => 'Example Block',
