@@ -83,7 +83,6 @@ class Documentation extends ComponentAbstract {
 			.coywolf-docs pre { background: #f6f7f7; border: 1px solid #dcdcde; border-radius: 4px; padding: 12px 14px; overflow-x: auto; font-size: 13px; line-height: 1.5; }
 			.coywolf-docs pre code { background: transparent; padding: 0; }
 			.coywolf-docs a { color: #2271b1; }
-			.coywolf-docs img { max-width: 128px; height: auto; margin-bottom: 12px; }
 			.coywolf-docs table { border-collapse: collapse; margin: 12px 0; }
 			.coywolf-docs th, .coywolf-docs td { padding: 6px 12px; border: 1px solid #dcdcde; }
 		';
@@ -127,7 +126,7 @@ class Documentation extends ComponentAbstract {
 		// the whole file) only fires once per release — the readme only
 		// changes when the plugin is updated.
 		$mtime     = (int) filemtime( $path );
-		$cache_key = 'coywolf_ccb_docs_v1_' . $mtime;
+		$cache_key = 'coywolf_ccb_docs_v2_' . $mtime;
 		$html      = get_transient( $cache_key );
 		if ( false === $html ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local plugin file.
@@ -162,8 +161,7 @@ class Documentation extends ComponentAbstract {
 	 * @return string HTML safe to print inside the admin page wrapper.
 	 */
 	protected function markdown_to_html( $markdown ) {
-		$plugin_url = coywolf_custom_blocks()->get_url();
-		$markdown   = (string) $markdown;
+		$markdown = (string) $markdown;
 
 		// 1. Stash fenced code blocks. Replace with sentinels so the
 		//    line-based processor below doesn't try to parse their
@@ -179,34 +177,11 @@ class Documentation extends ComponentAbstract {
 			$markdown
 		);
 
-		// 2. Rewrite the leading `<img src="...">` so the plugin's
-		//    own icon loads from the plugin URL rather than from
-		//    /wp-admin's relative path.
-		$markdown = preg_replace_callback(
-			'#<img\s+([^>]+?)\s*/?>#i',
-			function ( $matches ) use ( $plugin_url ) {
-				$attrs = $matches[1];
-				$attrs = preg_replace_callback(
-					'/src\s*=\s*"([^"]+)"/i',
-					function ( $src ) use ( $plugin_url ) {
-						$url = $src[1];
-						if ( ! preg_match( '#^https?://#i', $url ) ) {
-							// Strip only an explicit `./` prefix — preserve a
-							// leading dot on its own (e.g. `.wordpress-org/…`
-							// is a real directory name, not a relative-path
-							// indicator).
-							$relative = preg_replace( '#^\./#', '', $url );
-							$url      = rtrim( $plugin_url, '/' ) . '/' . ltrim( $relative, '/' );
-						}
-						return 'src="' . esc_url( $url ) . '"';
-					},
-					$attrs
-				);
-				return '<img ' . $attrs . ' />';
-			},
-			$markdown,
-			1
-		);
+		// 2. Strip any `<img>` tags. The readme's leading logo banner
+		//    is meant for the GitHub repo view; on the Documentation
+		//    page it just renders as a broken image (the `.wordpress-org/`
+		//    asset directory isn't shipped in the plugin install).
+		$markdown = preg_replace( '#<img\s+[^>]*?/?>#i', '', $markdown );
 
 		// 3. Line-based processing. Each line is either a heading, a
 		//    list item, a blank line (paragraph break), or a regular

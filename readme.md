@@ -55,11 +55,11 @@ This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis
 
 ## Changelog
 
-### 1.0.25
-- Security + performance audit pass (#34).
+### 1.0.26
+- Strip the leading logo `<img>` from the Documentation page — its `.wordpress-org/` asset isn't shipped in the plugin install, so it rendered as a broken image.
 
 ### 1.0.25
-- Security and performance pass: cache block list (skips a `WP_Query` on every WP request); cache list-table block-usage tally as one full-table scan + transient instead of two LIKE counts per row; cache Documentation markdown by readme mtime; replace static Lucide import with an inline SVG fallback so the icon library code-splits properly (block-editor.js 717 KiB → 42.5 KiB, edit-block.js 851 KiB → 176 KiB); validate `blockName` in the template-file REST endpoint and the imported-block slug against `^[a-z0-9-]+$`; defensive cap check on the Documentation page.
+- Security + performance audit pass (#34).
 
 ### 1.0.24
 - Render Preview HTML in the Editor Preview tab (#33).
