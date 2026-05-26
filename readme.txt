@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -50,11 +50,14 @@ front-end markup in the in-admin Custom HTML field (no
 
 == Installation ==
 
-1. Download the latest release zip from
-   https://github.com/coywolf-llc/custom-blocks/releases
-2. In WordPress, go to Plugins -> Add New -> Upload Plugin and upload the
-   zip.
-3. Activate the plugin.
+1. Go to the latest GitHub release:
+   https://github.com/coywolf-llc/custom-blocks/releases/latest
+2. Under Assets, download coywolf-custom-blocks.zip -- NOT the
+   auto-generated "Source code (zip)" link. The release zip contains
+   the built JS/CSS bundles; the source zip does not, and uploading it
+   will break the block editor.
+3. In WordPress, go to Plugins -> Add New -> Upload Plugin, upload the
+   zip, and click Activate.
 4. Go to Custom Blocks -> Add New to define your first block.
 
 Once installed, updates surface on Dashboard -> Updates just like a
@@ -99,6 +102,12 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.4 =
+* Fix critical error ("Failed opening required js/dist/edit-block.asset.php") when the plugin is installed from the GitHub source archive instead of the release zip. EditBlock now detects missing build artefacts and renders an in-page notice instead of fataling.
+* Replace the Genesis-branded "G" admin menu icon with the WordPress core dashicons-block-default glyph.
+* Delete orphan Genesis Pro background images and the upgrade/onboarding stylesheets that referenced them.
+* README installation steps now spell out that users must download coywolf-custom-blocks.zip from the release Assets, not the "Source code (zip)" link.
 
 = 1.0.3 =
 * Add the canonical release workflow: every PR merge to main now auto-bumps the patch version, prepends a changelog entry, builds the JS/CSS bundles, packages a slim plugin zip, and publishes a GitHub Release tagged vX.Y.Z. The Coywolf Reset Plugin Update button can now surface updates to this plugin.
