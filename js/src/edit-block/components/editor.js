@@ -31,6 +31,7 @@ try {
 import {
 	BlockPanel,
 	BrowserURL,
+	CustomHtmlPanel,
 	EditorPreview,
 	EditorProvider,
 	FieldPanel,
@@ -159,13 +160,16 @@ const Editor = ( { onError, postId, postType, settings } ) => {
 									}
 									{ BUILDER_EDITING_MODE === editorMode
 										? (
-											<FieldsGrid
-												currentLocation={ currentLocation }
-												selectedField={ selectedField }
-												setIsNewField={ setIsNewField }
-												setPanelDisplaying={ setPanelDisplaying }
-												setSelectedField={ setSelectedField }
-											/>
+											<>
+												<FieldsGrid
+													currentLocation={ currentLocation }
+													selectedField={ selectedField }
+													setIsNewField={ setIsNewField }
+													setPanelDisplaying={ setPanelDisplaying }
+													setSelectedField={ setSelectedField }
+												/>
+												<CustomHtmlPanel />
+											</>
 										) : null
 									}
 									{ FRONT_END_PREVIEW_EDITING_MODE === editorMode

@@ -16,6 +16,8 @@ Custom blocks for WordPress made easy.
 
 This fork exists to keep the plugin alive and self-contained for Coywolf sites. The changes vs. upstream are:
 
+- **Inline Custom HTML editing.** Block markup can be authored directly in the block editor screen — no need to SFTP a `blocks/block-{slug}.php` file into the active theme. The HTML is saved on the block's post record and renders verbatim, including `<script>`, `<iframe>`, and inline event handlers. Theme template files still work as a fallback when the in-admin field is empty.
+- **Opt-in uninstall cleanup.** A "Delete plugin data on uninstall" checkbox in Settings controls whether `uninstall.php` drops all block definitions and plugin options when the plugin is deleted. Unchecked by default, so deactivate-and-delete is non-destructive.
 - **No external server calls.** The WP Engine plugin update server integration (`scripts/PluginUpdater.php` and `scripts/create-info.js`, which fetched from `wpe-plugin-updates.wpengine.com`) has been removed. Updates are now pulled directly from this repository's GitHub Releases.
 - **No "Genesis Pro" upgrade nag.** The submenu that pointed at WP Engine's signup page is gone.
 - **Documentation links** point at this repository instead of `developer.wpengine.com`.
