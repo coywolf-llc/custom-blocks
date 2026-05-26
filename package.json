@@ -120,7 +120,7 @@
     "test:js:watch": "npm run test:js -- --watch"
   },
   "wp-env": {
-    "plugin-dir": "genesis-custom-blocks",
+    "plugin-dir": "coywolf-custom-blocks",
     "plugin-name": "Coywolf Custom Blocks"
   }
 }

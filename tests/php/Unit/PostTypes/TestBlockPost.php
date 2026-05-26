@@ -2,11 +2,11 @@
 /**
  * Tests for class BlockPost.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\PostTypes\BlockPost;
-use Genesis\CustomBlocks\Blocks\Controls\Textarea;
+use Coywolf\CustomBlocks\PostTypes\BlockPost;
+use Coywolf\CustomBlocks\Blocks\Controls\Textarea;
 
 /**
  * Tests for class BlockPost.
@@ -27,7 +27,7 @@ class TestBlockPost extends \WP_UnitTestCase {
 	 *
 	 * @var string
 	 */
-	const EXPECTED_SLUG = 'genesis_custom_block';
+	const EXPECTED_SLUG = 'coywolf_custom_block';
 
 	/**
 	 * Setup.
@@ -39,13 +39,13 @@ class TestBlockPost extends \WP_UnitTestCase {
 		$this->instance = new BlockPost();
 		$this->instance->register_controls();
 		$this->instance->controls['textarea'] = new Textarea();
-		$this->instance->set_plugin( genesis_custom_blocks() );
+		$this->instance->set_plugin( coywolf_custom_blocks() );
 	}
 
 	/**
 	 * Test register_hooks.
 	 *
-	 * @covers \Genesis\CustomBlocks\PostTypes\BlockPost::register_hooks()
+	 * @covers \Coywolf\CustomBlocks\PostTypes\BlockPost::register_hooks()
 	 */
 	public function test_register_hooks() {
 		$this->instance->register_hooks();
@@ -56,7 +56,7 @@ class TestBlockPost extends \WP_UnitTestCase {
 
 		$this->assertEquals( 10, has_action( 'admin_enqueue_scripts', [ $this->instance, 'enqueue_scripts' ] ) );
 		$this->assertEquals( 10, has_action( 'init', [ $this->instance, 'register_controls' ] ) );
-		$this->assertEquals( 10, has_action( 'genesis_custom_blocks_field_value', [ $this->instance, 'get_field_value' ] ) );
+		$this->assertEquals( 10, has_action( 'coywolf_custom_blocks_field_value', [ $this->instance, 'get_field_value' ] ) );
 
 		$this->assertEquals( 10, has_action( 'disable_months_dropdown', '__return_true' ) );
 		$this->assertEquals( 10, has_action( 'page_row_actions', [ $this->instance, 'page_row_actions' ] ) );
@@ -68,22 +68,22 @@ class TestBlockPost extends \WP_UnitTestCase {
 	/**
 	 * Test register_controls.
 	 *
-	 * @covers \Genesis\CustomBlocks\PostTypes\BlockPost::register_controls()
+	 * @covers \Coywolf\CustomBlocks\PostTypes\BlockPost::register_controls()
 	 */
 	public function test_register_controls() {
 		$this->instance->register_controls();
 		foreach ( $this->instance->controls as $control_type => $instance ) {
-			$this->assertStringContainsString( 'Genesis\CustomBlocks\Blocks\Controls\\', get_class( $instance ) );
+			$this->assertStringContainsString( 'Coywolf\CustomBlocks\Blocks\Controls\\', get_class( $instance ) );
 		}
 	}
 
 	/**
 	 * Test get_control.
 	 *
-	 * @covers \Genesis\CustomBlocks\PostTypes\BlockPost::get_control()
+	 * @covers \Coywolf\CustomBlocks\PostTypes\BlockPost::get_control()
 	 */
 	public function test_get_control() {
-		$namespace = 'Genesis\CustomBlocks\Blocks\Controls\\';
+		$namespace = 'Coywolf\CustomBlocks\Blocks\Controls\\';
 		$this->assertEquals( $namespace . 'Textarea', get_class( $this->instance->get_control( 'textarea' ) ) );
 
 		// If the control doesn't exist, this should return null.
@@ -93,8 +93,8 @@ class TestBlockPost extends \WP_UnitTestCase {
 	/**
 	 * Test get_controls.
 	 *
-	 * @covers \Genesis\CustomBlocks\PostTypes\BlockPost::get_controls()
-	 * @covers \Genesis\CustomBlocks\PostTypes\BlockPost::register_controls()
+	 * @covers \Coywolf\CustomBlocks\PostTypes\BlockPost::get_controls()
+	 * @covers \Coywolf\CustomBlocks\PostTypes\BlockPost::register_controls()
 	 */
 	public function test_get_controls() {
 		$this->instance->register_controls();
@@ -123,7 +123,7 @@ class TestBlockPost extends \WP_UnitTestCase {
 	/**
 	 * Test get_field_value.
 	 *
-	 * @covers \Genesis\CustomBlocks\PostTypes\BlockPost::get_field_value()
+	 * @covers \Coywolf\CustomBlocks\PostTypes\BlockPost::get_field_value()
 	 */
 	public function test_get_field_value() {
 		$invalid_value   = 'asdfg';
@@ -150,11 +150,11 @@ class TestBlockPost extends \WP_UnitTestCase {
 	/**
 	 * Test get_capabilities.
 	 *
-	 * @covers \Genesis\CustomBlocks\PostTypes\BlockPost::get_capabilities()
+	 * @covers \Coywolf\CustomBlocks\PostTypes\BlockPost::get_capabilities()
 	 */
 	public function test_get_capabilities() {
 		$capabilities = $this->instance->get_capabilities();
-		$this->assertEquals( 'genesis_custom_block_edit_block', $capabilities['edit_post'] );
+		$this->assertEquals( 'coywolf_custom_block_edit_block', $capabilities['edit_post'] );
 	}
 
 	/**

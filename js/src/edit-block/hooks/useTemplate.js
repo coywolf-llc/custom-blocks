@@ -36,7 +36,7 @@ import { useBlock } from './';
  */
 const useTemplate = () => {
 	// @ts-ignore
-	const { template: initialTemplate } = gcbEditor; // eslint-disable-line no-undef
+	const { template: initialTemplate } = ccbEditor; // eslint-disable-line no-undef
 	const [ template, setTemplate ] = useState( initialTemplate );
 	const { block } = useBlock();
 	const { createErrorNotice } = useDispatch( 'core/notices' );
@@ -46,7 +46,7 @@ const useTemplate = () => {
 			( newBlockName ) => {
 				apiFetch( {
 					path: addQueryArgs(
-						'/genesis-custom-blocks/template-file',
+						'/coywolf-custom-blocks/template-file',
 						{ blockName: newBlockName }
 					),
 				} ).then(
@@ -77,7 +77,7 @@ const useTemplate = () => {
 						createErrorNotice(
 							sprintf(
 								/* translators: %1$s: the error message from the request */
-								__( 'Failed to get the template file: %1$s', 'genesis-custom-blocks' ),
+								__( 'Failed to get the template file: %1$s', 'coywolf-custom-blocks' ),
 								error.message
 							),
 							{ isDismissible: true }

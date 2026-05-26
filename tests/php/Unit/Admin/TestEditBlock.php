@@ -2,10 +2,10 @@
 /**
  * Tests for class EditBlock.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Admin\EditBlock;
+use Coywolf\CustomBlocks\Admin\EditBlock;
 
 /**
  * Tests for class EditBlock.
@@ -27,7 +27,7 @@ class TestEditBlock extends AbstractTemplate {
 	public function set_up() {
 		parent::set_up();
 		$this->instance = new EditBlock();
-		$this->instance->set_plugin( genesis_custom_blocks() );
+		$this->instance->set_plugin( coywolf_custom_blocks() );
 	}
 
 	/**
@@ -43,7 +43,7 @@ class TestEditBlock extends AbstractTemplate {
 	/**
 	 * Test register_hooks.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\EditBlock::register_hooks()
+	 * @covers \Coywolf\CustomBlocks\Admin\EditBlock::register_hooks()
 	 */
 	public function test_register_hooks() {
 		$this->instance->register_hooks();
@@ -58,7 +58,7 @@ class TestEditBlock extends AbstractTemplate {
 	/**
 	 * Test should_replace_editor on the wrong page.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\EditBlock::should_replace_editor()
+	 * @covers \Coywolf\CustomBlocks\Admin\EditBlock::should_replace_editor()
 	 */
 	public function test_should_replace_editor_wrong_page() {
 		$post = $this->factory()->post->create_and_get();
@@ -68,10 +68,10 @@ class TestEditBlock extends AbstractTemplate {
 	/**
 	 * Test should_replace_editor on the correct page.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\EditBlock::should_replace_editor()
+	 * @covers \Coywolf\CustomBlocks\Admin\EditBlock::should_replace_editor()
 	 */
 	public function test_should_replace_editor_correct_page() {
-		$correct_post_type = 'genesis_custom_block';
+		$correct_post_type = 'coywolf_custom_block';
 		$post              = $this->factory()->post->create_and_get(
 			[ 'post_type' => $correct_post_type ]
 		);
@@ -82,7 +82,7 @@ class TestEditBlock extends AbstractTemplate {
 	/**
 	 * Test enqueue_assets on the wrong page.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\EditBlock::enqueue_assets()
+	 * @covers \Coywolf\CustomBlocks\Admin\EditBlock::enqueue_assets()
 	 */
 	public function test_enqueue_assets_wrong_page() {
 		set_current_screen( 'front' );
@@ -90,13 +90,13 @@ class TestEditBlock extends AbstractTemplate {
 
 		$this->assertFalse( wp_script_is( EditBlock::SCRIPT_SLUG ) );
 		$this->assertFalse( wp_style_is( EditBlock::STYLE_SLUG ) );
-		$this->assertFalse( wp_style_is( 'genesis-custom-blocks-editor-css' ) );
+		$this->assertFalse( wp_style_is( 'coywolf-custom-blocks-editor-css' ) );
 	}
 
 	/**
 	 * Test enqueue_assets on the correct page.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\EditBlock::enqueue_assets()
+	 * @covers \Coywolf\CustomBlocks\Admin\EditBlock::enqueue_assets()
 	 */
 	public function test_enqueue_assets_correct_page() {
 		$this->set_is_gcb_editor();
@@ -104,13 +104,13 @@ class TestEditBlock extends AbstractTemplate {
 
 		$this->assertTrue( wp_script_is( EditBlock::SCRIPT_SLUG ) );
 		$this->assertTrue( wp_style_is( EditBlock::STYLE_SLUG ) );
-		$this->assertTrue( wp_style_is( 'genesis-custom-blocks-editor-css' ) );
+		$this->assertTrue( wp_style_is( 'coywolf-custom-blocks-editor-css' ) );
 	}
 
 	/**
 	 * Test conditionally_prevent_footer_text on a non-editor page.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\EditBlock::conditionally_prevent_footer_text()
+	 * @covers \Coywolf\CustomBlocks\Admin\EditBlock::conditionally_prevent_footer_text()
 	 */
 	public function test_conditionally_prevent_footer_text_wrong_page() {
 		set_current_screen( 'edit-post' );
@@ -125,7 +125,7 @@ class TestEditBlock extends AbstractTemplate {
 	/**
 	 * Test conditionally_prevent_footer_text on a GCB editor page.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\EditBlock::conditionally_prevent_footer_text()
+	 * @covers \Coywolf\CustomBlocks\Admin\EditBlock::conditionally_prevent_footer_text()
 	 */
 	public function test_conditionally_prevent_footer_text_correct_page() {
 		$this->set_is_gcb_editor();
@@ -135,7 +135,7 @@ class TestEditBlock extends AbstractTemplate {
 	/**
 	 * Test conditionally_prevent_update_text on a non-editor page.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\EditBlock::conditionally_prevent_update_text()
+	 * @covers \Coywolf\CustomBlocks\Admin\EditBlock::conditionally_prevent_update_text()
 	 */
 	public function test_conditionally_prevent_update_text_wrong_page() {
 		set_current_screen( 'plugins' );
@@ -146,7 +146,7 @@ class TestEditBlock extends AbstractTemplate {
 	/**
 	 * Test conditionally_prevent_update_text on a GCB editor page.
 	 *
-	 * @covers \Genesis\CustomBlocks\Admin\EditBlock::conditionally_prevent_update_text()
+	 * @covers \Coywolf\CustomBlocks\Admin\EditBlock::conditionally_prevent_update_text()
 	 */
 	public function test_conditionally_prevent_update_text_correct_page() {
 		$this->set_is_gcb_editor();
@@ -156,19 +156,19 @@ class TestEditBlock extends AbstractTemplate {
 	/**
 	 * Test register_route_template_file.
 	 *
-	 * @covers Genesis\CustomBlocks\Admin\EditBlock::register_route_template_file()
+	 * @covers Coywolf\CustomBlocks\Admin\EditBlock::register_route_template_file()
 	 */
 	public function test_register_route_template_file() {
 		do_action( 'rest_api_init' );
 		$this->instance->register_route_template_file();
 
-		$this->assertArrayHasKey( '/genesis-custom-blocks/template-file', rest_get_server()->get_routes() );
+		$this->assertArrayHasKey( '/coywolf-custom-blocks/template-file', rest_get_server()->get_routes() );
 	}
 
 	/**
 	 * Test get_template_file response no block name.
 	 *
-	 * @covers Genesis\CustomBlocks\Admin\EditBlock::get_template_file_response()
+	 * @covers Coywolf\CustomBlocks\Admin\EditBlock::get_template_file_response()
 	 */
 	public function test_get_template_file_response_no_block_name() {
 		$response = $this->instance->get_template_file_response( [] );
@@ -182,7 +182,7 @@ class TestEditBlock extends AbstractTemplate {
 	/**
 	 * Test get_template_file response.
 	 *
-	 * @covers Genesis\CustomBlocks\Admin\EditBlock::get_template_file_response()
+	 * @covers Coywolf\CustomBlocks\Admin\EditBlock::get_template_file_response()
 	 */
 	public function test_get_template_file_response() {
 		$block_name = 'baz-example';
@@ -206,6 +206,6 @@ class TestEditBlock extends AbstractTemplate {
 		set_current_screen( 'edit-post' );
 		$wp_screen            = get_current_screen();
 		$wp_screen->base      = 'post';
-		$wp_screen->post_type = 'genesis_custom_block';
+		$wp_screen->post_type = 'coywolf_custom_block';
 	}
 }

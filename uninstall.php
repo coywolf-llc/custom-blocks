@@ -11,7 +11,7 @@
  * Without that opt-in, every block definition and plugin option is left
  * untouched so a future reinstall picks up where the user left off.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
 // WP defines this constant when invoking uninstall.php. Refuse to run otherwise.
@@ -33,7 +33,7 @@ if ( '1' !== (string) get_option( $delete_on_uninstall_option ) ) {
  */
 $block_post_ids = get_posts(
 	array(
-		'post_type'      => 'genesis_custom_block',
+		'post_type'      => 'coywolf_custom_block',
 		'post_status'    => 'any',
 		'posts_per_page' => -1,
 		'fields'         => 'ids',
@@ -50,11 +50,14 @@ if ( is_array( $block_post_ids ) ) {
 /**
  * Plugin options to drop. Includes the opt-in flag itself so a reinstall
  * starts from a clean slate.
+ *
+ * Only `coywolf_*` keys are listed. If the upstream Genesis Custom Blocks
+ * plugin happens to be co-installed, its `genesis_custom_blocks_*` options
+ * belong to it and must be left alone.
  */
 $options = array(
 	'coywolf_custom_blocks_delete_on_uninstall',
-	'genesis_custom_blocks_analytics_opt_in', // Legacy upstream option, in case it lingers from a pre-rebrand install.
-	'genesis_custom_blocks_notices',
+	'coywolf_custom_blocks_notices',
 );
 
 foreach ( $options as $option_name ) {

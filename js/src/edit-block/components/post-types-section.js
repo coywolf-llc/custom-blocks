@@ -64,7 +64,7 @@ const PostTypesSection = () => {
 
 	return (
 		<div className="mt-5">
-			<span className="text-sm">{ __( 'Post Types', 'genesis-custom-blocks' ) }</span>
+			<span className="text-sm">{ __( 'Post Types', 'coywolf-custom-blocks' ) }</span>
 			{
 				Array.isArray( postTypes ) && postTypes.length
 					? postTypes.map( ( postType ) => {

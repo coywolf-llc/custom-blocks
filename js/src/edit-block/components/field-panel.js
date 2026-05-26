@@ -97,12 +97,12 @@ const FieldPanel = ( {
 		<div className="p-4">
 			{ NO_FIELD_SELECTED === selectedField
 				? <span className="text-sm">
-					{ __( 'No field selected', 'genesis-custom-blocks' ) }
+					{ __( 'No field selected', 'coywolf-custom-blocks' ) }
 				</span>
 				: <>
-					<h4 className="text-sm font-semibold">{ __( 'Field Settings', 'genesis-custom-blocks' ) }</h4>
+					<h4 className="text-sm font-semibold">{ __( 'Field Settings', 'coywolf-custom-blocks' ) }</h4>
 					<div className="mt-5">
-						<label className="text-sm" htmlFor="field-label">{ __( 'Field Label', 'genesis-custom-blocks' ) }</label>
+						<label className="text-sm" htmlFor="field-label">{ __( 'Field Label', 'coywolf-custom-blocks' ) }</label>
 						<input
 							className="flex items-center w-full h-8 rounded-sm border border-gray-600 mt-2 px-2 text-sm"
 							type="text"
@@ -139,10 +139,10 @@ const FieldPanel = ( {
 								}
 							} }
 						/>
-						<span className="block italic text-xs mt-1">{ __( 'A label or a title for this field.', 'genesis-custom-blocks' ) }</span>
+						<span className="block italic text-xs mt-1">{ __( 'A label or a title for this field.', 'coywolf-custom-blocks' ) }</span>
 					</div>
 					<div className="mt-5">
-						<label className="text-sm" htmlFor="field-name">{ __( 'Field Name (slug)', 'genesis-custom-blocks' ) }</label>
+						<label className="text-sm" htmlFor="field-name">{ __( 'Field Name (slug)', 'coywolf-custom-blocks' ) }</label>
 						<input
 							className="flex items-center w-full h-8 rounded-sm border border-gray-600 mt-2 px-2 text-sm font-mono"
 							type="text"
@@ -161,10 +161,10 @@ const FieldPanel = ( {
 								}
 							} }
 						/>
-						<span className="block italic text-xs mt-1">{ __( 'Single word, no spaces.', 'genesis-custom-blocks' ) }</span>
+						<span className="block italic text-xs mt-1">{ __( 'Single word, no spaces.', 'coywolf-custom-blocks' ) }</span>
 					</div>
 					<div className="mt-5">
-						<label className="text-sm" htmlFor="field-control">{ __( 'Field Type', 'genesis-custom-blocks' ) }</label>
+						<label className="text-sm" htmlFor="field-control">{ __( 'Field Type', 'coywolf-custom-blocks' ) }</label>
 						<select /* eslint-disable-line jsx-a11y/no-onchange */
 							className="flex items-center w-full h-8 rounded-sm border border-gray-600 mt-2 px-2 text-sm"
 							id="field-control"

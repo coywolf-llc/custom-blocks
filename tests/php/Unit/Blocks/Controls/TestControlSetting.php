@@ -2,10 +2,10 @@
 /**
  * Tests for class ControlSetting.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Blocks\Controls\ControlSetting;
+use Coywolf\CustomBlocks\Blocks\Controls\ControlSetting;
 
 /**
  * Tests for class ControlSetting.
@@ -22,7 +22,7 @@ class TestControlSetting extends \WP_UnitTestCase {
 	/**
 	 * Test __construct.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\ControlSetting::__construct()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\ControlSetting::__construct()
 	 */
 	public function test_construct() {
 		$this->instance          = new ControlSetting( [] );
@@ -39,7 +39,7 @@ class TestControlSetting extends \WP_UnitTestCase {
 		foreach ( $initial_property_values as $initial_property_name => $initial_property_value ) {
 			$this->assertEquals( $initial_property_value, $this->instance->$initial_property_name );
 		}
-		$this->assertEquals( 'Genesis\CustomBlocks\Blocks\Controls\ControlSetting', get_class( $this->instance ) );
+		$this->assertEquals( 'Coywolf\CustomBlocks\Blocks\Controls\ControlSetting', get_class( $this->instance ) );
 
 		// Each of the properties below passed in the constructor should be added as properties.
 		$expected_properties = [
@@ -83,7 +83,7 @@ class TestControlSetting extends \WP_UnitTestCase {
 	/**
 	 * Test get_value.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\ControlSetting::get_value()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\ControlSetting::get_value()
 	 */
 	public function get_value() {
 		$default        = 'this is a default';

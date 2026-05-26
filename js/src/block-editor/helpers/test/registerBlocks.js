@@ -29,16 +29,16 @@ describe( 'registerBlocks', () => {
 	} );
 
 	it( 'should register a single block', () => {
-		const blockName = 'genesis-custom-blocks/test-post';
-		const gcbBlocks = {};
-		gcbBlocks[ blockName ] = {
+		const blockName = 'coywolf-custom-blocks/test-post';
+		const ccbBlocks = {};
+		ccbBlocks[ blockName ] = {
 			title: 'Test Post',
 			category: 'widget',
 			keywords: [ 'foobaz', 'example' ],
 			icon: 'camera_alt',
 		};
 
-		registerBlocks( {}, gcbBlocks, Edit );
+		registerBlocks( {}, ccbBlocks, Edit );
 		expect( mockRegisterBlockType ).toHaveBeenCalledWith(
 			blockName,
 			expect.objectContaining( expectedArgs )
@@ -49,13 +49,13 @@ describe( 'registerBlocks', () => {
 		registerBlocks(
 			{},
 			{
-				'genesis-custom-blocks/example-post': {
+				'coywolf-custom-blocks/example-post': {
 					title: 'An Example Post',
 					category: 'widget',
 					keywords: [ 'foobaz', 'example' ],
-					icon: 'genesis_custom_blocks',
+					icon: 'coywolf_custom_blocks',
 				},
-				'genesis-custom-blocks/example-email': {
+				'coywolf-custom-blocks/example-email': {
 					title: 'Example Email',
 					category: 'widget',
 					keywords: [ 'example-keyword', 'another' ],

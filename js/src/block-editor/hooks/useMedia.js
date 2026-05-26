@@ -80,10 +80,10 @@ const useMedia = ( fieldValue, onChange, allowedTypes ) => {
 		} else if ( media?.source_url ) { // eslint-disable-line camelcase
 			setImageAlt(
 				/* translators: %1$s: the image src */
-				sprintf( __( 'This has no alt attribute, but its src is %1$s', 'genesis-custom-blocks' ), media.source_url )
+				sprintf( __( 'This has no alt attribute, but its src is %1$s', 'coywolf-custom-blocks' ), media.source_url )
 			);
 		} else {
-			setImageAlt( __( 'This has no alt attribute', 'genesis-custom-blocks' ) );
+			setImageAlt( __( 'This has no alt attribute', 'coywolf-custom-blocks' ) );
 		}
 	}, [ media ] );
 

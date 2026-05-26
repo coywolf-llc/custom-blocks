@@ -7,9 +7,9 @@ describe( 'getBlockNameWithNameSpace', () => {
 	it.each( [
 		[
 			{
-				'genesis-custom-blocks/example-here': { name: 'example-here', title: 'Example Here' },
+				'coywolf-custom-blocks/example-here': { name: 'example-here', title: 'Example Here' },
 			},
-			'genesis-custom-blocks/example-here',
+			'coywolf-custom-blocks/example-here',
 		],
 		[
 			{

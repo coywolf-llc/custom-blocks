@@ -2,10 +2,10 @@
 /**
  * Tests for class InnerBlocks.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Blocks\Controls\InnerBlocks;
+use Coywolf\CustomBlocks\Blocks\Controls\InnerBlocks;
 use function Brain\Monkey\Functions\expect;
 use function Brain\Monkey\setUp;
 use function Brain\Monkey\tearDown;
@@ -41,7 +41,7 @@ class TestInnerBlocks extends \WP_UnitTestCase {
 	 * @inheritdoc
 	 */
 	public function tear_down() {
-		remove_all_filters( 'genesis_custom_blocks_data_content' );
+		remove_all_filters( 'coywolf_custom_blocks_data_content' );
 		tearDown();
 		parent::tear_down();
 	}
@@ -49,7 +49,7 @@ class TestInnerBlocks extends \WP_UnitTestCase {
 	/**
 	 * Test __construct.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\InnerBlocks::__construct()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\InnerBlocks::__construct()
 	 */
 	public function test_construct() {
 		$this->assertEquals( 'Inner Blocks', $this->instance->label );
@@ -60,7 +60,7 @@ class TestInnerBlocks extends \WP_UnitTestCase {
 	/**
 	 * Test register_settings.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\InnerBlocks::register_settings()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\InnerBlocks::register_settings()
 	 */
 	public function test_register_settings() {
 		$expected_settings = [
@@ -80,12 +80,12 @@ class TestInnerBlocks extends \WP_UnitTestCase {
 	/**
 	 * Test validate with inner blocks in the content.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\InnerBlocks::validate()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\InnerBlocks::validate()
 	 */
 	public function test_validate_with_content() {
 		$content = '<p>Here is example inner blocks content</p>';
 		add_filter(
-			'genesis_custom_blocks_data_content',
+			'coywolf_custom_blocks_data_content',
 			function () use ( $content ) {
 				return $content;
 			}
@@ -97,12 +97,12 @@ class TestInnerBlocks extends \WP_UnitTestCase {
 	/**
 	 * Test that validate returns the content when it is non-empty.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\InnerBlocks::validate()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\InnerBlocks::validate()
 	 */
 	public function test_validate_inner_blocks_returns_content_when_non_empty() {
 		$content = 'Here is some example inner blocks content';
 		add_filter(
-			'genesis_custom_blocks_data_content',
+			'coywolf_custom_blocks_data_content',
 			function () use ( $content ) {
 				return $content;
 			}
@@ -121,7 +121,7 @@ class TestInnerBlocks extends \WP_UnitTestCase {
 	/**
 	 * Test validate with inner blocks in a query arg.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\InnerBlocks::validate()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\InnerBlocks::validate()
 	 */
 	public function test_validate_inner_blocks_in_query_arg() {
 		$inner_blocks = 'Here is some example inner blocks content';
@@ -139,7 +139,7 @@ class TestInnerBlocks extends \WP_UnitTestCase {
 	/**
 	 * Test validate with inner blocks in a query arg, when it prepares to echo.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\InnerBlocks::validate()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\InnerBlocks::validate()
 	 */
 	public function test_validate_inner_blocks_in_query_arg_echoed() {
 		$inner_blocks = 'Here is some example inner blocks content';

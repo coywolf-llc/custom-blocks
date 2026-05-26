@@ -11,7 +11,7 @@ describe( 'getDefaultBlock', () => {
 			name: 'block',
 			title: 'block',
 			excluded: [],
-			icon: 'genesis_custom_blocks',
+			icon: 'coywolf_custom_blocks',
 			category: {
 				icon: null,
 				slug: 'text',
@@ -29,7 +29,7 @@ describe( 'getDefaultBlock', () => {
 			name: 'block-923',
 			title: 'block-923',
 			excluded: [],
-			icon: 'genesis_custom_blocks',
+			icon: 'coywolf_custom_blocks',
 			category: {
 				icon: null,
 				slug: 'text',

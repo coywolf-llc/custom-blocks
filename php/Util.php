@@ -2,13 +2,13 @@
 /**
  * Helper functions for the Genesis Custom Blocks plugin.
  *
- * These are publicly accessible via a magic method, like genesis_custom_blocks()->get_template_locations().
+ * These are publicly accessible via a magic method, like coywolf_custom_blocks()->get_template_locations().
  * So these methods should generally be 'getter' functions, and should not affect the global state.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-namespace Genesis\CustomBlocks;
+namespace Coywolf\CustomBlocks;
 
 /**
  * Class Util
@@ -21,7 +21,7 @@ class Util extends ComponentAbstract {
 	 * @since 1.3.5
 	 * @var string
 	 */
-	private $post_type_slug = 'genesis_custom_block';
+	private $post_type_slug = 'coywolf_custom_block';
 
 	/**
 	 * Not implemented, as this class only has utility methods.
@@ -84,7 +84,7 @@ class Util extends ComponentAbstract {
 		 * @param string       $path           The absolute path to the stylesheet directory.
 		 * @param string|array $template_names Templates to locate.
 		 */
-		$path = apply_filters( 'genesis_custom_blocks_template_path', $path, $template_names );
+		$path = apply_filters( 'coywolf_custom_blocks_template_path', $path, $template_names );
 
 		$stylesheet_path = get_template_directory();
 		$template_path   = get_stylesheet_directory();
@@ -147,7 +147,7 @@ class Util extends ComponentAbstract {
 		_deprecated_function(
 			sprintf(
 				/* translators: %s: the function name */
-				esc_html__( "Genesis Custom Blocks's %s", 'genesis-custom-blocks' ),
+				esc_html__( "Genesis Custom Blocks's %s", 'coywolf-custom-blocks' ),
 				'get_icons'
 			),
 			'1.1.0'
@@ -189,7 +189,7 @@ class Util extends ComponentAbstract {
 		 *
 		 * @param array $allowed_tags The allowed tags.
 		 */
-		return apply_filters( 'genesis_custom_blocks_allowed_svg_tags', $allowed_tags );
+		return apply_filters( 'coywolf_custom_blocks_allowed_svg_tags', $allowed_tags );
 	}
 
 	/**

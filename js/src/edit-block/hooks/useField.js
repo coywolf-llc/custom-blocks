@@ -1,4 +1,4 @@
-/* global gcbEditor */
+/* global ccbEditor */
 
 /**
  * WordPress dependencies
@@ -44,7 +44,7 @@ import { DEFAULT_LOCATION } from '../../common/constants';
  */
 const useField = () => {
 	// @ts-ignore
-	const { controls } = gcbEditor;
+	const { controls } = ccbEditor;
 	const { changeBlock } = useBlock();
 	const editedPostContent = useSelect(
 		( select ) => select( 'core/editor' ).getEditedPostContent(),
@@ -92,10 +92,10 @@ const useField = () => {
 		const label = newFieldNumber
 			? sprintf(
 				// translators: %1$d: the field number
-				__( 'New Field %1$d', 'genesis-custom-blocks' ),
+				__( 'New Field %1$d', 'coywolf-custom-blocks' ),
 				newFieldNumber
 			)
-			: __( 'New Field', 'genesis-custom-blocks' );
+			: __( 'New Field', 'coywolf-custom-blocks' );
 
 		const newControlName = 'text';
 		const newField = {

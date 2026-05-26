@@ -2,12 +2,12 @@
 /**
  * Tests for class Util.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Plugin;
-use Genesis\CustomBlocks\Util;
-use Genesis\CustomBlocks\Admin\Admin;
+use Coywolf\CustomBlocks\Plugin;
+use Coywolf\CustomBlocks\Util;
+use Coywolf\CustomBlocks\Admin\Admin;
 
 /**
  * Tests for class Util.
@@ -32,7 +32,7 @@ class TestUtil extends AbstractTemplate {
 		parent::set_up();
 
 		$this->instance = new Util();
-		$this->instance->set_plugin( genesis_custom_blocks() );
+		$this->instance->set_plugin( coywolf_custom_blocks() );
 	}
 
 	/**
@@ -41,16 +41,16 @@ class TestUtil extends AbstractTemplate {
 	 * @inheritdoc
 	 */
 	public function tear_down() {
-		remove_all_filters( 'genesis_custom_blocks_template_path' );
-		remove_all_filters( 'genesis_custom_blocks_icons' );
-		remove_all_filters( 'genesis_custom_blocks_allowed_svg_tags' );
+		remove_all_filters( 'coywolf_custom_blocks_template_path' );
+		remove_all_filters( 'coywolf_custom_blocks_icons' );
+		remove_all_filters( 'coywolf_custom_blocks_allowed_svg_tags' );
 		parent::tear_down();
 	}
 
 	/**
 	 * Test get_template_locations.
 	 *
-	 * @covers \Genesis\CustomBlocks\Util::get_template_locations()
+	 * @covers \Coywolf\CustomBlocks\Util::get_template_locations()
 	 */
 	public function test_get_template_locations() {
 		$name = 'foo-baz';
@@ -78,7 +78,7 @@ class TestUtil extends AbstractTemplate {
 	/**
 	 * Test get_stylesheet_locations.
 	 *
-	 * @covers \Genesis\CustomBlocks\Util::get_stylesheet_locations()
+	 * @covers \Coywolf\CustomBlocks\Util::get_stylesheet_locations()
 	 */
 	public function test_get_stylesheet_locations() {
 		$name = 'foo-baz';
@@ -106,7 +106,7 @@ class TestUtil extends AbstractTemplate {
 	/**
 	 * Test locate_template.
 	 *
-	 * @covers \Genesis\CustomBlocks\Util::locate_template()
+	 * @covers \Coywolf\CustomBlocks\Util::locate_template()
 	 */
 	public function test_locate_template() {
 		$templates                   = $this->instance->get_template_locations( $this->mock_block_name );
@@ -148,7 +148,7 @@ class TestUtil extends AbstractTemplate {
 		$this->assertTrue( in_array( $full_alternate_block_path, $this->instance->locate_template( $templates, $base_alternate_block_directory, false ), true ) );
 
 		add_filter(
-			'genesis_custom_blocks_template_path',
+			'coywolf_custom_blocks_template_path',
 			function ( $path ) use ( $base_alternate_block_directory ) {
 				unset( $path );
 				return $base_alternate_block_directory;
@@ -165,7 +165,7 @@ class TestUtil extends AbstractTemplate {
 	/**
 	 * Test allowed_svg_tags.
 	 *
-	 * @covers \Genesis\CustomBlocks\Util::allowed_svg_tags()
+	 * @covers \Coywolf\CustomBlocks\Util::allowed_svg_tags()
 	 */
 	public function test_allowed_svg_tags() {
 		$this->assertEquals(
@@ -197,7 +197,7 @@ class TestUtil extends AbstractTemplate {
 		$additional_tag_attributes = [ 'bax' => true ];
 
 		add_filter(
-			'genesis_custom_blocks_allowed_svg_tags',
+			'coywolf_custom_blocks_allowed_svg_tags',
 			function ( $allowed_tags ) use ( $additional_tag_name, $additional_tag_attributes ) {
 				$allowed_tags[ $additional_tag_name ] = $additional_tag_attributes;
 				return $allowed_tags;
@@ -212,19 +212,19 @@ class TestUtil extends AbstractTemplate {
 	/**
 	 * Test get_post_type_slug.
 	 *
-	 * @covers \Genesis\CustomBlocks\Util::get_post_type_slug()
+	 * @covers \Coywolf\CustomBlocks\Util::get_post_type_slug()
 	 */
 	public function test_get_post_type_slug() {
-		$this->assertEquals( 'genesis_custom_block', $this->instance->get_post_type_slug() );
+		$this->assertEquals( 'coywolf_custom_block', $this->instance->get_post_type_slug() );
 
 		// It should also be possible to call this via a magic method of the Plugin class.
-		$this->assertEquals( 'genesis_custom_block', genesis_custom_blocks()->get_post_type_slug() );
+		$this->assertEquals( 'coywolf_custom_block', coywolf_custom_blocks()->get_post_type_slug() );
 	}
 
 	/**
 	 * Test get_url_from_path.
 	 *
-	 * @covers \Genesis\CustomBlocks\Util::get_url_from_path()
+	 * @covers \Coywolf\CustomBlocks\Util::get_url_from_path()
 	 */
 	public function test_get_url_from_path() {
 		$subdirectory_path = 'wp-content/theme/blocks/test-block-here.css';

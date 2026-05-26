@@ -88,7 +88,7 @@ const Edit = ( { block, blockProps } ) => {
 							<div
 								role="button"
 								tabIndex={ 0 }
-								aria-label={ __( 'Edit the block', 'genesis-custom-blocks' ) }
+								aria-label={ __( 'Edit the block', 'coywolf-custom-blocks' ) }
 								onClick={ ( event ) => {
 									event.stopPropagation();
 									setIsModalDisplaying( true );
@@ -124,9 +124,9 @@ const Edit = ( { block, blockProps } ) => {
 									) : null
 								}
 								<ServerSideRender
-									block={ `genesis-custom-blocks/${ block.name }` }
+									block={ `coywolf-custom-blocks/${ block.name }` }
 									attributes={ blockProps.attributes }
-									className="genesis-custom-blocks-editor__ssr"
+									className="coywolf-custom-blocks-editor__ssr"
 									httpMethod="POST"
 									urlQueryArgs={ { inner_blocks: innerBlocks
 										? encodeURIComponent( serialize( innerBlocks ) )

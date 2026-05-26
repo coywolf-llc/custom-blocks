@@ -82,7 +82,7 @@ const FieldsGrid = ( {
 			</div>
 			<button
 				className="flex items-center justify-center h-6 w-6 bg-black rounded-sm text-white mt-4 ml-auto"
-				aria-label={ __( 'Add a new field', 'genesis-custom-blocks' ) }
+				aria-label={ __( 'Add a new field', 'coywolf-custom-blocks' ) }
 				onClick={ ( event ) => {
 					event.stopPropagation();
 					const newFieldName = addNewField( currentLocation, parentField );
@@ -101,7 +101,7 @@ const FieldsGrid = ( {
 					fill="currentColor"
 					viewBox="0 0 20 20"
 				>
-					<title>{ __( 'New field', 'genesis-custom-blocks' ) }</title>
+					<title>{ __( 'New field', 'coywolf-custom-blocks' ) }</title>
 					<path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
 				</svg>
 			</button>

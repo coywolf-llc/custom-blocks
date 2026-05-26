@@ -2,10 +2,10 @@
 /**
  * Tests for class Text.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Blocks\Controls\Text;
+use Coywolf\CustomBlocks\Blocks\Controls\Text;
 
 /**
  * Tests for class Text.
@@ -34,7 +34,7 @@ class TestText extends \WP_UnitTestCase {
 	/**
 	 * Test __construct.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\Text::__construct()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\Text::__construct()
 	 */
 	public function test_construct() {
 		$this->assertEquals( 'Text', $this->instance->label );
@@ -46,7 +46,7 @@ class TestText extends \WP_UnitTestCase {
 	 *
 	 * The parent constructor calls register_settings(), so there's no need to call it again here.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\Text::register_settings()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\Text::register_settings()
 	 */
 	public function test_register_settings() {
 		$expected_settings = [
@@ -106,7 +106,7 @@ class TestText extends \WP_UnitTestCase {
 	/**
 	 * Test jsonSerialize.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\Text::jsonSerialize()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\Text::jsonSerialize()
 	 */
 	public function test_jsonSerialize() {
 		$this->assertEquals(

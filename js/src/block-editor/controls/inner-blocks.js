@@ -25,7 +25,7 @@ const GcbInnerBlocksControl = ( { field, context } ) => (
 					? (
 						<Notice>
 							<span className="text-sm">
-								{ __( 'This field only works in the block editor.', 'genesis-custom-blocks' ) }
+								{ __( 'This field only works in the block editor.', 'coywolf-custom-blocks' ) }
 							</span>
 						</Notice>
 					) : <InnerBlocks />

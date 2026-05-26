@@ -52,16 +52,16 @@ const KeywordsSection = () => {
 				// @ts-ignore
 				label={ sprintf(
 					/* translators: %1$d: the max number of keywords */
-					__( 'Keywords (max %1$d)', 'genesis-custom-blocks' ),
+					__( 'Keywords (max %1$d)', 'coywolf-custom-blocks' ),
 					maxNumberOfKeywords
 				) }
 				value={ getKeywords() }
 				maxLength={ maxNumberOfKeywords }
 				onChange={ handleChange }
 				messages={ {
-					added: __( 'Keyword added.', 'genesis-custom-blocks' ),
-					removed: __( 'Keyword removed.', 'genesis-custom-blocks' ),
-					remove: __( 'Remove keyword', 'genesis-custom-blocks' ),
+					added: __( 'Keyword added.', 'coywolf-custom-blocks' ),
+					removed: __( 'Keyword removed.', 'coywolf-custom-blocks' ),
+					remove: __( 'Remove keyword', 'coywolf-custom-blocks' ),
 				} }
 			/>
 		</div>

@@ -2,7 +2,7 @@
 /**
  * Template for testing-example block to test the output of controls.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
 // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped

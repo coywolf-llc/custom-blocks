@@ -2,15 +2,15 @@
 /**
  * User onboarding.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license   http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-namespace Genesis\CustomBlocks\Admin;
+namespace Coywolf\CustomBlocks\Admin;
 
-use Genesis\CustomBlocks\ComponentAbstract;
-use Genesis\CustomBlocks\Blocks\Block;
+use Coywolf\CustomBlocks\ComponentAbstract;
+use Coywolf\CustomBlocks\Blocks\Block;
 
 /**
  * Class Onboarding
@@ -22,14 +22,14 @@ class Onboarding extends ComponentAbstract {
 	 *
 	 * @var string
 	 */
-	const SHOW_WELCOME_TRANSIENT = 'genesis_custom_blocks_show_welcome';
+	const SHOW_WELCOME_TRANSIENT = 'coywolf_custom_blocks_show_welcome';
 
 	/**
 	 * Option name.
 	 *
 	 * @var string
 	 */
-	const OPTION_NAME = 'genesis_custom_blocks_example_post_id';
+	const OPTION_NAME = 'coywolf_custom_blocks_example_post_id';
 
 	/**
 	 * Register any hooks that this component needs.
@@ -57,7 +57,7 @@ class Onboarding extends ComponentAbstract {
 		}
 
 		$screen = get_current_screen();
-		$slug   = genesis_custom_blocks()->get_post_type_slug();
+		$slug   = coywolf_custom_blocks()->get_post_type_slug();
 
 		if ( ! is_object( $screen ) ) {
 			return;
@@ -70,7 +70,7 @@ class Onboarding extends ComponentAbstract {
 		 */
 		if ( $slug === $screen->id && 'post' === $screen->base && $post_id === $example_post_id ) {
 			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
-			add_action( 'genesis_custom_blocks_before_fields_list', [ $this, 'show_add_to_post_notice' ] );
+			add_action( 'coywolf_custom_blocks_before_fields_list', [ $this, 'show_add_to_post_notice' ] );
 		}
 
 		if ( 'draft' !== get_post_status( $example_post_id ) ) {
@@ -128,7 +128,7 @@ class Onboarding extends ComponentAbstract {
 	 */
 	public function enqueue_scripts() {
 		wp_enqueue_style(
-			'genesis-custom-blocks-onboarding-css',
+			'coywolf-custom-blocks-onboarding-css',
 			$this->plugin->get_url( 'css/admin.onboarding.css' ),
 			[],
 			$this->plugin->get_version()
@@ -145,27 +145,27 @@ class Onboarding extends ComponentAbstract {
 			return;
 		}
 		?>
-		<div class="genesis-custom-blocks-welcome genesis-custom-blocks-notice notice is-dismissible">
-			<h2><span role="image" aria-label="<?php esc_attr_e( 'Waving hand emoji', 'genesis-custom-blocks' ); ?>">👋</span> <?php esc_html_e( 'Hi, and welcome!', 'genesis-custom-blocks' ); ?></h2>
-			<p class="intro"><?php esc_html_e( 'Genesis Custom Blocks makes it easy to build your own blocks for the WordPress editor.', 'genesis-custom-blocks' ); ?></p>
-			<p><strong><?php esc_html_e( 'Want to see how it\'s done?', 'genesis-custom-blocks' ); ?></strong> <?php esc_html_e( 'Here\'s one we prepared earlier.', 'genesis-custom-blocks' ); ?></p>
+		<div class="coywolf-custom-blocks-welcome coywolf-custom-blocks-notice notice is-dismissible">
+			<h2><span role="image" aria-label="<?php esc_attr_e( 'Waving hand emoji', 'coywolf-custom-blocks' ); ?>">👋</span> <?php esc_html_e( 'Hi, and welcome!', 'coywolf-custom-blocks' ); ?></h2>
+			<p class="intro"><?php esc_html_e( 'Genesis Custom Blocks makes it easy to build your own blocks for the WordPress editor.', 'coywolf-custom-blocks' ); ?></p>
+			<p><strong><?php esc_html_e( 'Want to see how it\'s done?', 'coywolf-custom-blocks' ); ?></strong> <?php esc_html_e( 'Here\'s one we prepared earlier.', 'coywolf-custom-blocks' ); ?></p>
 			<?php
 			edit_post_link(
-				__( 'Let\'s get started!', 'genesis-custom-blocks' ),
+				__( 'Let\'s get started!', 'coywolf-custom-blocks' ),
 				'<p>',
 				'</p>',
 				$example_post_id,
 				'button button--white button_cta'
 			);
 			?>
-			<p class="ps"><?php esc_html_e( 'P.S. We don\'t like to nag. This message won\'t be shown again.', 'genesis-custom-blocks' ); ?></p>
+			<p class="ps"><?php esc_html_e( 'P.S. We don\'t like to nag. This message won\'t be shown again.', 'coywolf-custom-blocks' ); ?></p>
 			<p class="ps">
 				<?php
-				esc_html_e( 'Prefer to look at the docs?', 'genesis-custom-blocks' );
+				esc_html_e( 'Prefer to look at the docs?', 'coywolf-custom-blocks' );
 				printf(
 					'&nbsp;<a href="%1$s" target="_blank" rel="noreferrer noopener">%2$s</a>',
 					'https://github.com/coywolf-llc/custom-blocks#readme',
-					esc_html__( 'Start here', 'genesis-custom-blocks' )
+					esc_html__( 'Start here', 'coywolf-custom-blocks' )
 				);
 				?>
 			</p>
@@ -183,14 +183,14 @@ class Onboarding extends ComponentAbstract {
 			return;
 		}
 		?>
-		<div class="genesis-custom-blocks-edit-block genesis-custom-blocks-notice notice">
-			<h2><span role="image" aria-label="<?php esc_attr_e( 'Scientist emoji', 'genesis-custom-blocks' ); ?>">👩</span> <span role="image" aria-label="<?php esc_attr_e( 'Stethescope emoji', 'genesis-custom-blocks' ); ?>">🔬</span> <?php echo esc_html_e( 'Ready to begin?', 'genesis-custom-blocks' ); ?></h2>
+		<div class="coywolf-custom-blocks-edit-block coywolf-custom-blocks-notice notice">
+			<h2><span role="image" aria-label="<?php esc_attr_e( 'Scientist emoji', 'coywolf-custom-blocks' ); ?>">👩</span> <span role="image" aria-label="<?php esc_attr_e( 'Stethescope emoji', 'coywolf-custom-blocks' ); ?>">🔬</span> <?php echo esc_html_e( 'Ready to begin?', 'coywolf-custom-blocks' ); ?></h2>
 			<p class="intro">
 				<?php
 				echo wp_kses_post(
 					sprintf(
 						// translators: Placeholders are <strong> html tags.
-						__( 'We created this %1$sExample Block%2$s to show you just how easy it is to get started.', 'genesis-custom-blocks' ),
+						__( 'We created this %1$sExample Block%2$s to show you just how easy it is to get started.', 'coywolf-custom-blocks' ),
 						'<strong>',
 						'</strong>'
 					)
@@ -202,7 +202,7 @@ class Onboarding extends ComponentAbstract {
 				echo wp_kses_post(
 					sprintf(
 						// translators: Placeholders are <strong> and <a> html tags.
-						__( 'You can %1$sEdit%2$s the block to learn more, or just %3$sTrash%4$s it to dismiss this message.', 'genesis-custom-blocks' ),
+						__( 'You can %1$sEdit%2$s the block to learn more, or just %3$sTrash%4$s it to dismiss this message.', 'coywolf-custom-blocks' ),
 						'<strong>',
 						'</strong>',
 						'<a href="' . get_delete_post_link( $example_post_id ) . '" class="trash">',
@@ -213,11 +213,11 @@ class Onboarding extends ComponentAbstract {
 			</p>
 			<p>
 				<?php
-				esc_html_e( 'Learn more:', 'genesis-custom-blocks' );
+				esc_html_e( 'Learn more:', 'coywolf-custom-blocks' );
 				printf(
 					'&nbsp;<a href="%1$s" target="_blank" rel="noreferrer noopener">%2$s</a>',
 					'https://github.com/coywolf-llc/custom-blocks#getting-started',
-					esc_html__( 'Get Started', 'genesis-custom-blocks' )
+					esc_html__( 'Get Started', 'coywolf-custom-blocks' )
 				);
 				?>
 			</p>
@@ -239,17 +239,17 @@ class Onboarding extends ComponentAbstract {
 			return;
 		}
 		?>
-		<div class="genesis-custom-blocks-add-fields genesis-custom-blocks-notice">
-			<h2><span role="image" aria-label="<?php esc_attr_e( 'Eyeglass emoji', 'genesis-custom-blocks' ); ?>">🧐</span> <?php esc_html_e( 'Try adding a field.', 'genesis-custom-blocks' ); ?></h2>
-			<p><?php esc_html_e( 'Fields let you define the options you see when adding your block to a post or page.', 'genesis-custom-blocks' ); ?></p>
-			<p><?php esc_html_e( 'There are lots of different field types that let you build powerfully dynamic custom blocks.', 'genesis-custom-blocks' ); ?></p>
+		<div class="coywolf-custom-blocks-add-fields coywolf-custom-blocks-notice">
+			<h2><span role="image" aria-label="<?php esc_attr_e( 'Eyeglass emoji', 'coywolf-custom-blocks' ); ?>">🧐</span> <?php esc_html_e( 'Try adding a field.', 'coywolf-custom-blocks' ); ?></h2>
+			<p><?php esc_html_e( 'Fields let you define the options you see when adding your block to a post or page.', 'coywolf-custom-blocks' ); ?></p>
+			<p><?php esc_html_e( 'There are lots of different field types that let you build powerfully dynamic custom blocks.', 'coywolf-custom-blocks' ); ?></p>
 			<p>
 				<?php
-				esc_html_e( 'Learn more:', 'genesis-custom-blocks' );
+				esc_html_e( 'Learn more:', 'coywolf-custom-blocks' );
 				printf(
 					'&nbsp;<a href="%1$s" target="_blank" rel="noreferrer noopener">%2$s</a>',
 					'https://github.com/coywolf-llc/custom-blocks#fields',
-					esc_html__( 'Field Types', 'genesis-custom-blocks' )
+					esc_html__( 'Field Types', 'coywolf-custom-blocks' )
 				);
 				?>
 			</p>
@@ -270,19 +270,19 @@ class Onboarding extends ComponentAbstract {
 			return;
 		}
 		?>
-		<div class="genesis-custom-blocks-publish genesis-custom-blocks-notice">
-			<h2><span role="image" aria-label="<?php esc_attr_e( 'Test tube emoji', 'genesis-custom-blocks' ); ?>">🧪</span> <?php esc_html_e( 'Time to experiment!', 'genesis-custom-blocks' ); ?></h2>
+		<div class="coywolf-custom-blocks-publish coywolf-custom-blocks-notice">
+			<h2><span role="image" aria-label="<?php esc_attr_e( 'Test tube emoji', 'coywolf-custom-blocks' ); ?>">🧪</span> <?php esc_html_e( 'Time to experiment!', 'coywolf-custom-blocks' ); ?></h2>
 			<ol class="intro">
-				<li><?php esc_html_e( 'Choose an icon', 'genesis-custom-blocks' ); ?></li>
-				<li><?php esc_html_e( 'Change the category', 'genesis-custom-blocks' ); ?></li>
-				<li><?php esc_html_e( 'Investigate a few different field types', 'genesis-custom-blocks' ); ?></li>
+				<li><?php esc_html_e( 'Choose an icon', 'coywolf-custom-blocks' ); ?></li>
+				<li><?php esc_html_e( 'Change the category', 'coywolf-custom-blocks' ); ?></li>
+				<li><?php esc_html_e( 'Investigate a few different field types', 'coywolf-custom-blocks' ); ?></li>
 			</ol>
 			<p>
 				<?php
 				echo wp_kses_post(
 					sprintf(
 						// translators: Placeholders are <strong> html tags.
-						__( 'When you\'re ready, save your block by pressing %1$sPublish%2$s.', 'genesis-custom-blocks' ),
+						__( 'When you\'re ready, save your block by pressing %1$sPublish%2$s.', 'coywolf-custom-blocks' ),
 						'<strong>',
 						'</strong>'
 					)
@@ -291,11 +291,11 @@ class Onboarding extends ComponentAbstract {
 			</p>
 			<p>
 				<?php
-				esc_html_e( 'Learn more:', 'genesis-custom-blocks' );
+				esc_html_e( 'Learn more:', 'coywolf-custom-blocks' );
 				printf(
 					'&nbsp;<a href="%1$s" target="_blank" rel="noreferrer noopener">%2$s</a>',
 					'https://github.com/coywolf-llc/custom-blocks#getting-started',
-					esc_html__( 'Get Started', 'genesis-custom-blocks' )
+					esc_html__( 'Get Started', 'coywolf-custom-blocks' )
 				);
 				?>
 			</p>
@@ -317,18 +317,18 @@ class Onboarding extends ComponentAbstract {
 			return;
 		}
 
-		$template = genesis_custom_blocks()->locate_template( "blocks/block-{$post->post_name}.php", '', true );
+		$template = coywolf_custom_blocks()->locate_template( "blocks/block-{$post->post_name}.php", '', true );
 
 		if ( ! $template ) {
 			return;
 		}
 		?>
-		<div class="genesis-custom-blocks-add-to-block genesis-custom-blocks-notice notice notice-large is-dismissible">
-			<h2>🚀 <?php esc_html_e( 'Only one thing left to do!', 'genesis-custom-blocks' ); ?></h2>
-			<p class="intro"><?php esc_html_e( 'You\'ve created a new block, and added a block template. Well done!', 'genesis-custom-blocks' ); ?></p>
-			<p><?php esc_html_e( 'All that\'s left is to add your block to a post.', 'genesis-custom-blocks' ); ?></p>
+		<div class="coywolf-custom-blocks-add-to-block coywolf-custom-blocks-notice notice notice-large is-dismissible">
+			<h2>🚀 <?php esc_html_e( 'Only one thing left to do!', 'coywolf-custom-blocks' ); ?></h2>
+			<p class="intro"><?php esc_html_e( 'You\'ve created a new block, and added a block template. Well done!', 'coywolf-custom-blocks' ); ?></p>
+			<p><?php esc_html_e( 'All that\'s left is to add your block to a post.', 'coywolf-custom-blocks' ); ?></p>
 			<a href="<?php echo esc_attr( admin_url( 'post-new.php' ) ); ?>" class="button">
-				<?php esc_html_e( 'Add New Post', 'genesis-custom-blocks' ); ?>
+				<?php esc_html_e( 'Add New Post', 'coywolf-custom-blocks' ); ?>
 			</a>
 		</div>
 		<?php
@@ -349,7 +349,7 @@ class Onboarding extends ComponentAbstract {
 		 */
 		$blocks = get_posts(
 			[
-				'post_type'   => genesis_custom_blocks()->get_post_type_slug(),
+				'post_type'   => coywolf_custom_blocks()->get_post_type_slug(),
 				'numberposts' => 1,
 				'post_status' => 'any',
 				'fields'      => 'ids',
@@ -364,38 +364,38 @@ class Onboarding extends ComponentAbstract {
 
 		$example_post_id = wp_insert_post(
 			[
-				'post_title'   => __( 'Example Block', 'genesis-custom-blocks' ),
+				'post_title'   => __( 'Example Block', 'coywolf-custom-blocks' ),
 				'post_name'    => 'example-block',
 				'post_status'  => 'draft',
-				'post_type'    => genesis_custom_blocks()->get_post_type_slug(),
+				'post_type'    => coywolf_custom_blocks()->get_post_type_slug(),
 				'post_content' => wp_json_encode(
 					[
-						'genesis-custom-blocks\/example-block' => [
+						'coywolf-custom-blocks\/example-block' => [
 							'name'     => 'example-block',
-							'title'    => __( 'Example Block', 'genesis-custom-blocks' ),
-							'icon'     => 'genesis_custom_blocks',
+							'title'    => __( 'Example Block', 'coywolf-custom-blocks' ),
+							'icon'     => 'coywolf_custom_blocks',
 							'category' => isset( $categories[0] ) ? $categories[0] : [],
 							'keywords' => [
-								__( 'sample', 'genesis-custom-blocks' ), // translators: A keyword, used for search.
-								__( 'tutorial', 'genesis-custom-blocks' ), // translators: A keyword, used for search.
-								__( 'template', 'genesis-custom-blocks' ), // translators: A keyword, used for search.
+								__( 'sample', 'coywolf-custom-blocks' ), // translators: A keyword, used for search.
+								__( 'tutorial', 'coywolf-custom-blocks' ), // translators: A keyword, used for search.
+								__( 'template', 'coywolf-custom-blocks' ), // translators: A keyword, used for search.
 							],
 							'fields'   => [
 								'title'       => [
 									'name'        => 'title',
-									'label'       => __( 'Title', 'genesis-custom-blocks' ),
+									'label'       => __( 'Title', 'coywolf-custom-blocks' ),
 									'control'     => 'text',
 									'type'        => 'string',
 									'location'    => 'editor',
 									'order'       => 0,
-									'help'        => __( 'The primary display text', 'genesis-custom-blocks' ),
+									'help'        => __( 'The primary display text', 'coywolf-custom-blocks' ),
 									'default'     => '',
 									'placeholder' => '',
 									'maxlength'   => null,
 								],
 								'description' => [
 									'name'        => 'description',
-									'label'       => __( 'Description', 'genesis-custom-blocks' ),
+									'label'       => __( 'Description', 'coywolf-custom-blocks' ),
 									'control'     => 'textarea',
 									'type'        => 'string',
 									'location'    => 'editor',
@@ -408,24 +408,24 @@ class Onboarding extends ComponentAbstract {
 								],
 								'button-text' => [
 									'name'        => 'button-text',
-									'label'       => __( 'Button Text', 'genesis-custom-blocks' ),
+									'label'       => __( 'Button Text', 'coywolf-custom-blocks' ),
 									'control'     => 'text',
 									'type'        => 'string',
 									'location'    => 'editor',
 									'order'       => 2,
-									'help'        => __( 'A Call-to-Action', 'genesis-custom-blocks' ),
+									'help'        => __( 'A Call-to-Action', 'coywolf-custom-blocks' ),
 									'default'     => '',
 									'placeholder' => '',
 									'maxlength'   => null,
 								],
 								'button-link' => [
 									'name'        => 'button-link',
-									'label'       => __( 'Button Link', 'genesis-custom-blocks' ),
+									'label'       => __( 'Button Link', 'coywolf-custom-blocks' ),
 									'control'     => 'url',
 									'type'        => 'string',
 									'location'    => 'editor',
 									'order'       => 3,
-									'help'        => __( 'The destination URL', 'genesis-custom-blocks' ),
+									'help'        => __( 'The destination URL', 'coywolf-custom-blocks' ),
 									'default'     => '',
 									'placeholder' => '',
 								],

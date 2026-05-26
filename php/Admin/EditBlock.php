@@ -2,17 +2,17 @@
 /**
  * The 'Edit Block' submenu page.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license   http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-namespace Genesis\CustomBlocks\Admin;
+namespace Coywolf\CustomBlocks\Admin;
 
 use WP_Error;
 use WP_Post;
-use Genesis\CustomBlocks\Blocks\Block;
-use Genesis\CustomBlocks\ComponentAbstract;
+use Coywolf\CustomBlocks\Blocks\Block;
+use Coywolf\CustomBlocks\ComponentAbstract;
 
 /**
  * Class EditBlock
@@ -24,14 +24,14 @@ class EditBlock extends ComponentAbstract {
 	 *
 	 * @var string
 	 */
-	const SCRIPT_SLUG = 'genesis-custom-blocks-edit-block-script';
+	const SCRIPT_SLUG = 'coywolf-custom-blocks-edit-block-script';
 
 	/**
 	 * The slug of the style.
 	 *
 	 * @var string
 	 */
-	const STYLE_SLUG = 'genesis-custom-blocks-edit-block-style';
+	const STYLE_SLUG = 'coywolf-custom-blocks-edit-block-style';
 
 	/**
 	 * The REST API capability type.
@@ -65,9 +65,9 @@ class EditBlock extends ComponentAbstract {
 	 * @return bool Whether this should replace the editor.
 	 */
 	public function should_replace_editor( $replace, $post ) {
-		if ( genesis_custom_blocks()->get_post_type_slug() === get_post_type( $post ) ) {
+		if ( coywolf_custom_blocks()->get_post_type_slug() === get_post_type( $post ) ) {
 			if ( did_action( 'current_screen' ) ) {
-				require_once genesis_custom_blocks()->get_path() . 'php/Views/EditorHeader.php';
+				require_once coywolf_custom_blocks()->get_path() . 'php/Views/EditorHeader.php';
 			}
 
 			return true;
@@ -84,7 +84,7 @@ class EditBlock extends ComponentAbstract {
 	 * @return bool Whether this should use the block editor.
 	 */
 	public function should_use_block_editor_for_post_type( $use_block_editor, $post_type ) {
-		if ( genesis_custom_blocks()->get_post_type_slug() === $post_type ) {
+		if ( coywolf_custom_blocks()->get_post_type_slug() === $post_type ) {
 			return false;
 		}
 
@@ -116,14 +116,14 @@ class EditBlock extends ComponentAbstract {
 		wp_add_inline_script(
 			self::SCRIPT_SLUG,
 			sprintf(
-				'const gcbEditor = %s;',
+				'const ccbEditor = %s;',
 				wp_json_encode(
 					[
-						'controls'         => genesis_custom_blocks()->block_post->get_controls(),
+						'controls'         => coywolf_custom_blocks()->block_post->get_controls(),
 						'postType'         => get_post_type(),
 						'postId'           => $post_id,
 						'settings'         => [
-							'titlePlaceholder'   => __( 'Block title', 'genesis-custom-blocks' ),
+							'titlePlaceholder'   => __( 'Block title', 'coywolf-custom-blocks' ),
 							'richEditingEnabled' => false,
 						],
 						'template'         => $this->get_template_file( $block->name ),
@@ -147,7 +147,7 @@ class EditBlock extends ComponentAbstract {
 
 		$editor_style_config = require $this->plugin->get_path( 'css/dist/blocks.editor.asset.php' );
 		wp_enqueue_style(
-			'genesis-custom-blocks-editor-css',
+			'coywolf-custom-blocks-editor-css',
 			$this->plugin->get_url( 'css/dist/blocks.editor.css' ),
 			$editor_style_config['dependencies'],
 			$editor_style_config['version']
@@ -164,7 +164,7 @@ class EditBlock extends ComponentAbstract {
 
 		return (
 			is_object( $screen ) &&
-			genesis_custom_blocks()->get_post_type_slug() === $screen->post_type &&
+			coywolf_custom_blocks()->get_post_type_slug() === $screen->post_type &&
 			'post' === $screen->base
 		);
 	}
@@ -202,7 +202,7 @@ class EditBlock extends ComponentAbstract {
 	 */
 	public function register_route_template_file() {
 		register_rest_route(
-			genesis_custom_blocks()->get_slug(),
+			coywolf_custom_blocks()->get_slug(),
 			'template-file',
 			[
 				'callback'            => [ $this, 'get_template_file_response' ],
@@ -211,7 +211,7 @@ class EditBlock extends ComponentAbstract {
 				},
 				'args'                => [
 					'blockName' => [
-						'description' => __( 'Block name', 'genesis-custom-blocks' ),
+						'description' => __( 'Block name', 'coywolf-custom-blocks' ),
 						'type'        => 'string',
 					],
 				],
@@ -229,7 +229,7 @@ class EditBlock extends ComponentAbstract {
 		if ( empty( $data['blockName'] ) ) {
 			return new WP_Error(
 				'no_block_name',
-				__( 'Please pass a block name', 'genesis-custom-blocks' )
+				__( 'Please pass a block name', 'coywolf-custom-blocks' )
 			);
 		}
 
@@ -244,17 +244,17 @@ class EditBlock extends ComponentAbstract {
 	 * @return array Template file data.
 	 */
 	public function get_template_file( $block_name ) {
-		$locations     = genesis_custom_blocks()->get_template_locations( $block_name, 'block' );
-		$template_path = genesis_custom_blocks()->locate_template( $locations );
+		$locations     = coywolf_custom_blocks()->get_template_locations( $block_name, 'block' );
+		$template_path = coywolf_custom_blocks()->locate_template( $locations );
 
 		$template_exists = ! empty( $template_path );
 		if ( ! $template_exists ) {
 			$template_path = get_stylesheet_directory() . "/blocks/block-{$block_name}.php";
 		}
 
-		$stylesheet_locations = genesis_custom_blocks()->get_stylesheet_locations( $block_name );
-		$stylesheet_path      = genesis_custom_blocks()->locate_template( $stylesheet_locations );
-		$stylesheet_url       = genesis_custom_blocks()->get_url_from_path( $stylesheet_path );
+		$stylesheet_locations = coywolf_custom_blocks()->get_stylesheet_locations( $block_name );
+		$stylesheet_path      = coywolf_custom_blocks()->locate_template( $stylesheet_locations );
+		$stylesheet_url       = coywolf_custom_blocks()->get_url_from_path( $stylesheet_path );
 
 		return [
 			'templateExists' => $template_exists,

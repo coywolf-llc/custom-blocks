@@ -2,10 +2,10 @@
 /**
  * Tests for class Block.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Blocks;
+use Coywolf\CustomBlocks\Blocks;
 
 /**
  * Tests for class Block.
@@ -26,10 +26,10 @@ class TestBlock extends \WP_UnitTestCase {
 	 */
 	const JSON = '
 	{
-		"genesis-custom-blocks\\/simple-test-block": {
+		"coywolf-custom-blocks\\/simple-test-block": {
 			"name": "simple-test-block",
 			"title": "Simple Test Block",
-			"icon": "genesis_custom_blocks",
+			"icon": "coywolf_custom_blocks",
 			"category": "common",
 			"keywords": [
 				"keywords",
@@ -80,7 +80,7 @@ class TestBlock extends \WP_UnitTestCase {
 			[
 				'post_title' => 'Simple Test Block',
 				'post_name'  => 'simple-test-block',
-				'post_type'  => 'genesis_custom_block',
+				'post_type'  => 'coywolf_custom_block',
 			]
 		);
 
@@ -90,7 +90,7 @@ class TestBlock extends \WP_UnitTestCase {
 	/**
 	 * Test __construct.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Block::__construct()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Block::__construct()
 	 */
 	public function test_construct() {
 		$this->assertEquals( 'simple-test-block', $this->instance->name );
@@ -99,14 +99,14 @@ class TestBlock extends \WP_UnitTestCase {
 	/**
 	 * Test from_json.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Block::from_json()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Block::from_json()
 	 */
 	public function test_from_json() {
 		$this->instance->from_json( self::JSON );
 
 		// Check all the base attributes.
 		$this->assertEquals( 'Simple Test Block', $this->instance->title );
-		$this->assertEquals( 'genesis_custom_blocks', $this->instance->icon );
+		$this->assertEquals( 'coywolf_custom_blocks', $this->instance->icon );
 		$this->assertEquals(
 			[
 				'icon'  => null,
@@ -126,17 +126,17 @@ class TestBlock extends \WP_UnitTestCase {
 	/**
 	 * Test to_json.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Block::to_json()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Block::to_json()
 	 */
 	public function test_to_json() {
 		$this->instance->from_json( self::JSON );
 		$json = $this->instance->to_json();
 
 		$decoded = json_decode( $json, true );
-		$this->assertArrayHasKey( 'genesis-custom-blocks/simple-test-block', $decoded );
+		$this->assertArrayHasKey( 'coywolf-custom-blocks/simple-test-block', $decoded );
 
 		// Check all the base attributes.
-		$block = $decoded['genesis-custom-blocks/simple-test-block'];
+		$block = $decoded['coywolf-custom-blocks/simple-test-block'];
 		$this->assertArrayHasKey( 'name', $block );
 		$this->assertArrayHasKey( 'title', $block );
 		$this->assertArrayHasKey( 'icon', $block );

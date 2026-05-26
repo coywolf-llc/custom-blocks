@@ -19,7 +19,7 @@ import { snakeCaseToPascalCase } from '.';
  *
  * Converts a snake_case icon name to a PascalCase,
  * then gets an icon component of that name if it exists.
- * For example, passing 'genesis_custom_blocks' will return
+ * For example, passing 'coywolf_custom_blocks' will return
  * a <GenesisCustomBlocks> icon component.
  *
  * @param {string} iconName The type of setting, like 'text'
@@ -32,7 +32,7 @@ const getIconComponent = ( iconName ) => {
 
 	const componentName = snakeCaseToPascalCase( iconName );
 
-	const filteredComponents = applyFilters( 'genesisCustomBlocks.iconComponents', iconComponents );
+	const filteredComponents = applyFilters( 'coywolfCustomBlocks.iconComponents', iconComponents );
 	return filteredComponents[ componentName ] ? filteredComponents[ componentName ] : null; /* eslint-disable-line import/namespace */
 };
 

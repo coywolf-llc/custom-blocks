@@ -2,10 +2,10 @@
 /**
  * Tests for class Radio.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Blocks\Controls\Radio;
+use Coywolf\CustomBlocks\Blocks\Controls\Radio;
 
 /**
  * Tests for class Radio.
@@ -34,7 +34,7 @@ class TestRadio extends \WP_UnitTestCase {
 	/**
 	 * Test __construct.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\Radio::__construct()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\Radio::__construct()
 	 */
 	public function test_construct() {
 		$this->assertEquals( 'Radio', $this->instance->label );
@@ -46,7 +46,7 @@ class TestRadio extends \WP_UnitTestCase {
 	 *
 	 * The parent constructor calls register_settings(), so there's no need to call it again here.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\Controls\Radio::register_settings()
+	 * @covers \Coywolf\CustomBlocks\Blocks\Controls\Radio::register_settings()
 	 */
 	public function test_register_settings() {
 		$expected_settings = [

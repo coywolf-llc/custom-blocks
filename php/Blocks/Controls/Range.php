@@ -2,12 +2,12 @@
 /**
  * Range control.
  *
- * @package   Genesis\CustomBlocks
+ * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2022, Genesis Custom Blocks
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
-namespace Genesis\CustomBlocks\Blocks\Controls;
+namespace Coywolf\CustomBlocks\Blocks\Controls;
 
 /**
  * Class Range
@@ -35,7 +35,7 @@ class Range extends ControlAbstract {
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->label = __( 'Range', 'genesis-custom-blocks' );
+		$this->label = __( 'Range', 'coywolf-custom-blocks' );
 	}
 
 	/**
@@ -50,7 +50,7 @@ class Range extends ControlAbstract {
 		$this->settings[] = new ControlSetting(
 			[
 				'name'    => 'min',
-				'label'   => __( 'Minimum Value', 'genesis-custom-blocks' ),
+				'label'   => __( 'Minimum Value', 'coywolf-custom-blocks' ),
 				'type'    => 'number',
 				'default' => 0,
 			]
@@ -58,7 +58,7 @@ class Range extends ControlAbstract {
 		$this->settings[] = new ControlSetting(
 			[
 				'name'    => 'max',
-				'label'   => __( 'Maximum Value', 'genesis-custom-blocks' ),
+				'label'   => __( 'Maximum Value', 'coywolf-custom-blocks' ),
 				'type'    => 'number',
 				'default' => 100,
 			]
@@ -66,7 +66,7 @@ class Range extends ControlAbstract {
 		$this->settings[] = new ControlSetting(
 			[
 				'name'    => 'step',
-				'label'   => __( 'Step Size', 'genesis-custom-blocks' ),
+				'label'   => __( 'Step Size', 'coywolf-custom-blocks' ),
 				'type'    => 'number_non_negative',
 				'default' => 1,
 			]
@@ -74,7 +74,7 @@ class Range extends ControlAbstract {
 		$this->settings[] = new ControlSetting(
 			[
 				'name'    => 'default',
-				'label'   => __( 'Default Value', 'genesis-custom-blocks' ),
+				'label'   => __( 'Default Value', 'coywolf-custom-blocks' ),
 				'type'    => 'number',
 				'default' => '',
 			]

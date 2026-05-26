@@ -98,7 +98,7 @@ import { useBlock, useTemplate } from '../hooks';
 
 /**
  * @typedef {Object} Setting A field setting.
- * @see PHP class Genesis\CustomBlocks\Blocks\Controls\ControlSetting
+ * @see PHP class Coywolf\CustomBlocks\Blocks\Controls\ControlSetting
  * @property {string} name    The name of the setting.
  * @property {string} label   The label of the setting to display in the GCB editor.
  * @property {string} help    A help value that display in the GCB editor.

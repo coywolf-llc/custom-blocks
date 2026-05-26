@@ -2,7 +2,7 @@
 /**
  * Stub for filesystem.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
 /**

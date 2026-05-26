@@ -31,15 +31,15 @@ const NewLineFormat = ( props ) => {
 	const options = [
 		{
 			value: 'autop',
-			label: __( 'Automatically add paragraphs', 'genesis-custom-blocks' ),
+			label: __( 'Automatically add paragraphs', 'coywolf-custom-blocks' ),
 		},
 		{
 			value: 'autobr',
-			label: __( 'Automatically add line breaks', 'genesis-custom-blocks' ),
+			label: __( 'Automatically add line breaks', 'coywolf-custom-blocks' ),
 		},
 		{
 			value: 'none',
-			label: __( 'No formatting', 'genesis-custom-blocks' ),
+			label: __( 'No formatting', 'coywolf-custom-blocks' ),
 		},
 	];
 

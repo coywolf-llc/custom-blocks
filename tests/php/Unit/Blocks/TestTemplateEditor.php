@@ -2,10 +2,10 @@
 /**
  * Tests for class TemplateEditor.
  *
- * @package Genesis\CustomBlocks
+ * @package Coywolf\CustomBlocks
  */
 
-use Genesis\CustomBlocks\Blocks\TemplateEditor;
+use Coywolf\CustomBlocks\Blocks\TemplateEditor;
 
 /**
  * Tests for class TemplateEditor.
@@ -32,7 +32,7 @@ class TestTemplateEditor extends WP_UnitTestCase {
 	/**
 	 * Test render_css when there is no CSS to render.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\TemplateEditor::render_css()
+	 * @covers \Coywolf\CustomBlocks\Blocks\TemplateEditor::render_css()
 	 */
 	public function test_render_css_empty_css() {
 		ob_start();
@@ -44,7 +44,7 @@ class TestTemplateEditor extends WP_UnitTestCase {
 	/**
 	 * Test render_css with 2 of the same block name.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\TemplateEditor::render_css()
+	 * @covers \Coywolf\CustomBlocks\Blocks\TemplateEditor::render_css()
 	 */
 	public function test_render_css_same_block_name() {
 		$block_name = 'example-block';
@@ -65,7 +65,7 @@ class TestTemplateEditor extends WP_UnitTestCase {
 	/**
 	 * Test render_css when there are 2 different block names.
 	 *
-	 * @covers \Genesis\CustomBlocks\Blocks\TemplateEditor::render_css()
+	 * @covers \Coywolf\CustomBlocks\Blocks\TemplateEditor::render_css()
 	 */
 	public function test_render_css_different_block_names() {
 		$first_block_name  = 'text-block';
