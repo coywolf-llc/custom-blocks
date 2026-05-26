@@ -58,6 +58,7 @@ if ( is_array( $block_post_ids ) ) {
 $options = array(
 	'coywolf_custom_blocks_delete_on_uninstall',
 	'coywolf_custom_blocks_notices',
+	'coywolf_custom_blocks_example_post_id', // Legacy: previously written by the now-removed Onboarding component.
 );
 
 foreach ( $options as $option_name ) {
@@ -68,7 +69,8 @@ foreach ( $options as $option_name ) {
 }
 
 /**
- * GitHub updater transients (the only plugin-specific transients we set).
+ * Plugin transients (GitHub updater cache + the legacy welcome-nag flag).
  */
+delete_transient( 'coywolf_custom_blocks_show_welcome' );
 delete_site_transient( 'coywolf_ccb_gh_release' );
 delete_site_transient( 'coywolf_ccb_gh_release_neg' );

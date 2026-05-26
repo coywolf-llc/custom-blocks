@@ -4,7 +4,7 @@
 
 Build custom Gutenberg blocks in the WordPress admin — no SFTP, no theme files. A privacy-respecting fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) with WP Engine telemetry, the WPE update server, and Genesis Pro upsells removed; ships an inline Custom HTML editor, native JSON export/import, and a one-shot importer for migrating off upstream.
 
-- **Version:** 1.0.1
+- **Version:** 1.0.2
 - **Requires WordPress:** 6.0 or later
 - **Tested up to:** 7.0
 - **Requires PHP:** 7.0 or later
@@ -54,6 +54,12 @@ Yes. The field is intended for use by site administrators (editing `coywolf_cust
 This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) by WP Engine / StudioPress, originally created by Luke Carbis, Ryan Kienstra, Stino11, Rheinard Korf, and the StudioPress / WP Engine team. All credit for the original plugin and its design belongs to them; this fork exists to keep the codebase alive and self-contained for Coywolf sites. Released under the same GPL-2.0-or-later license.
 
 ## Changelog
+
+### 1.0.2
+- Remove the Genesis-branded onboarding/welcome notice ("👋 Hi, and welcome! Genesis Custom Blocks makes it easy…") that showed on the Plugins screen after activation, along with the entire `Onboarding` component that displayed it and auto-inserted an "Example Block" post on activation.
+- Remove the legacy Tools → Import wizard ("Genesis Custom Blocks") — superseded by Custom Blocks → Export & Import (PR #6), which accepts the same JSON shape.
+- Rewrite the remaining admin-visible "Genesis Custom Blocks" deprecation strings to say "Coywolf Custom Blocks".
+- Add `coywolf_custom_blocks_example_post_id` (legacy Onboarding option) and the `coywolf_custom_blocks_show_welcome` transient to the uninstall cleanup list.
 
 ### 1.0.1
 - Fix fatal error on activation when the plugin is installed from a fresh GitHub checkout / zipball (no `vendor/` directory). The main file no longer hard-requires `vendor/autoload.php`; it falls back to a tiny PSR-4 autoloader scoped to the `Coywolf\CustomBlocks` namespace when Composer hasn't been run.

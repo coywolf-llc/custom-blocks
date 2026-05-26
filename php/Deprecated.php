@@ -27,7 +27,7 @@ function coywolf_custom_blocks_deprecated_function( $func, $version, $replacemen
 		filter_var(
 			sprintf(
 				// translators: A function name.
-				__( 'Genesis Custom Blocks\'s %1$s', 'coywolf-custom-blocks' ),
+				__( 'Coywolf Custom Blocks\'s %1$s', 'coywolf-custom-blocks' ),
 				$func
 			)
 		),
