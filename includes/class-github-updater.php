@@ -89,14 +89,25 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 	 */
 	public function guard_pre_download( $reply, $package, $upgrader ) {
 		unset( $upgrader );
-		// Only inspect updates that are clearly ours.
 		if ( ! is_string( $package ) || '' === $package ) {
 			return $reply;
 		}
+
+		// upgrader_pre_download fires for ANY plugin operation, including
+		// manual zip uploads from Plugins → Add New → Upload Plugin. In that
+		// case `$package` is a local filesystem path (no scheme), not a URL.
+		// The host allowlist below is meaningless for local files and would
+		// false-positive every upload whose filename happens to contain our
+		// slug — so leave non-URL packages alone and let WP proceed.
+		if ( ! preg_match( '#^https?://#i', $package ) ) {
+			return $reply;
+		}
+
 		$parts = wp_parse_url( $package );
 		if ( ! is_array( $parts ) || empty( $parts['path'] ) ) {
 			return $reply;
 		}
+		// Only inspect URLs that look like they're targeting this plugin.
 		$looks_like_ours = ( false !== stripos( $parts['path'], self::REPO ) )
 			|| ( false !== stripos( $parts['path'], $this->plugin_slug ) );
 		if ( ! $looks_like_ours ) {
