@@ -103,6 +103,9 @@ the same GPL-2.0-or-later license.
 
 == Changelog ==
 
+= 1.0.28 =
+* Add a standalone "Rewrite post content now" tool on the Import from Genesis page. Use it after an import where the rewrite checkbox wasn't ticked, or after removing the upstream Genesis plugin — sweeps every post/page and rewrites `wp:genesis-custom-blocks/{slug}` to `wp:coywolf-custom-blocks/{slug}` for every block that exists in Coywolf. The page stays reachable now even when upstream is uninstalled.
+
 = 1.0.27 =
 * Revert the Lucide code-split — it broke the block inserter (#36).
 

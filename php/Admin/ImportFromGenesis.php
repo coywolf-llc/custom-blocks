@@ -45,6 +45,15 @@ class ImportFromGenesis extends ComponentAbstract {
 	const NONCE_ACTION = 'coywolf_ccb_import_from_genesis';
 
 	/**
+	 * Form nonce action for the standalone "rewrite existing post content"
+	 * button — separate from the import flow so the rewrite can run on
+	 * its own once the blocks are already in Coywolf.
+	 *
+	 * @var string
+	 */
+	const REWRITE_NONCE_ACTION = 'coywolf_ccb_rewrite_post_content';
+
+	/**
 	 * The post type slug used by upstream Genesis Custom Blocks.
 	 *
 	 * @var string
@@ -64,6 +73,7 @@ class ImportFromGenesis extends ComponentAbstract {
 	public function register_hooks() {
 		add_action( 'admin_menu', [ $this, 'add_submenu_page' ] );
 		add_action( 'admin_post_' . self::NONCE_ACTION, [ $this, 'handle_submit' ] );
+		add_action( 'admin_post_' . self::REWRITE_NONCE_ACTION, [ $this, 'handle_rewrite_only' ] );
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
 	}
 
@@ -197,7 +207,13 @@ class ImportFromGenesis extends ComponentAbstract {
 	 * isn't loaded on every admin pageview.
 	 */
 	public function add_submenu_page() {
-		if ( ! $this->is_genesis_custom_blocks_active() ) {
+		// Show the page whenever upstream Genesis Custom Blocks is active
+		// (the importer flow), OR whenever the site already has Coywolf
+		// blocks the rewrite-only tool can target. Without the second
+		// branch, users who imported, ticked off the rewrite-now box, and
+		// later removed upstream would have no UI to fix references in
+		// their existing post content.
+		if ( ! $this->is_genesis_custom_blocks_active() && ! $this->has_any_coywolf_blocks() ) {
 			return;
 		}
 		add_submenu_page(
@@ -221,6 +237,31 @@ class ImportFromGenesis extends ComponentAbstract {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 		return is_plugin_active( 'genesis-custom-blocks/genesis-custom-blocks.php' );
+	}
+
+	/**
+	 * Lightweight existence check used to decide whether to surface this
+	 * page's menu when upstream is gone. One indexed COUNT, cached in a
+	 * static so admin_menu doesn't refire it within the same request.
+	 *
+	 * @return bool
+	 */
+	protected function has_any_coywolf_blocks() {
+		static $has = null;
+		if ( null !== $has ) {
+			return $has;
+		}
+		global $wpdb;
+		$post_type = coywolf_custom_blocks()->get_post_type_slug();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- one indexed count, no caching layer fits.
+		$count = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ( 'auto-draft', 'trash' )",
+				$post_type
+			)
+		);
+		$has = $count > 0;
+		return $has;
 	}
 
 	/**
@@ -269,8 +310,19 @@ class ImportFromGenesis extends ComponentAbstract {
 						<?php esc_html_e( 'No Genesis Custom Blocks posts were found on this site. Nothing to import.', 'coywolf-custom-blocks' ); ?>
 					</p>
 				</div>
-				<?php return; ?>
-			<?php endif; ?>
+				<?php
+				// Fall through to the rewrite-only form below — even when
+				// there's nothing to import, sites that already imported
+				// (and may have removed upstream) still need a way to
+				// rewrite stale `wp:genesis-custom-blocks/{slug}` markers
+				// in their existing post content.
+				$this->render_rewrite_only_form();
+				?>
+				</div>
+				<?php
+				return;
+			endif;
+			?>
 
 			<div id="ccb-import-progress" style="display: none; margin-top: 1.5em;">
 				<h2 id="ccb-import-progress-heading" style="margin-top: 0;"><?php esc_html_e( 'Importing…', 'coywolf-custom-blocks' ); ?></h2>
@@ -346,6 +398,8 @@ class ImportFromGenesis extends ComponentAbstract {
 					</button>
 				</p>
 			</form>
+
+			<?php $this->render_rewrite_only_form(); ?>
 
 			<script>
 				( function () {
@@ -647,7 +701,56 @@ class ImportFromGenesis extends ComponentAbstract {
 				<p><?php esc_html_e( 'No blocks were selected.', 'coywolf-custom-blocks' ); ?></p>
 			</div>
 			<?php
+		} elseif ( 'rewrite_only' === $result ) {
+			$count = (int) $rewrite_count;
+			?>
+			<div class="notice notice-success is-dismissible">
+				<p>
+					<?php
+					echo esc_html(
+						sprintf(
+							/* translators: %d: number of posts whose block names were rewritten */
+							_n(
+								'Rewrote block names in %d post.',
+								'Rewrote block names in %d posts.',
+								$count,
+								'coywolf-custom-blocks'
+							),
+							$count
+						)
+					);
+					?>
+				</p>
+			</div>
+			<?php
 		}
+	}
+
+	/**
+	 * Render the standalone "rewrite existing post content" form. Used
+	 * both at the bottom of the importer page (so post-import follow-up
+	 * is one click away) and in place of the importer table when there
+	 * are no upstream blocks left to import (so it stays reachable after
+	 * the Genesis plugin is removed).
+	 */
+	protected function render_rewrite_only_form() {
+		?>
+		<hr style="margin: 2.5em 0 1.5em;" />
+
+		<h2><?php esc_html_e( 'Already imported? Rewrite existing post content', 'coywolf-custom-blocks' ); ?></h2>
+		<p style="max-width: 60em;">
+			<?php esc_html_e( "If you've already imported your blocks but forgot to tick the post-content rewrite checkbox, your existing posts and pages still reference wp:genesis-custom-blocks/{slug} and render through the upstream plugin (or render empty if upstream is gone). Run this sweep to rewrite every reference to a block slug that exists in Coywolf so your content renders through this plugin instead. Block slugs that don't exist in Coywolf are left alone. Post content updates cannot be undone from this screen — back up your database before proceeding on a production site.", 'coywolf-custom-blocks' ); ?>
+		</p>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<input type="hidden" name="action" value="<?php echo esc_attr( self::REWRITE_NONCE_ACTION ); ?>" />
+			<?php wp_nonce_field( self::REWRITE_NONCE_ACTION ); ?>
+			<p class="submit">
+				<button type="submit" class="button">
+					<?php esc_html_e( 'Rewrite post content now', 'coywolf-custom-blocks' ); ?>
+				</button>
+			</p>
+		</form>
+		<?php
 	}
 
 	/**
@@ -784,6 +887,70 @@ class ImportFromGenesis extends ComponentAbstract {
 			)
 		);
 		exit;
+	}
+
+	/**
+	 * Handle the standalone "Rewrite post content" button.
+	 *
+	 * Runs the same `rewrite_post_content()` sweep that the import flow's
+	 * optional checkbox triggers, but targets every Coywolf block on the
+	 * site instead of just the ones imported in a given run. Lets users
+	 * who imported blocks without ticking the rewrite checkbox fix their
+	 * existing posts after the fact, without re-running the import.
+	 */
+	public function handle_rewrite_only() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to rewrite post content.', 'coywolf-custom-blocks' ) );
+		}
+
+		check_admin_referer( self::REWRITE_NONCE_ACTION );
+
+		$slugs = $this->get_existing_coywolf_block_slugs();
+
+		$count = empty( $slugs )
+			? 0
+			: $this->rewrite_post_content( $slugs );
+
+		wp_safe_redirect(
+			add_query_arg(
+				[
+					'result'        => 'rewrite_only',
+					'rewrite_count' => $count,
+				],
+				$this->page_url()
+			)
+		);
+		exit;
+	}
+
+	/**
+	 * Returns the slugs of every Coywolf block that's currently published
+	 * on the site, used to scope the standalone rewrite sweep.
+	 *
+	 * @return string[]
+	 */
+	protected function get_existing_coywolf_block_slugs() {
+		$posts = get_posts(
+			[
+				'post_type'              => coywolf_custom_blocks()->get_post_type_slug(),
+				'post_status'            => [ 'publish', 'draft', 'pending', 'private', 'future' ],
+				'posts_per_page'         => 500,
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+			]
+		);
+
+		$slugs = [];
+		foreach ( $posts as $post_id ) {
+			$post = get_post( $post_id );
+			if ( $post instanceof \WP_Post && '' !== $post->post_name ) {
+				$slugs[] = $post->post_name;
+			}
+		}
+
+		return array_values( array_unique( array_filter( $slugs ) ) );
 	}
 
 	/**
