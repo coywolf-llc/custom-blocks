@@ -24,9 +24,7 @@ import {
 	BUILDER_EDITING_MODE,
 	EDITOR_PREVIEW_EDITING_MODE,
 	FRONT_END_PREVIEW_EDITING_MODE,
-	TEMPLATE_EDITOR_EDITING_MODE,
 } from '../constants';
-import { useTemplate } from '../hooks';
 
 /**
  * @typedef {Object} HeaderProps The header component props.
@@ -41,7 +39,6 @@ import { useTemplate } from '../hooks';
  * @return {React.ReactElement} The header.
  */
 const Header = ( { editorMode, setEditorMode } ) => {
-	const { template } = useTemplate();
 	const buttonClasses = 'flex items-center h-12 px-4 text-sm';
 	const backURL = addQueryArgs( 'edit.php', {
 		post_type: 'coywolf_custom_block',
@@ -69,22 +66,6 @@ const Header = ( { editorMode, setEditorMode } ) => {
 			>
 				<span>{ __( 'Builder', 'coywolf-custom-blocks' ) }</span>
 			</button>
-			{ template.templateExists
-				? null
-				: (
-					<button
-						className={ classNames(
-							buttonClasses,
-							{ 'font-semibold': TEMPLATE_EDITOR_EDITING_MODE === editorMode }
-						) }
-						onClick={ () => {
-							setEditorMode( TEMPLATE_EDITOR_EDITING_MODE );
-						} }
-					>
-						<span>{ __( 'Template Editor', 'coywolf-custom-blocks' ) }</span>
-					</button>
-				)
-			}
 			<button
 				className={ classNames(
 					buttonClasses,

@@ -42,7 +42,6 @@ import {
 	LocationButtons,
 	Main,
 	Side,
-	TemplateEditor,
 } from './';
 import {
 	BLOCK_PANEL,
@@ -50,7 +49,6 @@ import {
 	EDITOR_PREVIEW_EDITING_MODE,
 	FRONT_END_PREVIEW_EDITING_MODE,
 	NO_FIELD_SELECTED,
-	TEMPLATE_EDITOR_EDITING_MODE,
 } from '../constants';
 import { DEFAULT_LOCATION } from '../../common/constants';
 import { useBlock, useTemplate } from '../hooks';
@@ -149,7 +147,7 @@ const Editor = ( { onError, postId, postType, settings } ) => {
 							<Header editorMode={ editorMode } setEditorMode={ setEditorMode } />
 							{ InlineNotices ? <InlineNotices /> : <EditorNotices /> }
 							<div className="gcb-editor flex w-full h-0 flex-grow">
-								<Main editorMode={ editorMode } setEditorMode={ setEditorMode }>
+								<Main>
 									<LocationButtons
 										currentLocation={ currentLocation }
 										editorMode={ editorMode }
@@ -176,10 +174,6 @@ const Editor = ( { onError, postId, postType, settings } ) => {
 									}
 									{ FRONT_END_PREVIEW_EDITING_MODE === editorMode
 										? <FrontEndPreview setEditorMode={ setEditorMode } />
-										: null
-									}
-									{ TEMPLATE_EDITOR_EDITING_MODE === editorMode
-										? <TemplateEditor />
 										: null
 									}
 								</Main>

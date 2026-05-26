@@ -27,8 +27,6 @@ export { default as PreviewNotice } from './preview-notice';
 export { default as Select } from './select';
 export { default as Side } from './side';
 export { default as SlugSection } from './slug-section';
-export { default as TemplateEditor } from './template-editor';
 export { default as TemplateFile } from './template-file';
-export { default as TemplateButtons } from './template-buttons';
 export { default as TopNotice } from './top-notice';
 export { default as QuestionIcon } from './question-icon';
