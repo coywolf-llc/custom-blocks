@@ -103,6 +103,9 @@ the same GPL-2.0-or-later license.
 
 == Changelog ==
 
+= 1.0.29 =
+* Fix the import-time "rewrite post content" checkbox: it now sweeps every Coywolf-known slug just like the standalone "Rewrite post content now" button does, instead of relying on JS-collected slugs (which weren't actually rewriting anything in practice).
+
 = 1.0.28 =
 * Standalone post-content rewrite tool on the import page (#37).
 
