@@ -22,7 +22,7 @@ class TemplateEditor {
 	public $blocks_with_rendered_css = [];
 
 	/**
-	 * Renders markup that was entered in the template editor.
+	 * Renders markup that was entered in the Custom HTML / template editor.
 	 *
 	 * @param string $markup The markup to render.
 	 */
@@ -41,7 +41,13 @@ class TemplateEditor {
 		// Like if they have a tutorial on Mustache and need the template to render {{example}}.
 		$rendered = preg_replace( '#\\\{\\\{(\S+?)\\\}\\\}#', '{{\1}}', $rendered );
 
-		echo wp_kses_post( $rendered );
+		// Echo raw — the Custom HTML field is authored by admins for their own
+		// site and must round-trip arbitrary markup including <script>, <iframe>,
+		// inline event handlers, etc. wp_kses_post() would strip all of those.
+		// Editing genesis_custom_block posts requires manage_options, so this is
+		// gated on the same trust level as editing theme files via Appearance →
+		// Theme File Editor.
+		echo $rendered; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
