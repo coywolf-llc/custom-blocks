@@ -188,8 +188,18 @@ class ImportFromGenesis extends ComponentAbstract {
 
 	/**
 	 * Add the submenu page under the Custom Blocks menu.
+	 *
+	 * Only registered when the upstream Genesis Custom Blocks plugin is
+	 * actually present and active — otherwise the menu item would link
+	 * to an importer that has nothing to import. Detection uses
+	 * `is_plugin_active()` against the canonical upstream basename, and
+	 * pulls in wp-admin/includes/plugin.php first because that file
+	 * isn't loaded on every admin pageview.
 	 */
 	public function add_submenu_page() {
+		if ( ! $this->is_genesis_custom_blocks_active() ) {
+			return;
+		}
 		add_submenu_page(
 			'edit.php?post_type=' . coywolf_custom_blocks()->get_post_type_slug(),
 			__( 'Import from Genesis Custom Blocks', 'coywolf-custom-blocks' ),
@@ -198,6 +208,19 @@ class ImportFromGenesis extends ComponentAbstract {
 			self::PAGE_SLUG,
 			[ $this, 'render_page' ]
 		);
+	}
+
+	/**
+	 * Whether the upstream Genesis Custom Blocks plugin is currently
+	 * installed and active on this site.
+	 *
+	 * @return bool
+	 */
+	protected function is_genesis_custom_blocks_active() {
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		return is_plugin_active( 'genesis-custom-blocks/genesis-custom-blocks.php' );
 	}
 
 	/**
@@ -210,15 +233,28 @@ class ImportFromGenesis extends ComponentAbstract {
 
 		$source_blocks = $this->get_source_blocks();
 		$result        = isset( $_GET['result'] ) ? sanitize_key( wp_unslash( $_GET['result'] ) ) : '';
-		$imported_csv  = isset( $_GET['imported'] ) ? sanitize_text_field( wp_unslash( $_GET['imported'] ) ) : '';
-		$skipped_csv   = isset( $_GET['skipped'] ) ? sanitize_text_field( wp_unslash( $_GET['skipped'] ) ) : '';
-		$errors_csv    = isset( $_GET['errors'] ) ? sanitize_text_field( wp_unslash( $_GET['errors'] ) ) : '';
-		$rewrite_count = isset( $_GET['rewrite_count'] ) && '' !== $_GET['rewrite_count'] ? (int) $_GET['rewrite_count'] : null;
+
+		// `imported[]`, `skipped[]`, and `errors[]` now come through as
+		// PHP arrays rather than a delimited string — see the redirect
+		// in handle_submit() for why. The fallback `(array) … : []`
+		// keeps the page robust if a stray legacy URL still uses the
+		// old `?imported=A|B` shape (it'll show up as a 1-element list
+		// with the names jammed together, but at least it won't crash).
+		$imported_titles = isset( $_GET['imported'] ) && is_array( $_GET['imported'] )
+			? array_values( array_filter( array_map( 'sanitize_text_field', wp_unslash( $_GET['imported'] ) ) ) )
+			: [];
+		$skipped_titles  = isset( $_GET['skipped'] ) && is_array( $_GET['skipped'] )
+			? array_values( array_filter( array_map( 'sanitize_text_field', wp_unslash( $_GET['skipped'] ) ) ) )
+			: [];
+		$error_lines     = isset( $_GET['errors'] ) && is_array( $_GET['errors'] )
+			? array_values( array_filter( array_map( 'sanitize_text_field', wp_unslash( $_GET['errors'] ) ) ) )
+			: [];
+		$rewrite_count   = isset( $_GET['rewrite_count'] ) && '' !== $_GET['rewrite_count'] ? (int) $_GET['rewrite_count'] : null;
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Import from Genesis Custom Blocks', 'coywolf-custom-blocks' ); ?></h1>
 
-			<?php $this->render_notice( $result, $imported_csv, $skipped_csv, $errors_csv, $rewrite_count ); ?>
+			<?php $this->render_notice( $result, $imported_titles, $skipped_titles, $error_lines, $rewrite_count ); ?>
 
 			<p>
 				<?php esc_html_e( 'This page lists every block stored on this site under the upstream Genesis Custom Blocks post type. Select the blocks you want to copy into Coywolf Custom Blocks. The original blocks are not modified — Genesis Custom Blocks can stay installed and active.', 'coywolf-custom-blocks' ); ?>
@@ -469,15 +505,27 @@ class ImportFromGenesis extends ComponentAbstract {
 								errors.length + ' error(s).'
 							);
 
-							// Bounce back to the page with the same query string
-							// the noscript flow would have produced, so the
-							// success/skipped/error notices render in their
-							// usual place under the heading.
-							var sep   = '|';
+							// Bounce back to the page with each title as its
+							// own array entry — managed-host WAFs (Rocket,
+							// Cloudflare, ModSecurity) sometimes strip
+							// URL-encoded `|` characters on suspicion of
+							// SQL injection, which collapsed all titles
+							// into one un-separated blob and made the
+							// count read as "1 block." Array-form params
+							// (`imported[]=A&imported[]=B`) sidestep that.
+							var encodeArrayParam = function ( key, values ) {
+								if ( ! values || ! values.length ) {
+									return '';
+								}
+								var encodedKey = encodeURIComponent( key ) + '%5B%5D=';
+								return values.map( function ( v ) {
+									return '&' + encodedKey + encodeURIComponent( v );
+								} ).join( '' );
+							};
 							var query = '&result=imported' +
-								'&imported=' + encodeURIComponent( imported.join( sep ) ) +
-								'&skipped='  + encodeURIComponent( skipped.join( sep ) ) +
-								'&errors='   + encodeURIComponent( errors.join( sep ) );
+								encodeArrayParam( 'imported', imported ) +
+								encodeArrayParam( 'skipped',  skipped ) +
+								encodeArrayParam( 'errors',   errors );
 							if ( wantRewrite ) {
 								query += '&rewrite_count=' + encodeURIComponent( rewriteCount || 0 );
 							}
@@ -493,24 +541,24 @@ class ImportFromGenesis extends ComponentAbstract {
 	}
 
 	/**
-	 * Render the success / error notice after an import POST.
+	 * Render the success / error notice after an import.
 	 *
 	 * @param string   $result        Status flag from the redirect query string.
-	 * @param string   $imported_csv  Pipe-separated titles imported (newly created).
-	 * @param string   $skipped_csv   Pipe-separated titles skipped (already existed).
-	 * @param string   $errors_csv    Pipe-separated error strings.
+	 * @param string[] $imported      Titles newly created on this run.
+	 * @param string[] $skipped       Titles that already existed and were left alone.
+	 * @param string[] $errors        Per-block error strings.
 	 * @param int|null $rewrite_count Number of posts rewritten, or null if the
 	 *                                rewrite option was not selected.
 	 */
-	protected function render_notice( $result, $imported_csv, $skipped_csv, $errors_csv, $rewrite_count ) {
+	protected function render_notice( $result, $imported, $skipped, $errors, $rewrite_count ) {
 		if ( '' === $result ) {
 			return;
 		}
 
 		if ( 'imported' === $result ) {
-			$imported = '' === $imported_csv ? [] : array_filter( array_map( 'trim', explode( '|', $imported_csv ) ) );
-			$skipped  = '' === $skipped_csv ? [] : array_filter( array_map( 'trim', explode( '|', $skipped_csv ) ) );
-			$errors   = '' === $errors_csv ? [] : array_filter( array_map( 'trim', explode( '|', $errors_csv ) ) );
+			$imported = (array) $imported;
+			$skipped  = (array) $skipped;
+			$errors   = (array) $errors;
 			?>
 			<div class="notice notice-success is-dismissible">
 				<p>
@@ -523,11 +571,14 @@ class ImportFromGenesis extends ComponentAbstract {
 						)
 					);
 					?>
-					<?php if ( ! empty( $imported ) ) : ?>
-						<br />
-						<?php echo esc_html( implode( ', ', $imported ) ); ?>
-					<?php endif; ?>
 				</p>
+				<?php if ( ! empty( $imported ) ) : ?>
+					<ul style="list-style: disc; padding-left: 1.5em; margin: 0;">
+						<?php foreach ( $imported as $title ) : ?>
+							<li><?php echo esc_html( $title ); ?></li>
+						<?php endforeach; ?>
+					</ul>
+				<?php endif; ?>
 				<?php if ( null !== $rewrite_count ) : ?>
 					<p>
 						<?php
@@ -550,13 +601,33 @@ class ImportFromGenesis extends ComponentAbstract {
 			<?php if ( ! empty( $skipped ) ) : ?>
 				<div class="notice notice-info is-dismissible">
 					<p>
-						<strong><?php esc_html_e( 'Already imported (left alone):', 'coywolf-custom-blocks' ); ?></strong>
-						<?php echo esc_html( implode( ', ', $skipped ) ); ?>.
-						<?php if ( null !== $rewrite_count ) : ?>
-							<br />
-							<?php esc_html_e( 'Block-name rewrites in post content still ran for these slugs so any pages using them now resolve to your Coywolf blocks.', 'coywolf-custom-blocks' ); ?>
-						<?php endif; ?>
+						<strong>
+							<?php
+							echo esc_html(
+								sprintf(
+									/* translators: %d: number of skipped blocks */
+									_n(
+										'%d block already existed and was left alone:',
+										'%d blocks already existed and were left alone:',
+										count( $skipped ),
+										'coywolf-custom-blocks'
+									),
+									count( $skipped )
+								)
+							);
+							?>
+						</strong>
 					</p>
+					<ul style="list-style: disc; padding-left: 1.5em; margin: 0;">
+						<?php foreach ( $skipped as $title ) : ?>
+							<li><?php echo esc_html( $title ); ?></li>
+						<?php endforeach; ?>
+					</ul>
+					<?php if ( null !== $rewrite_count ) : ?>
+						<p>
+							<?php esc_html_e( 'Block-name rewrites in post content still ran for these slugs so any pages using them now resolve to your Coywolf blocks.', 'coywolf-custom-blocks' ); ?>
+						</p>
+					<?php endif; ?>
 				</div>
 			<?php endif; ?>
 			<?php if ( ! empty( $errors ) ) : ?>
@@ -693,16 +764,23 @@ class ImportFromGenesis extends ComponentAbstract {
 			$rewrite_count = $this->rewrite_post_content( array_values( array_unique( $rewrite_slugs ) ) );
 		}
 
-		// Use | as the separator so block titles containing commas survive.
+		// Send each title as its own `imported[]=…` array entry rather
+		// than a delimited blob — managed-host WAFs (Rocket, Cloudflare,
+		// ModSecurity) sometimes strip the URL-encoded `|` (%7C) on
+		// suspicion of SQL-injection, which on this page collapsed every
+		// title into one un-separated string and made the count read as
+		// "1 block." PHP unpacks `?imported[]=A&imported[]=B` into an
+		// array on its own; no delimiter parsing needed downstream.
 		wp_safe_redirect(
-			$this->page_url(
+			add_query_arg(
 				[
 					'result'        => 'imported',
-					'imported'      => implode( '|', $imported ),
-					'skipped'       => implode( '|', $skipped ),
-					'errors'        => implode( '|', $errors ),
+					'imported'      => $imported,
+					'skipped'       => $skipped,
+					'errors'        => $errors,
 					'rewrite_count' => $should_rewrite ? $rewrite_count : '',
-				]
+				],
+				$this->page_url()
 			)
 		);
 		exit;
@@ -730,10 +808,35 @@ class ImportFromGenesis extends ComponentAbstract {
 
 		$slug = (string) $config['name'];
 
-		// Skip-but-still-eligible-for-rewrite: surface the existing post ID
-		// so the caller can include this slug in the post_content sweep.
+		// Theme-template translation: if the active theme has a matching
+		// `blocks/block-{slug}.php` file, use ITS translated content as
+		// the imported block's templateMarkup — even if the upstream
+		// block already had its own templateMarkup value. Upstream
+		// Genesis Custom Blocks sometimes pre-seeds that field with
+		// auto-generated boilerplate (or a stale earlier copy of the
+		// theme file), and the theme file is the source of truth for
+		// how the block actually rendered on the live site. Falling
+		// back only when the upstream field was empty caused users to
+		// land on Coywolf blocks with placeholder markup that didn't
+		// reflect the theme's actual template.
+		$template_path  = $this->locate_theme_template( $slug );
+		$theme_markup   = '';
+		if ( $template_path ) {
+			$theme_markup = $this->translate_php_template( $this->read_file_safely( $template_path ) );
+		}
+
+		// Existing-block handling. The slug already exists in Coywolf
+		// (typical when re-running the importer to pick up theme
+		// templates added between runs, or simply to back-fill a block
+		// whose first import missed the template). If the existing
+		// block has an empty templateMarkup AND the theme file
+		// translated to something useful, patch the existing post's
+		// post_content to fold the theme markup in. Otherwise leave
+		// the existing block alone — the user may have hand-edited
+		// its Custom HTML and we don't want to clobber that.
 		$existing = get_page_by_path( $slug, OBJECT, coywolf_custom_blocks()->get_post_type_slug() );
 		if ( $existing instanceof \WP_Post ) {
+			$this->maybe_backfill_template_markup( $existing, $slug, $theme_markup );
 			return [
 				'post_id' => (int) $existing->ID,
 				'slug'    => $slug,
@@ -741,18 +844,8 @@ class ImportFromGenesis extends ComponentAbstract {
 			];
 		}
 
-		// If the source has no in-admin templateMarkup but the active theme
-		// has a matching template file, translate the PHP file to {{field}}
-		// syntax and stash it as templateMarkup so the imported block can
-		// render without depending on the theme file.
-		if ( empty( $config['templateMarkup'] ) ) {
-			$template_path = $this->locate_theme_template( $slug );
-			if ( $template_path ) {
-				$translated = $this->translate_php_template( $this->read_file_safely( $template_path ) );
-				if ( '' !== $translated ) {
-					$config['templateMarkup'] = $translated;
-				}
-			}
+		if ( '' !== $theme_markup ) {
+			$config['templateMarkup'] = $theme_markup;
 		}
 
 		$new_envelope = [ 'coywolf-custom-blocks/' . $slug => $config ];
@@ -777,6 +870,49 @@ class ImportFromGenesis extends ComponentAbstract {
 			'slug'    => $slug,
 			'created' => true,
 		];
+	}
+
+	/**
+	 * Patch an existing Coywolf block's templateMarkup with a translated
+	 * theme-template body — but ONLY if the existing block's
+	 * templateMarkup is empty. Never clobbers user-authored content.
+	 *
+	 * Lets re-running the importer back-fill templates that were missed
+	 * the first time (e.g. the theme template file was added between
+	 * the first import and now, or the first run's logic skipped the
+	 * theme file in favour of an empty upstream templateMarkup).
+	 *
+	 * @param \WP_Post $existing      The existing Coywolf block post.
+	 * @param string   $slug          The block slug (also its post_name).
+	 * @param string   $theme_markup  Translated theme-template content, or
+	 *                                '' if no theme file was found.
+	 * @return void
+	 */
+	protected function maybe_backfill_template_markup( $existing, $slug, $theme_markup ) {
+		if ( '' === $theme_markup ) {
+			return;
+		}
+
+		$config = $this->decode_block_config( $existing->post_content );
+		if ( ! is_array( $config ) ) {
+			$config = [ 'name' => $slug ];
+		}
+		$current_markup = isset( $config['templateMarkup'] ) ? trim( (string) $config['templateMarkup'] ) : '';
+		if ( '' !== $current_markup ) {
+			// User has authored something here already — don't overwrite.
+			return;
+		}
+
+		$config['templateMarkup'] = $theme_markup;
+		$config['name']           = $slug; // safety: ensure name is set
+		$envelope                 = [ 'coywolf-custom-blocks/' . $slug => $config ];
+
+		wp_update_post(
+			[
+				'ID'           => (int) $existing->ID,
+				'post_content' => wp_slash( wp_json_encode( $envelope, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) ),
+			]
+		);
 	}
 
 	/**
@@ -896,15 +1032,39 @@ class ImportFromGenesis extends ComponentAbstract {
 		// close tag. We deliberately do not write the example tag forms in
 		// comments here because a literal close-tag sequence inside a "//"
 		// comment terminates PHP parsing mid-file.
+		// Inner-call: the literal `block_field('foo')` or `block_value('foo')`
+		// invocation, with optional 2nd-arg (true|false|1|0). Used as a
+		// sub-pattern in each whole-statement form below.
+		$call_re = 'block_(?:field|value)\s*\(\s*[\'"](' . $slug_re . ')[\'"](?:\s*,\s*(?:true|false|1|0))?\s*\)';
+
+		// Common WP escape wrappers that templates wrap around the block
+		// helper output. The Custom HTML renderer doesn't escape its own
+		// output (admin-authored content, manage_options-only), so we
+		// strip the wrapper and substitute `{{slug}}` regardless of which
+		// escape function was used. Patterns also accept calls with no
+		// wrapper at all.
+		$escape_fns = 'esc_html|esc_attr|esc_url|esc_url_raw|esc_textarea|esc_js|esc_html__|esc_attr__|wp_kses_post|wp_kses_data|wp_kses|html_entity_decode|trim|wp_strip_all_tags';
+
+		// Patterns below match PHP open/close-tag boundaries; we deliberately
+		// do not write example tag forms in comments because a literal
+		// close-tag sequence inside a "//" comment terminates PHP parsing
+		// mid-file.
 		$patterns = [
-			// block_field( 'foo' ) inside php open/close tags.
-			'#<\?(?:php\s+)?block_field\s*\(\s*[\'"](' . $slug_re . ')[\'"](?:\s*,\s*(?:true|false|1|0))?\s*\)\s*;?\s*\?' . '>#',
-			// block_value( 'foo' ) inside php open/close tags (rare; same shape).
-			'#<\?(?:php\s+)?block_value\s*\(\s*[\'"](' . $slug_re . ')[\'"](?:\s*,\s*(?:true|false|1|0))?\s*\)\s*;?\s*\?' . '>#',
-			// echo block_field/block_value( 'foo' ) inside php tags.
-			'#<\?(?:php\s+)?echo\s+block_(?:field|value)\s*\(\s*[\'"](' . $slug_re . ')[\'"](?:\s*,\s*(?:true|false|1|0))?\s*\)\s*;?\s*\?' . '>#',
-			// Short-echo form.
-			'#<\?=\s*block_(?:field|value)\s*\(\s*[\'"](' . $slug_re . ')[\'"](?:\s*,\s*(?:true|false|1|0))?\s*\)\s*;?\s*\?' . '>#',
+			// 1. Standalone helper call inside php tags.
+			'#<\?(?:php\s+)?' . $call_re . '\s*;?\s*\?' . '>#',
+
+			// 2. echo + helper, no escape wrapper.
+			'#<\?(?:php\s+)?echo\s+' . $call_re . '\s*;?\s*\?' . '>#',
+
+			// 3. echo + single escape wrapper around helper (covers
+			//    esc_html / esc_attr / esc_url / wp_kses_post / etc.).
+			'#<\?(?:php\s+)?echo\s+(?:' . $escape_fns . ')\s*\(\s*' . $call_re . '\s*\)\s*;?\s*\?' . '>#',
+
+			// 4. echo + double-wrapped helper (e.g. esc_url wrapping esc_url_raw).
+			'#<\?(?:php\s+)?echo\s+(?:' . $escape_fns . ')\s*\(\s*(?:' . $escape_fns . ')\s*\(\s*' . $call_re . '\s*\)\s*\)\s*;?\s*\?' . '>#',
+
+			// 5. Short-echo form, optionally with one escape wrapper.
+			'#<\?=\s*(?:(?:' . $escape_fns . ')\s*\(\s*)?' . $call_re . '\s*\)?\s*;?\s*\?' . '>#',
 		];
 
 		foreach ( $patterns as $re ) {
