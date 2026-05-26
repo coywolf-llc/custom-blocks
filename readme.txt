@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.23
+Stable tag: 1.0.24
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -102,6 +102,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.24 =
+* Render Preview HTML in the Editor Preview tab (#33).
 
 = 1.0.24 =
 * Editor Preview tab now renders the Preview HTML when one is set, in addition to the field inputs — matches what the post editor user sees when `showPreview` is on.
