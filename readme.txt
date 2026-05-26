@@ -103,6 +103,9 @@ the same GPL-2.0-or-later license.
 
 == Changelog ==
 
+= 1.0.30 =
+* Add a progress bar to the standalone "Rewrite post content now" tool. Counts candidate posts up front, then processes them in keyset-paginated batches of 100 via REST so the progress reflects actual work. Synchronous noscript fallback still works for users with JS off. Also fixes a latent bug where the OFFSET-based paginator could skip posts as the rewrite shrank the LIKE-matched result set.
+
 = 1.0.29 =
 * Make import-time rewrite use the same path as the standalone button (#38).
 

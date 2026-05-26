@@ -106,6 +106,37 @@ class ImportFromGenesis extends ComponentAbstract {
 
 		register_rest_route(
 			'coywolf-custom-blocks/v1',
+			'/import-genesis/rewrite-pending',
+			[
+				'methods'             => 'GET',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+				'callback'            => [ $this, 'rest_rewrite_pending_count' ],
+			]
+		);
+
+		register_rest_route(
+			'coywolf-custom-blocks/v1',
+			'/import-genesis/rewrite-batch',
+			[
+				'methods'             => 'POST',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+				'callback'            => [ $this, 'rest_rewrite_batch' ],
+				'args'                => [
+					'after' => [
+						'required'          => false,
+						'sanitize_callback' => 'absint',
+						'default'           => 0,
+					],
+				],
+			]
+		);
+
+		register_rest_route(
+			'coywolf-custom-blocks/v1',
 			'/import-genesis/rewrite',
 			[
 				'methods'             => 'POST',
@@ -186,6 +217,50 @@ class ImportFromGenesis extends ComponentAbstract {
 	 * @param \WP_REST_Request $request
 	 * @return \WP_REST_Response
 	 */
+	/**
+	 * REST: return the total number of posts that still contain
+	 * `wp:genesis-custom-blocks/` markers. Drives the progress bar's
+	 * `max` value for the standalone rewrite tool.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function rest_rewrite_pending_count() {
+		return new \WP_REST_Response(
+			[ 'count' => $this->count_pending_rewrites() ],
+			200
+		);
+	}
+
+	/**
+	 * REST: process one batch of the post-content rewrite. Idempotent
+	 * keyset pagination — caller passes the `next_after` cursor we
+	 * returned from the previous call (or 0 on first call) and we
+	 * advance from there.
+	 *
+	 * Response shape:
+	 *  - processed:  posts whose content was actually changed this batch
+	 *  - examined:   posts looked at this batch (≤ batch size)
+	 *  - next_after: cursor for the next call, or null when done
+	 *
+	 * @param \WP_REST_Request $request
+	 * @return \WP_REST_Response
+	 */
+	public function rest_rewrite_batch( $request ) {
+		$slugs = $this->normalise_slugs_for_rewrite( $this->get_existing_coywolf_block_slugs() );
+		if ( empty( $slugs ) ) {
+			return new \WP_REST_Response(
+				[
+					'processed'  => 0,
+					'examined'   => 0,
+					'next_after' => null,
+				],
+				200
+			);
+		}
+		$batch = $this->rewrite_post_content_batch( $slugs, 100, (int) $request->get_param( 'after' ) );
+		return new \WP_REST_Response( $batch, 200 );
+	}
+
 	public function rest_rewrite_post_content( $request ) {
 		// Ignore the JS-supplied slugs and sweep every block that exists
 		// in Coywolf. Originally this endpoint rewrote only the slugs the
@@ -747,7 +822,22 @@ class ImportFromGenesis extends ComponentAbstract {
 		<p style="max-width: 60em;">
 			<?php esc_html_e( "If you've already imported your blocks but forgot to tick the post-content rewrite checkbox, your existing posts and pages still reference wp:genesis-custom-blocks/{slug} and render through the upstream plugin (or render empty if upstream is gone). Run this sweep to rewrite every reference to a block slug that exists in Coywolf so your content renders through this plugin instead. Block slugs that don't exist in Coywolf are left alone. Post content updates cannot be undone from this screen — back up your database before proceeding on a production site.", 'coywolf-custom-blocks' ); ?>
 		</p>
-		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+
+		<div id="ccb-rewrite-progress" style="display: none; margin-top: 1em;">
+			<h3 id="ccb-rewrite-progress-heading" style="margin-top: 0;"><?php esc_html_e( 'Rewriting post content…', 'coywolf-custom-blocks' ); ?></h3>
+			<p id="ccb-rewrite-progress-status" class="description"></p>
+			<progress id="ccb-rewrite-progress-bar" value="0" max="100" style="width: 100%; height: 1.5em;"></progress>
+		</div>
+
+		<form
+			id="ccb-rewrite-form"
+			method="post"
+			action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"
+			data-rest-pending-url="<?php echo esc_url( rest_url( 'coywolf-custom-blocks/v1/import-genesis/rewrite-pending' ) ); ?>"
+			data-rest-batch-url="<?php echo esc_url( rest_url( 'coywolf-custom-blocks/v1/import-genesis/rewrite-batch' ) ); ?>"
+			data-rest-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
+			data-page-url="<?php echo esc_url( $this->page_url() ); ?>"
+		>
 			<input type="hidden" name="action" value="<?php echo esc_attr( self::REWRITE_NONCE_ACTION ); ?>" />
 			<?php wp_nonce_field( self::REWRITE_NONCE_ACTION ); ?>
 			<p class="submit">
@@ -756,6 +846,111 @@ class ImportFromGenesis extends ComponentAbstract {
 				</button>
 			</p>
 		</form>
+
+		<script>
+			( function () {
+				var form = document.getElementById( 'ccb-rewrite-form' );
+				if ( ! form || typeof window.fetch !== 'function' ) {
+					return;
+				}
+
+				var progressUi = document.getElementById( 'ccb-rewrite-progress' );
+				var bar        = document.getElementById( 'ccb-rewrite-progress-bar' );
+				var status     = document.getElementById( 'ccb-rewrite-progress-status' );
+				var heading    = document.getElementById( 'ccb-rewrite-progress-heading' );
+
+				var pendingUrl = form.getAttribute( 'data-rest-pending-url' );
+				var batchUrl   = form.getAttribute( 'data-rest-batch-url' );
+				var restNonce  = form.getAttribute( 'data-rest-nonce' );
+				var pageUrl    = form.getAttribute( 'data-page-url' );
+
+				form.addEventListener( 'submit', function ( event ) {
+					event.preventDefault();
+
+					var submitBtn = form.querySelector( 'button[type="submit"]' );
+					if ( submitBtn ) { submitBtn.disabled = true; }
+					form.style.opacity = '0.5';
+					form.style.pointerEvents = 'none';
+					progressUi.style.display = '';
+					bar.value = 0;
+					bar.max = 100;
+					status.textContent = 'Counting candidate posts…';
+
+					var totalProcessed = 0;
+					var totalPending   = 0;
+
+					var setProgress = function ( examinedSoFar, label ) {
+						var pct = totalPending > 0
+							? Math.min( 100, Math.round( ( examinedSoFar / totalPending ) * 100 ) )
+							: 0;
+						bar.value = pct;
+						status.textContent = label;
+					};
+
+					var runBatch = function ( after, examinedSoFar ) {
+						return fetch( batchUrl, {
+							method: 'POST',
+							credentials: 'same-origin',
+							headers: {
+								'Content-Type': 'application/json',
+								'X-WP-Nonce':   restNonce
+							},
+							body: JSON.stringify( { after: after } )
+						} ).then( function ( res ) {
+							return res.json();
+						} ).then( function ( data ) {
+							totalProcessed += ( data.processed || 0 );
+							examinedSoFar += ( data.examined || 0 );
+							setProgress(
+								examinedSoFar,
+								'Scanned ' + examinedSoFar + ' of ~' + totalPending + ' posts (' + totalProcessed + ' rewritten)…'
+							);
+							if ( null === data.next_after || 'undefined' === typeof data.next_after ) {
+								return;
+							}
+							return runBatch( data.next_after, examinedSoFar );
+						} );
+					};
+
+					fetch( pendingUrl, {
+						method: 'GET',
+						credentials: 'same-origin',
+						headers: { 'X-WP-Nonce': restNonce }
+					} ).then( function ( res ) {
+						return res.json();
+					} ).then( function ( data ) {
+						totalPending = ( data && data.count ) || 0;
+						if ( 0 === totalPending ) {
+							heading.textContent = 'Nothing to rewrite';
+							status.textContent = 'No posts contained wp:genesis-custom-blocks/ markers.';
+							bar.value = 100;
+							window.setTimeout( function () {
+								window.location.href = pageUrl + '&result=rewrite_only&rewrite_count=0';
+							}, 1200 );
+							return;
+						}
+						setProgress( 0, 'Scanning ' + totalPending + ' candidate post(s)…' );
+						return runBatch( 0, 0 );
+					} ).then( function () {
+						if ( 0 === totalPending ) {
+							return;
+						}
+						bar.value = 100;
+						heading.textContent = 'Rewrite complete';
+						status.textContent = 'Rewrote block names in ' + totalProcessed + ' post(s).';
+						window.setTimeout( function () {
+							window.location.href = pageUrl + '&result=rewrite_only&rewrite_count=' + encodeURIComponent( totalProcessed );
+						}, 1200 );
+					} ).catch( function ( err ) {
+						heading.textContent = 'Rewrite failed';
+						status.textContent = err && err.message ? err.message : 'Unknown error.';
+						if ( submitBtn ) { submitBtn.disabled = false; }
+						form.style.opacity = '';
+						form.style.pointerEvents = '';
+					} );
+				} );
+			} )();
+		</script>
 		<?php
 	}
 
@@ -1394,13 +1589,122 @@ class ImportFromGenesis extends ComponentAbstract {
 	 * @return int Number of posts updated.
 	 */
 	protected function rewrite_post_content( $slugs ) {
-		global $wpdb;
-
-		$slugs = array_values( array_unique( array_filter( array_map( 'strval', $slugs ) ) ) );
+		$slugs = $this->normalise_slugs_for_rewrite( $slugs );
 		if ( empty( $slugs ) ) {
 			return 0;
 		}
 
+		$updated = 0;
+		$after   = 0;
+		while ( true ) {
+			$batch    = $this->rewrite_post_content_batch( $slugs, 200, $after );
+			$updated += $batch['processed'];
+			if ( null === $batch['next_after'] ) {
+				break;
+			}
+			$after = $batch['next_after'];
+		}
+		return $updated;
+	}
+
+	/**
+	 * Process a single batch of the post-content rewrite.
+	 *
+	 * Pulls up to `$batch_size` post IDs whose content still contains
+	 * `wp:genesis-custom-blocks/`, rewrites those that need it, and
+	 * returns counts plus a `next_after` cursor for the caller to pass
+	 * back on the next call. Uses keyset pagination on `ID` rather than
+	 * OFFSET so posts containing only non-Coywolf slugs (which the LIKE
+	 * query keeps matching after our rewrite no-ops them) don't loop
+	 * forever or get skipped — every call advances strictly past the
+	 * highest ID returned.
+	 *
+	 * Used by `rewrite_post_content()` for the synchronous full sweep
+	 * (noscript admin-post submit) and by the REST `/rewrite-batch`
+	 * endpoint for the JS progress-bar flow.
+	 *
+	 * @param string[] $slugs      Slugs (already normalised) to rewrite.
+	 * @param int      $batch_size Max posts to load this call.
+	 * @param int      $after      ID to start *after* (exclusive). Pass 0 on first call.
+	 * @return array{processed:int,examined:int,next_after:?int}
+	 */
+	protected function rewrite_post_content_batch( $slugs, $batch_size = 100, $after = 0 ) {
+		global $wpdb;
+
+		$batch_size = max( 1, (int) $batch_size );
+		$after      = max( 0, (int) $after );
+
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT ID FROM {$wpdb->posts}
+				WHERE ID > %d
+				AND post_status NOT IN ( 'auto-draft', 'inherit', 'trash' )
+				AND post_content LIKE %s
+				ORDER BY ID ASC
+				LIMIT %d",
+				$after,
+				'%wp:genesis-custom-blocks/%',
+				$batch_size
+			)
+		);
+
+		$result = [
+			'processed'  => 0,
+			'examined'   => is_array( $ids ) ? count( $ids ) : 0,
+			'next_after' => null,
+		];
+
+		if ( empty( $ids ) ) {
+			return $result;
+		}
+
+		foreach ( $ids as $post_id ) {
+			$post_id = (int) $post_id;
+			$post    = get_post( $post_id );
+			if ( ! $post instanceof \WP_Post ) {
+				continue;
+			}
+
+			$original  = (string) $post->post_content;
+			$rewritten = $this->rewrite_block_namespaces_in( $original, $slugs );
+
+			if ( $rewritten === $original ) {
+				// No Coywolf-known slug matched — leave the post alone.
+				continue;
+			}
+
+			$wp_result = wp_update_post(
+				[
+					'ID'           => $post_id,
+					'post_content' => wp_slash( $rewritten ),
+				],
+				true
+			);
+			if ( ! is_wp_error( $wp_result ) ) {
+				$result['processed']++;
+			}
+		}
+
+		// If we got a full batch back, more rows may exist past the last
+		// ID we examined. If we got fewer than batch_size, we've reached
+		// the end.
+		if ( $result['examined'] >= $batch_size ) {
+			$result['next_after'] = (int) end( $ids );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Normalise and length-sort a slug list before passing to the
+	 * batch processor. Extracted so both `rewrite_post_content()` and
+	 * the REST batch endpoint apply the same prep.
+	 *
+	 * @param string[] $slugs
+	 * @return string[]
+	 */
+	protected function normalise_slugs_for_rewrite( $slugs ) {
+		$slugs = array_values( array_unique( array_filter( array_map( 'strval', (array) $slugs ) ) ) );
 		// Process longer slugs first so a longer slug is rewritten before any
 		// shorter slug that happens to be its prefix. (We also use a negative
 		// lookahead, but ordering is belt-and-braces.)
@@ -1410,65 +1714,26 @@ class ImportFromGenesis extends ComponentAbstract {
 				return strlen( $b ) - strlen( $a );
 			}
 		);
+		return $slugs;
+	}
 
-		// Find candidate post IDs in chunks so a site with hundreds of
-		// thousands of posts doesn't blow up memory. The LIKE is intentional
-		// — `wp:genesis-custom-blocks/` is the only substring guaranteed to
-		// appear inside an upstream block comment, and the underscore in
-		// `wp_posts.post_content` doesn't need any escaping here because the
-		// pattern itself has no SQL wildcards beyond our own `%`s.
-		$batch_size = 200;
-		$offset     = 0;
-		$updated    = 0;
-
-		do {
-			$ids = $wpdb->get_col(
-				$wpdb->prepare(
-					"SELECT ID FROM {$wpdb->posts}
-					WHERE post_status NOT IN ( 'auto-draft', 'inherit', 'trash' )
-					AND post_content LIKE %s
-					ORDER BY ID ASC
-					LIMIT %d OFFSET %d",
-					'%wp:genesis-custom-blocks/%',
-					$batch_size,
-					$offset
-				)
-			);
-
-			if ( empty( $ids ) ) {
-				break;
-			}
-
-			foreach ( $ids as $post_id ) {
-				$post_id = (int) $post_id;
-				$post    = get_post( $post_id );
-				if ( ! $post instanceof \WP_Post ) {
-					continue;
-				}
-
-				$original = (string) $post->post_content;
-				$rewritten = $this->rewrite_block_namespaces_in( $original, $slugs );
-
-				if ( $rewritten === $original ) {
-					continue;
-				}
-
-				$result = wp_update_post(
-					[
-						'ID'           => $post_id,
-						'post_content' => wp_slash( $rewritten ),
-					],
-					true
-				);
-				if ( ! is_wp_error( $result ) ) {
-					$updated++;
-				}
-			}
-
-			$offset += $batch_size;
-		} while ( true );
-
-		return $updated;
+	/**
+	 * Count posts still containing `wp:genesis-custom-blocks/` markers.
+	 * Used by the JS progress flow to size its progress bar.
+	 *
+	 * @return int
+	 */
+	protected function count_pending_rewrites() {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- aggregate count, not cacheable while rewrites are in flight.
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->posts}
+				WHERE post_status NOT IN ( 'auto-draft', 'inherit', 'trash' )
+				AND post_content LIKE %s",
+				'%wp:genesis-custom-blocks/%'
+			)
+		);
 	}
 
 	/**
