@@ -122,8 +122,58 @@ class Loader extends ComponentAbstract {
 		$js_handle  = 'coywolf-custom-blocks-blocks';
 		$css_handle = 'coywolf-custom-blocks-editor-css';
 
-		$js_config  = require $this->plugin->get_path( 'js/dist/block-editor.asset.php' );
-		$css_config = require $this->plugin->get_path( 'css/dist/blocks.editor.asset.php' );
+		// Same guard as EditBlock::enqueue_assets — when the plugin is
+		// installed from the GitHub source archive (custom-blocks-main.zip)
+		// rather than the release zip, the .asset.php manifests aren't
+		// on disk and an unguarded `require` would E_ERROR right here,
+		// dropping a "critical error on this website" page on every
+		// post editor view. Bail out cleanly and let WordPress render
+		// the editor without our dynamic blocks instead. The user gets
+		// a one-time admin notice via maybe_render_post_editor_notice()
+		// telling them what to do.
+		$js_asset  = $this->plugin->get_path( 'js/dist/block-editor.asset.php' );
+		$css_asset = $this->plugin->get_path( 'css/dist/blocks.editor.asset.php' );
+		if ( ! file_exists( $js_asset ) || ! file_exists( $css_asset ) ) {
+			// Schedule a notice on the next admin_notices fire so the
+			// user sees a friendly explanation instead of staring at a
+			// half-loaded editor with no Coywolf blocks in the inserter.
+			$missing = [];
+			if ( ! file_exists( $js_asset ) ) {
+				$missing[] = 'js/dist/block-editor.asset.php';
+			}
+			if ( ! file_exists( $this->plugin->get_path( 'js/dist/block-editor.js' ) ) ) {
+				$missing[] = 'js/dist/block-editor.js';
+			}
+			if ( ! file_exists( $css_asset ) ) {
+				$missing[] = 'css/dist/blocks.editor.asset.php';
+			}
+			if ( ! file_exists( $this->plugin->get_path( 'css/dist/blocks.editor.css' ) ) ) {
+				$missing[] = 'css/dist/blocks.editor.css';
+			}
+			add_action(
+				'admin_notices',
+				static function () use ( $missing ) {
+					echo '<div class="notice notice-error"><p><strong>';
+					echo esc_html__( 'Coywolf Custom Blocks: build artefacts are missing — its blocks will not appear in the inserter.', 'coywolf-custom-blocks' );
+					echo '</strong></p><p>';
+					printf(
+						/* translators: %s: anchor opening tag for the GitHub releases page */
+						esc_html__( 'This usually means the plugin was installed from a source archive (e.g. custom-blocks-main.zip) rather than the release zip. Re-upload %scoywolf-custom-blocks.zip%s from the latest GitHub release.', 'coywolf-custom-blocks' ),
+						'<a href="https://github.com/coywolf-llc/custom-blocks/releases/latest" target="_blank" rel="noopener noreferrer"><code>',
+						'</code></a>'
+					);
+					echo '</p><ul style="list-style: disc; padding-left: 1.5em;">';
+					foreach ( $missing as $path ) {
+						echo '<li><code>' . esc_html( $path ) . '</code></li>';
+					}
+					echo '</ul></div>';
+				}
+			);
+			return;
+		}
+
+		$js_config  = require $js_asset;
+		$css_config = require $css_asset;
 
 		wp_enqueue_script(
 			$js_handle,
