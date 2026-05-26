@@ -16,7 +16,7 @@ const getDefaultBlock = ( postId = null ) => {
 		name,
 		title: name,
 		excluded: [],
-		icon: 'bi_box',
+		icon: 'bi/BiBox',
 		category: {
 			icon: null,
 			slug: 'text',

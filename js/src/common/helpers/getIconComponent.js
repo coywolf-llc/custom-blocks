@@ -4,36 +4,59 @@
 import * as React from 'react';
 
 /**
- * WordPress dependencies
- */
-import { applyFilters } from '@wordpress/hooks';
-
-/**
  * Internal dependencies
  */
-import * as iconComponents from '../icons';
-import { snakeCaseToPascalCase } from '.';
+import { LazyIcon, getCachedLibrary, parseIconSlug } from '../icons';
 
 /**
- * Gets the icon component, if it exists.
+ * Resolves a stored icon slug to a React component suitable for passing
+ * as the `icon` prop on `<Icon>` or as the `src` of a Gutenberg block's
+ * icon registration.
  *
- * Converts a snake_case icon name to a PascalCase,
- * then gets an icon component of that name if it exists.
- * For example, passing 'bi_box' will return
- * a <BiBox> icon component from react-icons/bi.
+ * If the slug's library is already cached, the direct exported component
+ * is returned synchronously so the caller mounts the real icon with no
+ * extra wrapper. If the library hasn't been loaded yet, a thin
+ * `<LazyIcon slug={ … } />` wrapper is returned — it kicks off the
+ * dynamic import on mount and re-renders into the real icon when the
+ * library lands.
  *
- * @param {string} iconName The type of setting, like 'text'
- * @return {React.FunctionComponent|null} The settings component, if it exists.
+ * Both branches return a React component, so every existing callsite
+ * (`<Icon icon={ getIconComponent( … ) } />`, `registerBlockType` icon
+ * src, etc.) keeps working without a code change at the call site.
+ *
+ * @param {string} iconSlug Stored icon slug. Canonical form is
+ *                          `{libKey}/{ComponentName}`; legacy
+ *                          snake_case BoxIcons-only slugs from v1.0.10
+ *                          are still accepted via `parseIconSlug`'s
+ *                          fallback.
+ * @return {React.FunctionComponent|null} The icon component, or `null`
+ *                                        when the slug is malformed
+ *                                        (which lets WP's `<Icon>` skip
+ *                                        rendering a slot).
  */
-const getIconComponent = ( iconName ) => {
-	if ( ! iconName || 'string' !== typeof iconName ) {
+const getIconComponent = ( iconSlug ) => {
+	if ( ! iconSlug || 'string' !== typeof iconSlug ) {
 		return null;
 	}
 
-	const componentName = snakeCaseToPascalCase( iconName );
+	const { lib, name } = parseIconSlug( iconSlug );
+	if ( ! lib || ! name ) {
+		return null;
+	}
 
-	const filteredComponents = applyFilters( 'coywolfCustomBlocks.iconComponents', iconComponents );
-	return filteredComponents[ componentName ] ? filteredComponents[ componentName ] : null; /* eslint-disable-line import/namespace */
+	const cached = getCachedLibrary( lib );
+	if ( cached ) {
+		// Library loaded — return the component synchronously, or null
+		// for a misspelled / unknown icon name in this library (so WP's
+		// <Icon /> falls back to its empty-slot rendering).
+		return cached[ name ] || null;
+	}
+
+	// Library not loaded yet — return the lazy wrapper. The wrapper
+	// component handles its own dynamic import + re-render on resolve.
+	const Wrapped = ( props ) => <LazyIcon slug={ iconSlug } { ...props } />;
+	Wrapped.displayName = `LazyIcon(${ iconSlug })`;
+	return Wrapped;
 };
 
 export default getIconComponent;

@@ -44,7 +44,7 @@ class TestBlockApi extends \WP_UnitTestCase {
 			'category' => 'common',
 			'excluded' => [],
 			'fields'   => [],
-			'icon'     => 'bi_box',
+			'icon'     => 'bi/BiBox',
 			'keywords' => [],
 			'name'     => $block_name,
 			'title'    => 'Example Block',
