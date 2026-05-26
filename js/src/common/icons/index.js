@@ -14,6 +14,7 @@
  */
 
 export { default as LazyIcon } from './LazyIcon';
+export { default as DefaultIcon } from './DefaultIcon';
 export {
 	LIBRARIES,
 	LIBRARY_OPTIONS,

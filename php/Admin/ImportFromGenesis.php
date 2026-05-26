@@ -808,6 +808,20 @@ class ImportFromGenesis extends ComponentAbstract {
 
 		$slug = (string) $config['name'];
 
+		// Defence in depth: the slug is concatenated into theme-file paths
+		// (blocks/block-{slug}.php, blocks/preview-{slug}.php). Upstream
+		// blocks were authored by admins, so a malformed `name` would
+		// only ever land here if an admin planted it — but constraining
+		// to the same character set WordPress permits in post_name costs
+		// nothing and avoids any future path-traversal surprises.
+		if ( ! preg_match( '/^[a-z0-9-]+$/', $slug ) ) {
+			return new \WP_Error(
+				'coywolf_ccb_invalid_slug',
+				/* translators: %s: rejected slug value */
+				sprintf( __( 'The source block name %s is not a valid slug.', 'coywolf-custom-blocks' ), $slug )
+			);
+		}
+
 		// Theme-template translation: if the active theme has a matching
 		// `blocks/block-{slug}.php` file, use ITS translated content as
 		// the imported block's templateMarkup — even if the upstream

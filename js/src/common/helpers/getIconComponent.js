@@ -2,12 +2,11 @@
  * External dependencies
  */
 import * as React from 'react';
-import { LuSquareCode } from 'react-icons/lu';
 
 /**
  * Internal dependencies
  */
-import { LazyIcon, getCachedLibrary, parseIconSlug } from '../icons';
+import { DefaultIcon, LazyIcon, getCachedLibrary, parseIconSlug } from '../icons';
 
 /**
  * Resolves a stored icon slug to a React component suitable for passing
@@ -47,12 +46,12 @@ import { LazyIcon, getCachedLibrary, parseIconSlug } from '../icons';
  */
 const getIconComponent = ( iconSlug ) => {
 	if ( ! iconSlug || 'string' !== typeof iconSlug ) {
-		return LuSquareCode;
+		return DefaultIcon;
 	}
 
 	const { lib, name } = parseIconSlug( iconSlug );
 	if ( ! lib || ! name ) {
-		return LuSquareCode;
+		return DefaultIcon;
 	}
 
 	const cached = getCachedLibrary( lib );
@@ -61,7 +60,7 @@ const getIconComponent = ( iconSlug ) => {
 		// Lucide default for a misspelled / unknown icon name in this
 		// library so the slot always renders something instead of a
 		// blank box.
-		return cached[ name ] || LuSquareCode;
+		return cached[ name ] || DefaultIcon;
 	}
 
 	// Library not loaded yet — return the lazy wrapper. The wrapper

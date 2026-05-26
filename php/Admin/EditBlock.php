@@ -315,6 +315,20 @@ class EditBlock extends ComponentAbstract {
 			);
 		}
 
+		// `blockName` flows into theme-file path strings via
+		// get_template_locations(). Constrain to the same character set
+		// the post-name slug allows so a value like `../../../wp-config`
+		// can't be used to oracle `file_exists()` outside the theme's
+		// `blocks/` directory. The endpoint is reachable by anyone with
+		// `edit_posts`, so this needs a strict allowlist.
+		if ( ! is_string( $data['blockName'] ) || ! preg_match( '/^[a-z0-9-]+$/', $data['blockName'] ) ) {
+			return new WP_Error(
+				'invalid_block_name',
+				__( 'Invalid block name.', 'coywolf-custom-blocks' ),
+				[ 'status' => 400 ]
+			);
+		}
+
 		return rest_ensure_response( $this->get_template_file( $data['blockName'] ) );
 	}
 

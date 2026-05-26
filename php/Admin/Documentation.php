@@ -99,13 +99,20 @@ class Documentation extends ComponentAbstract {
 	 * and prints it inside a standard WP `.wrap` container.
 	 */
 	public function render_page() {
+		// Defensive cap check — WordPress's menu loader already gates this
+		// page on `manage_options`, but the other admin renderers in this
+		// plugin (EditBlock, ExportImport, ImportFromGenesis) all re-check
+		// inside their render methods so add_menu_page slip-ups don't
+		// surface unauthorized content. Match that posture here.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to view this page.', 'coywolf-custom-blocks' ) );
+		}
+
 		$path = coywolf_custom_blocks()->get_path() . 'readme.md';
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local plugin file.
-		$markdown = is_readable( $path ) ? @file_get_contents( $path ) : '';
 
 		echo '<div class="wrap"><div class="coywolf-docs">';
 
-		if ( '' === $markdown || false === $markdown ) {
+		if ( ! is_readable( $path ) ) {
 			echo '<h1>' . esc_html__( 'Documentation', 'coywolf-custom-blocks' ) . '</h1>';
 			printf(
 				'<p>%s</p>',
@@ -115,7 +122,25 @@ class Documentation extends ComponentAbstract {
 			return;
 		}
 
-		echo $this->markdown_to_html( $markdown ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside.
+		// Cache the rendered HTML keyed by the readme's mtime so the
+		// Markdown→HTML pass (multiple preg_replace_callback runs over
+		// the whole file) only fires once per release — the readme only
+		// changes when the plugin is updated.
+		$mtime     = (int) filemtime( $path );
+		$cache_key = 'coywolf_ccb_docs_v1_' . $mtime;
+		$html      = get_transient( $cache_key );
+		if ( false === $html ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local plugin file.
+			$markdown = @file_get_contents( $path );
+			if ( '' === $markdown || false === $markdown ) {
+				$html = '<h1>' . esc_html__( 'Documentation', 'coywolf-custom-blocks' ) . '</h1>';
+			} else {
+				$html = $this->markdown_to_html( $markdown );
+			}
+			set_transient( $cache_key, $html, WEEK_IN_SECONDS );
+		}
+
+		echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside markdown_to_html.
 		echo '</div></div>';
 	}
 
