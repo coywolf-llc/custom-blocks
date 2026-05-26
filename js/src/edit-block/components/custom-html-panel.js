@@ -17,17 +17,14 @@ import { useBlock, useField } from '../hooks';
 /**
  * Always-visible "Custom HTML" panel that lives below the fields grid.
  *
- * Binds to the same `templateMarkup` storage as the ACE-based TemplateEditor
- * mode in the header, but exposes it as a plain textarea so authors don't
- * have to discover the mode toggle. This is the inline replacement for the
- * `{theme}/blocks/block-{name}.php` template file workflow.
+ * Binds to the block's `templateMarkup` storage and exposes it as a plain
+ * textarea — the inline replacement for the `{theme}/blocks/block-{name}.php`
+ * template file workflow.
  *
  * Field references use the `{{field-name}}` syntax; substitution happens
  * server-side in TemplateEditor::render_markup(). The dropdown above the
  * textarea lets the user pick a field by name and inserts the matching
- * token at the current caret position, so they don't have to memorize
- * slug spellings or scroll past a row of chips when there are many
- * fields defined on the block.
+ * token at the current caret position.
  *
  * @return {React.ReactElement} The Custom HTML panel.
  */

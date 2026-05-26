@@ -55,11 +55,11 @@ This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis
 
 ## Changelog
 
-### 1.0.22
-- Fix block icons rendering as solid black squares in Post editor (#31).
+### 1.0.23
+- Remove the standalone Template Editor page; the Custom HTML panel on the Builder screen already covers it. Drops the `react-ace`/`ace-builds` dependencies (~500 KB off the edit-block bundle).
 
 ### 1.0.22
-- Fix block icons rendering as solid black squares in the Post editor inserter, block inspector, and block card. Gutenberg's stylesheets force `fill: currentColor` on every SVG inside a button or the block-icon slot, which overrode the `fill="none"` presentation attribute that Lucide (and other react-icons line libraries) emit — turning stroke glyphs like `lu/LuSquareCode` into filled rounded squares. Scoped CSS now restores `fill: none` only on SVGs that explicitly opted in, leaving filled-style libraries unaffected.
+- Fix block icons rendering as solid black squares in Post editor (#31).
 
 ### 1.0.21
 - Restore Preview support: in-admin Preview HTML panel + Genesis import (#30).
