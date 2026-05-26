@@ -1,21 +1,19 @@
 /**
  * Registry of every icon library available via react-icons.
  *
- * Every library — including the Lucide default — loads via a dynamic
- * `import()` so each one becomes its own webpack chunk and only
- * downloads when the user actually picks it. Eagerly bundling all
- * 50,000+ icons would put 20+ MB of admin JS on the page; this
- * code-splits to ~50 KB-1 MB per library.
- *
- * The fallback `LuSquareCode` glyph used during loading is imported
- * once by name from `react-icons/lu` in `LazyIcon` / `getIconComponent`
- * — that single named import is the only Lucide that ships in the main
- * entry bundle. The rest of Lucide arrives via the lazy chunk below.
+ * The default library — Lucide — is imported eagerly so the icon picker
+ * (and any block whose icon comes from Lucide) renders synchronously
+ * with no flash. All other libraries use a dynamic `import()` so each
+ * one becomes its own webpack chunk and only downloads when the user
+ * actually picks it. Eagerly bundling all 50,000+ icons would put 20+ MB
+ * of admin JS on the page; this code-splits to ~50 KB-1 MB per library.
  *
  * The chunk-name magic comment (`webpackChunkName: "icons-XX"`) keeps the
  * generated files predictable so a future workflow can pre-cache or pre-
  * fetch a known subset.
  */
+
+import * as lu from 'react-icons/lu';
 
 /**
  * @typedef {Object} IconLibrary
@@ -44,7 +42,7 @@ export const LIBRARIES = {
 	io:  { name: 'Ionicons 4',        load: () => import( /* webpackChunkName: "icons-io"  */ 'react-icons/io'  ) },
 	io5: { name: 'Ionicons 5',        load: () => import( /* webpackChunkName: "icons-io5" */ 'react-icons/io5' ) },
 	lia: { name: 'Line Awesome',      load: () => import( /* webpackChunkName: "icons-lia" */ 'react-icons/lia' ) },
-	lu:  { name: 'Lucide',            load: () => import( /* webpackChunkName: "icons-lu"  */ 'react-icons/lu'  ) },
+	lu:  { name: 'Lucide',            load: () => Promise.resolve( lu ) },
 	md:  { name: 'Material Design',   load: () => import( /* webpackChunkName: "icons-md"  */ 'react-icons/md'  ) },
 	pi:  { name: 'Phosphor',          load: () => import( /* webpackChunkName: "icons-pi"  */ 'react-icons/pi'  ) },
 	ri:  { name: 'Remix Icons',       load: () => import( /* webpackChunkName: "icons-ri"  */ 'react-icons/ri'  ) },
