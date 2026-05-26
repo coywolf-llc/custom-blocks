@@ -4,7 +4,7 @@
 
 Build custom Gutenberg blocks in the WordPress admin — no SFTP, no theme files. A privacy-respecting fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) with WP Engine telemetry, the WPE update server, and Genesis Pro upsells removed; ships an inline Custom HTML editor, native JSON export/import, and a one-shot importer for migrating off upstream.
 
-- **Version:** 1.0.29
+- **Version:** 1.0.30
 - **Requires WordPress:** 6.0 or later
 - **Tested up to:** 7.0
 - **Requires PHP:** 7.0 or later
@@ -54,6 +54,9 @@ Yes. The field is intended for use by site administrators (editing `coywolf_cust
 This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) by WP Engine / StudioPress, originally created by Luke Carbis, Ryan Kienstra, Stino11, Rheinard Korf, and the StudioPress / WP Engine team. All credit for the original plugin and its design belongs to them; this fork exists to keep the codebase alive and self-contained for Coywolf sites. Released under the same GPL-2.0-or-later license.
 
 ## Changelog
+
+### 1.0.30
+- Add a progress bar to the standalone post-content rewrite tool (#39).
 
 ### 1.0.30
 - Add a progress bar to the standalone **Rewrite post content now** tool. Counts candidate posts up front, then processes them in keyset-paginated batches of 100 via REST so the progress reflects actual work. Synchronous noscript fallback still works for users with JS off. Also fixes a latent bug where the OFFSET-based paginator could skip posts as the rewrite shrank the LIKE-matched result set.

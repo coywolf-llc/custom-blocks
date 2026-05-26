@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.29
+Stable tag: 1.0.30
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -102,6 +102,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.30 =
+* Add a progress bar to the standalone post-content rewrite tool (#39).
 
 = 1.0.30 =
 * Add a progress bar to the standalone "Rewrite post content now" tool. Counts candidate posts up front, then processes them in keyset-paginated batches of 100 via REST so the progress reflects actual work. Synchronous noscript fallback still works for users with JS off. Also fixes a latent bug where the OFFSET-based paginator could skip posts as the rewrite shrank the LIKE-matched result set.
