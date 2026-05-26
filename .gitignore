@@ -97,4 +97,3 @@ test-results/
 # Builds
 package/
 built/
-*.asset.php
