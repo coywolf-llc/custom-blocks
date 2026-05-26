@@ -12,6 +12,7 @@ jest.mock( '@wordpress/blocks', () => {
 } );
 const Edit = () => {};
 const expectedArgs = {
+	apiVersion: 3,
 	title: expect.any( String ),
 	category: expect.any( String ),
 	icon: expect.any( Function ),

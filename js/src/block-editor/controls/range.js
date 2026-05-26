@@ -14,6 +14,7 @@ const GcbRangeControl = ( props ) => {
 
 	return (
 		<RangeControl
+			__next40pxDefaultSize
 			label={ field.label }
 			help={ field.help }
 			value={ 'undefined' !== typeof value ? value : field.default }

@@ -8,7 +8,7 @@ import * as React from 'react';
  */
 import { serialize } from '@wordpress/blocks';
 // @ts-ignore Declaration file is outdated.
-import { store as blockEditorStore } from '@wordpress/block-editor';
+import { store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { Modal } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
@@ -37,6 +37,9 @@ const Edit = ( { block, blockProps } ) => {
 	const hasEditorField = getFieldsAsArray( block.fields ).some(
 		( field ) => ! field.location || EDITOR_LOCATION === field.location
 	);
+
+	// Required for Block API v3 - ensures isSelected and other props work correctly in iframe editor
+	const blockPropsWithWrapper = useBlockProps( { className: blockProps.className } );
 
 	/** @type {Object[] | undefined} */
 	const innerBlocks = useSelect(
@@ -77,7 +80,7 @@ const Edit = ( { block, blockProps } ) => {
 	return (
 		<>
 			<GcbInspector blockProps={ blockProps } block={ block } />
-			<div className={ blockProps.className } key={ `form-controls-${ block.name }` }>
+			<div { ...blockPropsWithWrapper } key={ `form-controls-${ block.name }` }>
 				{ ( blockProps.isSelected || isInnerBlockSelected ) && hasEditorField && ! block.displayModal
 					? <EditorForm block={ block } blockProps={ blockProps } />
 					: (
@@ -103,12 +106,12 @@ const Edit = ( { block, blockProps } ) => {
 											title={ block.title }
 											// @ts-ignore The declaration file is outdated.
 											onRequestClose={ ( event ) => {
-												event.stopPropagation();
+												event?.stopPropagation();
 
 												// Mainly from https://github.com/WordPress/gutenberg/issues/12830#issuecomment-607644893
 												// If the close request is coming from clicking the 'Media Library' button,
 												// Don't close this modal.
-												if ( ! event.target.classList.contains( MEDIA_LIBRARY_BUTTON_CLASS ) ) {
+												if ( ! event?.target?.classList?.contains( MEDIA_LIBRARY_BUTTON_CLASS ) ) {
 													setIsModalDisplaying( false );
 												}
 											} }

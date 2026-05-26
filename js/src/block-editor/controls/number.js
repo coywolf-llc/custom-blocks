@@ -18,6 +18,7 @@ const GcbNumberControl = ( props ) => {
 
 	return (
 		<TextControl
+			__next40pxDefaultSize
 			className={ classNames( {
 				'text-control__error': isError,
 			} ) }
