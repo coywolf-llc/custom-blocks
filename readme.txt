@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.26
+Stable tag: 1.0.27
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -102,6 +102,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.27 =
+* Revert the Lucide code-split — it broke the block inserter (#36).
 
 = 1.0.27 =
 * Revert the Lucide code-split from 1.0.25: the new fallback path broke the block inserter in the post editor ("The editor has encountered an unexpected error" on opening). Bundles go back to their 1.0.24 sizes (block-editor.js 42 KiB → 717 KiB, edit-block.js 176 KiB → 852 KiB). All PHP caching/validation wins from 1.0.25 stay in place.
