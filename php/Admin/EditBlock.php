@@ -102,6 +102,19 @@ class EditBlock extends ComponentAbstract {
 			return;
 		}
 
+		// Hard-required dist files. Missing files most commonly mean the user
+		// installed the GitHub source archive ("custom-blocks-main.zip") rather
+		// than the release zip published by the .github/workflows/release.yml
+		// pipeline. The source archive does not include js/dist or css/dist
+		// because they are build artefacts (.gitignore excludes them). Render
+		// an inline notice and stop — far better than the unhandled
+		// `require` -> fatal -> "critical error on this website" page.
+		$missing = $this->find_missing_dist_assets();
+		if ( ! empty( $missing ) ) {
+			$this->render_missing_assets_notice( $missing );
+			return;
+		}
+
 		$js_config = require $this->plugin->get_path( 'js/dist/edit-block.asset.php' );
 		wp_enqueue_script(
 			self::SCRIPT_SLUG,
@@ -128,7 +141,7 @@ class EditBlock extends ComponentAbstract {
 						],
 						'template'         => $this->get_template_file( $block->name ),
 						'initialEdits'     => null,
-						'isOnboardingPost' => $post_id && intval( get_option( Onboarding::OPTION_NAME ) ) === $post_id,
+						'isOnboardingPost' => false,
 						'categories'       => get_block_categories( get_post() ),
 					]
 				)
@@ -152,6 +165,75 @@ class EditBlock extends ComponentAbstract {
 			$editor_style_config['dependencies'],
 			$editor_style_config['version']
 		);
+	}
+
+	/**
+	 * Returns the list of required dist asset paths that are not on disk.
+	 *
+	 * @return string[] Plugin-relative paths missing from disk, empty if all present.
+	 */
+	protected function find_missing_dist_assets() {
+		$required = [
+			'js/dist/edit-block.js',
+			'js/dist/edit-block.asset.php',
+			'css/dist/edit-block.css',
+			'css/dist/edit-block.asset.php',
+			'css/dist/blocks.editor.css',
+			'css/dist/blocks.editor.asset.php',
+		];
+		$missing = [];
+		foreach ( $required as $rel ) {
+			if ( ! file_exists( $this->plugin->get_path( $rel ) ) ) {
+				$missing[] = $rel;
+			}
+		}
+		return $missing;
+	}
+
+	/**
+	 * Render an in-page notice explaining the missing build artefacts. The
+	 * Edit Block screen mounts a Gutenberg-based React app into the page
+	 * body, so a friendly notice replaces the empty editor surface that
+	 * would otherwise appear once the require-fatal is removed.
+	 *
+	 * @param string[] $missing Paths reported by find_missing_dist_assets().
+	 */
+	protected function render_missing_assets_notice( $missing ) {
+		$release_url = 'https://github.com/coywolf-llc/custom-blocks/releases/latest';
+		?>
+		<div class="notice notice-error" style="margin-top: 20px;">
+			<h2 style="margin-top: 0.5em;">
+				<?php esc_html_e( 'Coywolf Custom Blocks is missing its built JavaScript and CSS.', 'coywolf-custom-blocks' ); ?>
+			</h2>
+			<p>
+				<?php
+				echo wp_kses(
+					sprintf(
+						/* translators: %s: anchor opening tag for the GitHub releases page */
+						__( 'This usually means the plugin was installed from a source archive (e.g. <code>custom-blocks-main.zip</code>) rather than the release zip. Download <code>coywolf-custom-blocks.zip</code> from the %1$slatest GitHub release%2$s and re-upload it.', 'coywolf-custom-blocks' ),
+						'<a href="' . esc_url( $release_url ) . '" target="_blank" rel="noopener noreferrer">',
+						'</a>'
+					),
+					[
+						'a'    => [ 'href' => [], 'target' => [], 'rel' => [] ],
+						'code' => [],
+					]
+				);
+				?>
+			</p>
+			<p>
+				<?php esc_html_e( 'Missing files:', 'coywolf-custom-blocks' ); ?>
+			</p>
+			<ul style="list-style: disc; padding-left: 1.5em;">
+				<?php foreach ( $missing as $path ) : ?>
+					<li><code><?php echo esc_html( $path ); ?></code></li>
+				<?php endforeach; ?>
+			</ul>
+			<p class="description">
+				<?php esc_html_e( 'If you are a developer working from a checkout, run npm ci && npm run build at the plugin root.', 'coywolf-custom-blocks' ); ?>
+			</p>
+		</div>
+		<?php
 	}
 
 	/**

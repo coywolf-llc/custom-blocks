@@ -4,7 +4,7 @@
 
 Build custom Gutenberg blocks in the WordPress admin — no SFTP, no theme files. A privacy-respecting fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) with WP Engine telemetry, the WPE update server, and Genesis Pro upsells removed; ships an inline Custom HTML editor, native JSON export/import, and a one-shot importer for migrating off upstream.
 
-- **Version:** 1.0.3
+- **Version:** 1.0.4
 - **Requires WordPress:** 6.0 or later
 - **Tested up to:** 7.0
 - **Requires PHP:** 7.0 or later
@@ -24,9 +24,9 @@ Coywolf Custom Blocks lets you define your own Gutenberg blocks (fields + markup
 
 ## Installation
 
-1. Download the latest release zip from the [GitHub Releases page](https://github.com/coywolf-llc/custom-blocks/releases).
-2. In WordPress, go to **Plugins → Add New → Upload Plugin** and upload the zip.
-3. Activate the plugin.
+1. Go to the [latest GitHub release](https://github.com/coywolf-llc/custom-blocks/releases/latest).
+2. Under **Assets**, download **`coywolf-custom-blocks.zip`** — _not_ the auto-generated "Source code (zip)" link. The release zip contains the built JS/CSS bundles; the source zip does not, and uploading it will break the editor.
+3. In WordPress, go to **Plugins → Add New → Upload Plugin**, upload the zip, and click Activate.
 4. Go to **Custom Blocks → Add New** to define your first block.
 
 Once installed, updates surface on **Dashboard → Updates** just like a plugin installed from wordpress.org.
@@ -54,6 +54,11 @@ Yes. The field is intended for use by site administrators (editing `coywolf_cust
 This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) by WP Engine / StudioPress, originally created by Luke Carbis, Ryan Kienstra, Stino11, Rheinard Korf, and the StudioPress / WP Engine team. All credit for the original plugin and its design belongs to them; this fork exists to keep the codebase alive and self-contained for Coywolf sites. Released under the same GPL-2.0-or-later license.
 
 ## Changelog
+
+### 1.0.4
+- Fix critical error ("Failed opening required `js/dist/edit-block.asset.php`") when the plugin is installed from the GitHub source archive (`custom-blocks-main.zip`) instead of the release zip. `EditBlock::enqueue_assets()` now detects missing build artefacts and renders an in-page notice with a link to the latest release, rather than fataling. Also drops the orphaned `Onboarding::OPTION_NAME` reference that PR #10's onboarding-removal left behind.
+- Replace the Genesis-branded "G" admin menu icon with the WordPress core `dashicons-block-default` glyph. Delete the orphan SVG (`admin-menu-icon.svg`, `logo-reversed.svg`), the four Genesis Pro background JPGs, and the matching `admin.upgrade.css` / `admin.onboarding.css` stylesheets that referenced them — none had any remaining callers.
+- README installation steps now spell out that users must download `coywolf-custom-blocks.zip` from the release Assets, not the auto-generated "Source code (zip)" link.
 
 ### 1.0.3
 - Add the canonical release workflow (`.github/workflows/release.yml`): on every PR merge to `main`, auto-bump the patch version (if the PR didn't bump it), prepend a changelog entry crediting the PR, build the JS/CSS bundles, package a slim plugin zip excluding `vendor/`, `js/src/`, `css/src/`, dev configs, and tests, and publish a GitHub Release tagged `vX.Y.Z`. Without this, the GitHub-Releases self-updater has no releases to surface — which is why Coywolf Reset Plugin Update couldn't find any updates to this plugin.
