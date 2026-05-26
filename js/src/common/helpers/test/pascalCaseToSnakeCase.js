@@ -5,7 +5,7 @@ import { pascalCaseToSnakeCase } from '../';
 
 describe( 'pascalCaseToSnakeCase', () => {
 	it.each( [
-		[ 'GenesisCustomBlocks', 'coywolf_custom_blocks' ],
+		[ 'CoywolfCustomBlocks', 'coywolf_custom_blocks' ],
 		[ 'AccountBalance', 'account_balance' ],
 		[ 'Brightness2', 'brightness_2' ],
 		[ 'Flight', 'flight' ],

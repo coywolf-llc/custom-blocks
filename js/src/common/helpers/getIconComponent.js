@@ -20,7 +20,7 @@ import { snakeCaseToPascalCase } from '.';
  * Converts a snake_case icon name to a PascalCase,
  * then gets an icon component of that name if it exists.
  * For example, passing 'coywolf_custom_blocks' will return
- * a <GenesisCustomBlocks> icon component.
+ * a <CoywolfCustomBlocks> icon component.
  *
  * @param {string} iconName The type of setting, like 'text'
  * @return {React.FunctionComponent|null} The settings component, if it exists.
