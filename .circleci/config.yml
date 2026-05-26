@@ -3,7 +3,7 @@ version: 2.1
 orbs:
   node: circleci/node@5.0
   php: circleci/php@1.1
-  # wp-svn: studiopress/wp-svn@0.2
+  wp-svn: studiopress/wp-svn@0.2
 
 references:
   PLUGIN_PATH: &PLUGIN_PATH
@@ -42,7 +42,7 @@ jobs:
       - checkout:
           path: *PLUGIN_SLUG
       - node/install:
-          node-version: '14'
+          node-version: '20'
       - run:
           name: Building
           working_directory: *PLUGIN_SLUG
@@ -57,11 +57,17 @@ jobs:
             plugin_slug=genesis-custom-blocks
             build_version=`grep 'Version:' $plugin_slug.php | cut -f4 -d' '`
             zip_file_name="$plugin_slug.$build_version.zip"
+            mkdir -p /tmp/artifacts/wp.org /tmp/artifacts/wpe
             cd ..
             # In .distignore, begin and end every line with *
-            sed "s/^[^*]/*&/g" "$plugin_slug/.distignore" | sed "s/[^*]$/&*/g" | xargs zip -r "$zip_file_name" $plugin_slug -x
-            mkdir /tmp/artifacts
-            mv $zip_file_name /tmp/artifacts
+            sed "s/^[^*]/*&/g" "$plugin_slug/.distignore" | sed "s/[^*]$/&*/g" | xargs zip -r "/tmp/artifacts/wp.org/$zip_file_name" $plugin_slug -x
+            cp "$plugin_slug/scripts/PluginUpdater.php" "$plugin_slug/php/PluginUpdater.php"
+            sed "s/^[^*]/*&/g" "$plugin_slug/.distignore" | sed "s/[^*]$/&*/g" | xargs zip -r "/tmp/artifacts/wpe/$zip_file_name" $plugin_slug -x
+            rm -f "$plugin_slug/php/PluginUpdater.php"
+      - run:
+          name: Creating info.json
+          working_directory: *PLUGIN_SLUG
+          command: node scripts/create-info.js
       - store_artifacts:
           path: /tmp/artifacts
 
@@ -86,11 +92,11 @@ jobs:
       - run:
           name: Installing WordPress and setting up tests
           command: |
-            git clone git://develop.git.wordpress.org/ wordpress-develop
+            git clone git://develop.git.wordpress.org/ wordpress-develop --depth 1
             cp wordpress-develop/wp-tests-config-sample.php wordpress-develop/wp-tests-config.php
             sed -i 's/localhost/127.0.0.1/g' wordpress-develop/wp-tests-config.php
             sed -i 's/yourpasswordhere/<insert password here>/g' wordpress-develop/wp-tests-config.php
-      - run: 
+      - run:
           name: Install wordpress-importer
           command: |
             cd ~/project/wordpress-develop
@@ -119,34 +125,41 @@ jobs:
 
   e2e-tests:
     machine:
-      image: ubuntu-2004:202111-02
+      image: ubuntu-2004:2024.05.1
     steps:
       - checkout
       - run: sudo apt-get update && sudo apt-get install php php-xml php-mbstring
       - php/install-composer
-      - node/install
+      - node/install:
+          node-version: '20'
       - build-development
       - run:
-          name: Runnning e2e tests
+          name: Install Playwright browsers
+          command: npx playwright install --with-deps
+      - run:
+          name: Running e2e tests
           command: |
             npm run wp-env start
+            node tests/e2e/create-admin-state.js
             npm run test:e2e
       - store_artifacts:
           path: artifacts/
+      - store_artifacts:
+          path: test-results/
 
-  # svn-deploy:
-  #   executor:
-  #     name: php
-  #   steps:
-  #     - checkout
-  #     - node/install
-  #     - run:
-  #         name: "Building"
-  #         command: |
-  #           composer install -o --no-dev
-  #           npm ci
-  #           npm run build
-  #     - wp-svn/deploy-plugin
+  svn-deploy:
+    executor:
+      name: php
+    steps:
+      - checkout
+      - node/install
+      - run:
+          name: "Building"
+          command: |
+            composer install -o --no-dev
+            npm ci
+            npm run build
+      - wp-svn/deploy-plugin
 
 workflows:
   test-deploy:
@@ -157,7 +170,7 @@ workflows:
               only: /.*/
           matrix:
             parameters:
-              php-version: [ '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3' ]
+              php-version: [ '7.4', '8.0', '8.1', '8.2', '8.3' ]
       - js-tests:
           filters:
             tags:
@@ -174,39 +187,39 @@ workflows:
           filters:
             tags:
               only: /.*/
-      # - wp-svn/check-versions:
-      #     skip-changelog: true
-      #     filters:
-      #       tags:
-      #         only: /^\d+\.\d+\.\d+$/
-      #       branches:
-      #         only: /^release.*/
-      # - svn-deploy:
-      #     context: genesis-svn
-      #     requires:
-      #       - php-tests
-      #       - js-tests
-      #       - e2e-tests
-      #       - lint
-      #       - wp-svn/check-versions
-      #     filters:
-      #       tags:
-      #         only: /^\d+\.\d+\.\d+$/
-      #       branches:
-      #         ignore: /.*/
-      # - approval-for-deploy-tested-up-to-bump:
-      #     type: approval
-      #     requires:
-      #       - php-tests
-      #       - js-tests
-      #       - e2e-tests
-      #       - lint
-      #     filters:
-      #       tags:
-      #         ignore: /.*/
-      #       branches:
-      #         only: /^bump-tested-up-to.*/
-      # - wp-svn/deploy-tested-up-to-bump:
-      #     context: genesis-svn
-      #     requires:
-      #       - approval-for-deploy-tested-up-to-bump
+      - wp-svn/check-versions:
+          skip-changelog: true
+          filters:
+            tags:
+              only: /^\d+\.\d+\.\d+$/
+            branches:
+              only: /^release.*/
+      - svn-deploy:
+          context: genesis-svn
+          requires:
+            - php-tests
+            - js-tests
+            - e2e-tests
+            - lint
+            - wp-svn/check-versions
+          filters:
+            tags:
+              only: /^\d+\.\d+\.\d+$/
+            branches:
+              ignore: /.*/
+      - approval-for-deploy-tested-up-to-bump:
+          type: approval
+          requires:
+            - php-tests
+            - js-tests
+            - e2e-tests
+            - lint
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: /^bump-tested-up-to.*/
+      - wp-svn/deploy-tested-up-to-bump:
+          context: genesis-svn
+          requires:
+            - approval-for-deploy-tested-up-to-bump

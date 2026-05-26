@@ -40,6 +40,7 @@ const registerBlocks = ( genesisCustomBlocks, gcbBlocks, EditComponent ) => {
 		}
 
 		registerBlockType( blockName, {
+			apiVersion: 3,
 			title: block.title,
 			category: 'object' === typeof block.category ? block.category.slug : block.category,
 			icon: getIconComponent( block.icon ),

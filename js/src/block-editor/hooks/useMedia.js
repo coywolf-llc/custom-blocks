@@ -57,7 +57,7 @@ const useMedia = ( fieldValue, onChange, allowedTypes ) => {
 	/* @type {Object|undefined} */
 	const media = useSelect( ( select ) => {
 		// @ts-ignore The function isn't in the declaration file.
-		return select( 'core' ).getMedia( fieldValue );
+		return select( 'core' ).getEntityRecord( 'postType', 'attachment', fieldValue );
 	} );
 
 	/* @type {function|undefined} */

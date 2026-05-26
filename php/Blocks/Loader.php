@@ -218,7 +218,9 @@ class Loader extends ComponentAbstract {
 		register_block_type(
 			$block_name,
 			[
+				'api_version'     => 3,
 				'attributes'      => $attributes,
+				'editor_style'    => 'genesis-custom-blocks-editor-css',
 				// @see https://github.com/WordPress/gutenberg/issues/4671
 				'render_callback' => function ( $attributes, $content ) use ( $block ) {
 					return $this->render_block_template( $block, $attributes, $content );
