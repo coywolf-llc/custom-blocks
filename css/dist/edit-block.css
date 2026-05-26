@@ -524,6 +524,11 @@ video {
   background-color: rgba(254, 202, 202, var(--tw-bg-opacity));
 }
 
+.bg-gray-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgba(245, 245, 245, var(--tw-bg-opacity));
+}
+
 .bg-gray-200 {
   --tw-bg-opacity: 1;
   background-color: rgba(229, 229, 229, var(--tw-bg-opacity));
@@ -557,6 +562,11 @@ video {
 .hover\:bg-red-500:hover {
   --tw-bg-opacity: 1;
   background-color: rgba(239, 68, 68, var(--tw-bg-opacity));
+}
+
+.hover\:bg-gray-200:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgba(229, 229, 229, var(--tw-bg-opacity));
 }
 
 .hover\:bg-gray-300:hover {
@@ -656,6 +666,10 @@ video {
   display: flex;
 }
 
+.inline-flex {
+  display: inline-flex;
+}
+
 .table {
   display: table;
 }
@@ -670,6 +684,10 @@ video {
 
 .flex-col {
   flex-direction: column;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
 }
 
 .items-start {
@@ -694,6 +712,10 @@ video {
 
 .flex-shrink-0 {
   flex-shrink: 0;
+}
+
+.font-sans {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 .font-mono {
@@ -1013,6 +1035,11 @@ video {
   color: rgba(127, 29, 29, var(--tw-text-opacity));
 }
 
+.text-gray-500 {
+  --tw-text-opacity: 1;
+  color: rgba(115, 115, 115, var(--tw-text-opacity));
+}
+
 .text-gray-600 {
   --tw-text-opacity: 1;
   color: rgba(82, 82, 82, var(--tw-text-opacity));
@@ -1026,6 +1053,11 @@ video {
 .text-gray-800 {
   --tw-text-opacity: 1;
   color: rgba(38, 38, 38, var(--tw-text-opacity));
+}
+
+.text-gray-900 {
+  --tw-text-opacity: 1;
+  color: rgba(23, 23, 23, var(--tw-text-opacity));
 }
 
 .text-black {
@@ -1063,8 +1095,20 @@ video {
   font-style: italic;
 }
 
+.uppercase {
+  text-transform: uppercase;
+}
+
+.normal-case {
+  text-transform: none;
+}
+
 .underline {
   text-decoration: underline;
+}
+
+.tracking-wide {
+  letter-spacing: 0.025em;
 }
 
 .w-0 {
@@ -1105,6 +1149,10 @@ video {
 
 .z-10 {
   z-index: 10;
+}
+
+.gap-2 {
+  gap: 0.5rem;
 }
 
 .gap-4 {
