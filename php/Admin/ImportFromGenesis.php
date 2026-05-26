@@ -64,6 +64,126 @@ class ImportFromGenesis extends ComponentAbstract {
 	public function register_hooks() {
 		add_action( 'admin_menu', [ $this, 'add_submenu_page' ] );
 		add_action( 'admin_post_' . self::NONCE_ACTION, [ $this, 'handle_submit' ] );
+		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
+	}
+
+	/**
+	 * REST endpoints that back the JS progress UI on the importer page.
+	 *
+	 * The page also POSTs to admin-post.php as a noscript fallback —
+	 * these routes are the chunkable equivalents the in-page JS calls
+	 * one block at a time so the user gets per-block progress instead
+	 * of a long opaque page load.
+	 */
+	public function register_rest_routes() {
+		register_rest_route(
+			'coywolf-custom-blocks/v1',
+			'/import-genesis/block',
+			[
+				'methods'             => 'POST',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+				'callback'            => [ $this, 'rest_import_block' ],
+				'args'                => [
+					'post_id' => [
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+
+		register_rest_route(
+			'coywolf-custom-blocks/v1',
+			'/import-genesis/rewrite',
+			[
+				'methods'             => 'POST',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+				'callback'            => [ $this, 'rest_rewrite_post_content' ],
+				'args'                => [
+					'slugs' => [
+						'required' => true,
+						'type'     => 'array',
+					],
+				],
+			]
+		);
+	}
+
+	/**
+	 * REST callback: import a single Genesis Custom Block by post ID.
+	 *
+	 * Mirrors handle_submit()'s per-block path. The JS progress UI
+	 * calls this once per selected ID and accumulates the responses
+	 * to drive the progress bar + per-row results panel.
+	 *
+	 * @param \WP_REST_Request $request
+	 * @return \WP_REST_Response
+	 */
+	public function rest_import_block( $request ) {
+		$post_id = (int) $request->get_param( 'post_id' );
+		$source  = get_post( $post_id );
+		if ( ! $source || self::SOURCE_POST_TYPE !== $source->post_type ) {
+			return new \WP_REST_Response(
+				[
+					'status' => 'error',
+					'error'  => sprintf(
+						/* translators: %d: source post ID */
+						__( 'Post #%d is not a Genesis Custom Blocks post.', 'coywolf-custom-blocks' ),
+						$post_id
+					),
+				],
+				200
+			);
+		}
+
+		$result = $this->import_one( $source );
+		if ( is_wp_error( $result ) ) {
+			return new \WP_REST_Response(
+				[
+					'status' => 'error',
+					'title'  => $source->post_title,
+					'error'  => $result->get_error_message(),
+				],
+				200
+			);
+		}
+
+		return new \WP_REST_Response(
+			[
+				'status'  => $result['created'] ? 'imported' : 'skipped',
+				'title'   => $source->post_title !== '' ? $source->post_title : $result['slug'],
+				'slug'    => $result['slug'],
+				'post_id' => $result['post_id'],
+			],
+			200
+		);
+	}
+
+	/**
+	 * REST callback: run the post-content rewrite for the given slugs.
+	 *
+	 * Currently a single call rather than batched — the underlying
+	 * sweep is bounded by a `post_content LIKE '%wp:genesis-custom-blocks/%'`
+	 * SQL prefilter that eliminates most rows at the database level, so
+	 * even sites with tens of thousands of posts typically finish in
+	 * seconds. If a real-world site hits multi-minute runs here we'll
+	 * split into offset-based batches.
+	 *
+	 * @param \WP_REST_Request $request
+	 * @return \WP_REST_Response
+	 */
+	public function rest_rewrite_post_content( $request ) {
+		$raw   = (array) $request->get_param( 'slugs' );
+		$slugs = array_values( array_unique( array_filter( array_map( 'strval', $raw ) ) ) );
+		if ( empty( $slugs ) ) {
+			return new \WP_REST_Response( [ 'updated' => 0 ], 200 );
+		}
+		$count = $this->rewrite_post_content( $slugs );
+		return new \WP_REST_Response( [ 'updated' => (int) $count ], 200 );
 	}
 
 	/**
@@ -116,7 +236,22 @@ class ImportFromGenesis extends ComponentAbstract {
 				<?php return; ?>
 			<?php endif; ?>
 
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<div id="ccb-import-progress" style="display: none; margin-top: 1.5em;">
+				<h2 id="ccb-import-progress-heading" style="margin-top: 0;"><?php esc_html_e( 'Importing…', 'coywolf-custom-blocks' ); ?></h2>
+				<p id="ccb-import-progress-status" class="description"></p>
+				<progress id="ccb-import-progress-bar" value="0" max="100" style="width: 100%; height: 1.5em;"></progress>
+				<div id="ccb-import-progress-log" style="margin-top: 1em; max-height: 240px; overflow-y: auto; font-size: 13px;"></div>
+			</div>
+
+			<form
+				id="ccb-import-form"
+				method="post"
+				action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"
+				data-rest-block-url="<?php echo esc_url( rest_url( 'coywolf-custom-blocks/v1/import-genesis/block' ) ); ?>"
+				data-rest-rewrite-url="<?php echo esc_url( rest_url( 'coywolf-custom-blocks/v1/import-genesis/rewrite' ) ); ?>"
+				data-rest-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
+				data-page-url="<?php echo esc_url( $this->page_url() ); ?>"
+			>
 				<input type="hidden" name="action" value="<?php echo esc_attr( self::NONCE_ACTION ); ?>" />
 				<?php wp_nonce_field( self::NONCE_ACTION ); ?>
 
@@ -178,13 +313,178 @@ class ImportFromGenesis extends ComponentAbstract {
 
 			<script>
 				( function () {
+					// Header checkbox: tick/untick every row.
 					var toggle = document.getElementById( 'ccb-import-toggle-all' );
-					if ( ! toggle ) { return; }
-					toggle.addEventListener( 'change', function () {
-						var rows = document.querySelectorAll( '.ccb-import-row' );
-						for ( var i = 0; i < rows.length; i++ ) {
-							rows[ i ].checked = toggle.checked;
+					if ( toggle ) {
+						toggle.addEventListener( 'change', function () {
+							var rows = document.querySelectorAll( '.ccb-import-row' );
+							for ( var i = 0; i < rows.length; i++ ) {
+								rows[ i ].checked = toggle.checked;
+							}
+						} );
+					}
+
+					// Progressive enhancement: when JS is available, intercept the
+					// import form submit, call the REST endpoints one block at a
+					// time, and drive an inline progress bar instead of a single
+					// opaque page POST. Falls back to the regular POST when JS is
+					// disabled or fetch() is missing.
+					var form = document.getElementById( 'ccb-import-form' );
+					if ( ! form || typeof window.fetch !== 'function' ) {
+						return;
+					}
+
+					var progressUi = document.getElementById( 'ccb-import-progress' );
+					var bar        = document.getElementById( 'ccb-import-progress-bar' );
+					var status     = document.getElementById( 'ccb-import-progress-status' );
+					var heading    = document.getElementById( 'ccb-import-progress-heading' );
+					var log        = document.getElementById( 'ccb-import-progress-log' );
+
+					var restBlockUrl   = form.getAttribute( 'data-rest-block-url' );
+					var restRewriteUrl = form.getAttribute( 'data-rest-rewrite-url' );
+					var restNonce      = form.getAttribute( 'data-rest-nonce' );
+					var pageUrl        = form.getAttribute( 'data-page-url' );
+
+					var appendLog = function ( message, type ) {
+						var row = document.createElement( 'div' );
+						row.textContent = message;
+						if ( 'error' === type ) {
+							row.style.color = '#b32d2e';
+						} else if ( 'skipped' === type ) {
+							row.style.color = '#a06d00';
 						}
+						log.appendChild( row );
+						log.scrollTop = log.scrollHeight;
+					};
+
+					var setProgress = function ( done, total, label ) {
+						var pct = total > 0 ? Math.round( ( done / total ) * 100 ) : 0;
+						bar.value = pct;
+						bar.max = 100;
+						status.textContent = label;
+					};
+
+					form.addEventListener( 'submit', function ( event ) {
+						var checked = form.querySelectorAll( 'input[name="block_ids[]"]:checked' );
+						if ( 0 === checked.length ) {
+							// Let the noscript POST flow handle the empty-state notice.
+							return;
+						}
+
+						event.preventDefault();
+
+						var ids = [];
+						for ( var i = 0; i < checked.length; i++ ) {
+							ids.push( parseInt( checked[ i ].value, 10 ) );
+						}
+						var rewriteEl   = form.querySelector( '[name="rewrite_post_content"]' );
+						var wantRewrite = !! ( rewriteEl && rewriteEl.checked );
+
+						// Disable the form + reveal the progress UI.
+						var submitBtn = form.querySelector( 'button[type="submit"]' );
+						if ( submitBtn ) { submitBtn.disabled = true; }
+						form.style.opacity = '0.5';
+						form.style.pointerEvents = 'none';
+						progressUi.style.display = '';
+						log.innerHTML = '';
+						setProgress( 0, ids.length, 'Starting…' );
+
+						// Run imports sequentially. Parallel would be faster but
+						// the progress bar would jump around, and the underlying
+						// SQL inserts are cheap enough that serial keeps the
+						// per-block animation honest.
+						var imported = [], skipped = [], errors = [], slugs = [];
+
+						var importNext = function ( index ) {
+							if ( index >= ids.length ) {
+								return Promise.resolve();
+							}
+							setProgress(
+								index,
+								ids.length,
+								'Importing block ' + ( index + 1 ) + ' of ' + ids.length + '…'
+							);
+							return fetch( restBlockUrl, {
+								method: 'POST',
+								credentials: 'same-origin',
+								headers: {
+									'Content-Type': 'application/json',
+									'X-WP-Nonce':   restNonce
+								},
+								body: JSON.stringify( { post_id: ids[ index ] } )
+							} ).then( function ( res ) {
+								return res.json();
+							} ).then( function ( data ) {
+								if ( ! data ) {
+									errors.push( 'Empty response from server' );
+									appendLog( 'Empty response from server', 'error' );
+								} else if ( 'imported' === data.status ) {
+									imported.push( data.title );
+									if ( data.slug ) { slugs.push( data.slug ); }
+									appendLog( '✓ Imported "' + data.title + '"' );
+								} else if ( 'skipped' === data.status ) {
+									skipped.push( data.title );
+									if ( data.slug ) { slugs.push( data.slug ); }
+									appendLog( '↷ Skipped "' + data.title + '" (already imported)', 'skipped' );
+								} else {
+									errors.push( ( data.title || '#' + ids[ index ] ) + ' — ' + ( data.error || 'unknown error' ) );
+									appendLog( '✗ ' + ( data.title || '#' + ids[ index ] ) + ': ' + ( data.error || 'unknown error' ), 'error' );
+								}
+							} ).catch( function ( err ) {
+								errors.push( 'Block #' + ids[ index ] + ' — ' + err.message );
+								appendLog( '✗ Block #' + ids[ index ] + ': ' + err.message, 'error' );
+							} ).then( function () {
+								return importNext( index + 1 );
+							} );
+						};
+
+						importNext( 0 ).then( function () {
+							if ( ! wantRewrite || 0 === slugs.length ) {
+								return null;
+							}
+							setProgress( ids.length, ids.length, 'Rewriting post content site-wide…' );
+							appendLog( '— Rewriting block names in post content…' );
+							return fetch( restRewriteUrl, {
+								method: 'POST',
+								credentials: 'same-origin',
+								headers: {
+									'Content-Type': 'application/json',
+									'X-WP-Nonce':   restNonce
+								},
+								body: JSON.stringify( { slugs: slugs } )
+							} ).then( function ( res ) {
+								return res.json();
+							} ).then( function ( data ) {
+								var count = data && typeof data.updated === 'number' ? data.updated : 0;
+								appendLog( '✓ Rewrote block names in ' + count + ' post(s)' );
+								return count;
+							} );
+						} ).then( function ( rewriteCount ) {
+							setProgress( ids.length, ids.length, 'Done.' );
+							heading.textContent = 'Import complete';
+							appendLog(
+								'— Summary: ' +
+								imported.length + ' imported, ' +
+								skipped.length + ' skipped, ' +
+								errors.length + ' error(s).'
+							);
+
+							// Bounce back to the page with the same query string
+							// the noscript flow would have produced, so the
+							// success/skipped/error notices render in their
+							// usual place under the heading.
+							var sep   = '|';
+							var query = '&result=imported' +
+								'&imported=' + encodeURIComponent( imported.join( sep ) ) +
+								'&skipped='  + encodeURIComponent( skipped.join( sep ) ) +
+								'&errors='   + encodeURIComponent( errors.join( sep ) );
+							if ( wantRewrite ) {
+								query += '&rewrite_count=' + encodeURIComponent( rewriteCount || 0 );
+							}
+							window.setTimeout( function () {
+								window.location.href = pageUrl + query;
+							}, 1200 );
+						} );
 					} );
 				} )();
 			</script>

@@ -62,8 +62,7 @@ class TestDocumentation extends \WP_UnitTestCase {
 	public function test_register_hooks() {
 		$this->instance->register_hooks();
 		$this->assertEquals( 10, has_action( 'admin_menu', [ $this->instance, 'add_submenu_page' ] ) );
-		$this->assertEquals( 10, has_action( 'admin_init', [ $this->instance, 'maybe_redirect' ] ) );
-		$this->assertEquals( 10, has_action( 'allowed_redirect_hosts', [ $this->instance, 'add_redirect_host' ] ) );
+		$this->assertEquals( 10, has_action( 'admin_enqueue_scripts', [ $this->instance, 'enqueue_styles' ] ) );
 	}
 
 	/**
@@ -95,65 +94,18 @@ class TestDocumentation extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test maybe_redirect_to_documentation when not on a page.
+	 * Documentation now renders the bundled readme.md inline instead
+	 * of redirecting off-site. Smoke-test that render_page produces
+	 * some HTML when the readme file is present.
 	 *
-	 * @covers \Coywolf\CustomBlocks\Admin\Documentation::maybe_redirect()
+	 * @covers \Coywolf\CustomBlocks\Admin\Documentation::render_page()
 	 */
-	public function test_maybe_redirect_to_documentation_not_on_page() {
-		$this->assertFalse( $this->was_there_a_redirect() );
-	}
+	public function test_render_page_outputs_html() {
+		ob_start();
+		$this->instance->render_page();
+		$html = ob_get_clean();
 
-	/**
-	 * Test maybe_redirect_to_documentation when it is on the wrong page.
-	 *
-	 * @covers \Coywolf\CustomBlocks\Admin\Documentation::maybe_redirect()
-	 */
-	public function test_maybe_redirect_to_documentation_wrong_page() {
-		expect( 'filter_input' )
-			->andReturn( 'coywolf-custom-blocks-pro' );
-
-		$this->assertFalse( $this->was_there_a_redirect() );
-	}
-
-	/**
-	 * Test maybe_redirect_to_documentation when it should redirect.
-	 *
-	 * @covers \Coywolf\CustomBlocks\Admin\Documentation::maybe_redirect()
-	 */
-	public function test_maybe_redirect_to_documentation_with_redirect() {
-		expect( 'filter_input' )
-			->andReturn( 'coywolf-custom-blocks-documentation' );
-
-		$this->assertTrue( $this->was_there_a_redirect() );
-	}
-
-	/**
-	 * Test maybe_redirect_to_documentation when it should redirect.
-	 *
-	 * @covers \Coywolf\CustomBlocks\Admin\Documentation::add_redirect_host()
-	 */
-	public function test_add_redirect_host() {
-		$initial_host = 'blog.example.com';
-		$this->assertEquals(
-			[ $initial_host, 'github.com' ],
-			$this->instance->add_redirect_host( [ $initial_host ] )
-		);
-	}
-
-	/**
-	 * Gets whether there was a redirect to the documentation URL.
-	 *
-	 * If there was a redirect, there should have been an error from headers already sent.
-	 *
-	 * @return bool Whether there was a redirect.
-	 */
-	public function was_there_a_redirect() {
-		try {
-			$this->instance->maybe_redirect();
-		} catch ( Exception $e ) {
-			$error = $e;
-		}
-
-		return isset( $error );
+		$this->assertNotEmpty( $html );
+		$this->assertStringContainsString( '<div class="wrap"><div class="coywolf-docs">', $html );
 	}
 }
