@@ -4,7 +4,7 @@
 
 Build custom Gutenberg blocks in the WordPress admin — no SFTP, no theme files. A privacy-respecting fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) with WP Engine telemetry, the WPE update server, and Genesis Pro upsells removed; ships an inline Custom HTML editor, native JSON export/import, and a one-shot importer for migrating off upstream.
 
-- **Version:** 1.0.21
+- **Version:** 1.0.22
 - **Requires WordPress:** 6.0 or later
 - **Tested up to:** 7.0
 - **Requires PHP:** 7.0 or later
@@ -54,6 +54,9 @@ Yes. The field is intended for use by site administrators (editing `coywolf_cust
 This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) by WP Engine / StudioPress, originally created by Luke Carbis, Ryan Kienstra, Stino11, Rheinard Korf, and the StudioPress / WP Engine team. All credit for the original plugin and its design belongs to them; this fork exists to keep the codebase alive and self-contained for Coywolf sites. Released under the same GPL-2.0-or-later license.
 
 ## Changelog
+
+### 1.0.22
+- Fix block icons rendering as solid black squares in Post editor (#31).
 
 ### 1.0.22
 - Fix block icons rendering as solid black squares in the Post editor inserter, block inspector, and block card. Gutenberg's stylesheets force `fill: currentColor` on every SVG inside a button or the block-icon slot, which overrode the `fill="none"` presentation attribute that Lucide (and other react-icons line libraries) emit — turning stroke glyphs like `lu/LuSquareCode` into filled rounded squares. Scoped CSS now restores `fill: none` only on SVGs that explicitly opted in, leaving filled-style libraries unaffected.

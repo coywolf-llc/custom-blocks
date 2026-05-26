@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.21
+Stable tag: 1.0.22
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -102,6 +102,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.22 =
+* Fix block icons rendering as solid black squares in Post editor (#31).
 
 = 1.0.22 =
 * Fix block icons rendering as solid black squares in the Post editor inserter, block inspector, and block card. Gutenberg's stylesheets force `fill: currentColor` on every SVG inside a button or the block-icon slot, which overrode the `fill="none"` presentation attribute that Lucide (and other react-icons line libraries) emit — turning stroke glyphs like `lu/LuSquareCode` into filled rounded squares. Scoped CSS now restores `fill: none` only on SVGs that explicitly opted in, leaving filled-style libraries unaffected.
