@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.34
+Stable tag: 1.0.35
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.35 =
+* Load theme editor styles into preview tabs, scoped under .editor-styles-wrapper (#44).
 
 = 1.0.35 =
 * Load the active theme's editor stylesheets and theme.json global styles on the block builder page, and wrap the Editor Preview / Front-end Preview SSR output in `<div class="editor-styles-wrapper">` so the previews approximate how the block actually appears in the post editor and on the front end.
