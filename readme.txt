@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.31
+Stable tag: 1.0.32
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.32 =
+* Wire both preview tabs to Custom HTML / Preview HTML (#41).
 
 = 1.0.32 =
 * Both preview tabs in the block builder now render from the block's Custom HTML / Preview HTML. Editor Preview keeps the default `context=edit` REST arg so the PHP renderer walks `previewMarkup → templateMarkup` — matches the post editor. Front-end Preview overrides to `context=view` so the renderer walks only `templateMarkup` — matches the live site. Front-end Preview now also reads attributes from the in-memory edited block, so changes made on Editor Preview show up here without saving first.
