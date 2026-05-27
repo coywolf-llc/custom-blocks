@@ -104,6 +104,9 @@ the same GPL-2.0-or-later license.
 
 == Changelog ==
 
+= 1.0.42 =
+* Left-align the post-title input on the Builder page. Was centred (the default for `.editor-post-title__input`).
+
 = 1.0.41 =
 * Append same numeric suffix to the title when import renames a slug (#50).
 
