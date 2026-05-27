@@ -55,6 +55,9 @@ This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis
 
 ## Changelog
 
+### 1.0.38
+- Strip the stale "Leave empty to fall back to the theme template file…" help text under the Custom HTML panel. The theme-file fallback itself was removed in 1.0.31; only the UI text was left behind.
+
 ### 1.0.37
 - Fix 'No route was found' on preview tabs (regression from 1.0.36) (#46).
 
