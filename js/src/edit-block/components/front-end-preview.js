@@ -27,9 +27,12 @@ import { useBlock } from '../hooks';
  * The front-end preview of the block.
  *
  * Renders the block's Custom HTML (templateMarkup) the way visitors
- * actually see it — overriding ServerSideRender's default `context=edit`
- * URL arg with `context=view` so the PHP renderer walks the `['block']`
- * priority and never falls into the Preview HTML branch.
+ * actually see it — sending `ccb_render_mode=view` so the PHP renderer
+ * walks only the `['block']` priority and never falls into the Preview
+ * HTML branch. (We can't reuse `context=view` for this because the WP
+ * REST block-renderer endpoint validates `context` against an enum of
+ * just `['edit']`, so the request would be rejected with "Invalid
+ * parameter(s): context".)
  *
  * Attributes come from the in-memory edited block (`useBlock`) so
  * changes made on the Editor Preview tab are reflected here without
@@ -75,7 +78,7 @@ const FrontEndPreview = ( { setEditorMode } ) => {
 			attributes={ previewAttributes }
 			className="coywolf-custom-blocks-editor__ssr"
 			httpMethod="POST"
-			urlQueryArgs={ { context: 'view' } }
+			urlQueryArgs={ { ccb_render_mode: 'view' } }
 		/>
 	);
 };

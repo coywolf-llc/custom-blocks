@@ -383,10 +383,30 @@ class Loader extends ComponentAbstract {
 	 * @return mixed
 	 */
 	protected function render_block_template( $block, $attributes, $content ) {
+		// Default to front-end behaviour: only the Custom HTML branch is
+		// consulted, Preview HTML is skipped.
 		$type = 'block';
 
-		// This is hacky, but the editor doesn't send the original request along.
-		if ( 'edit' === filter_input( INPUT_GET, 'context' ) ) {
+		// `ccb_render_mode` (set by the block builder's preview tabs) is
+		// the explicit override. WP REST hard-codes `context=edit` for
+		// the block-renderer endpoint's enum, so we can't reuse `context`
+		// to differentiate the two tabs — they both have to send
+		// `context=edit` to pass validation. The custom arg sidesteps
+		// that and tells us which preview the request is coming from:
+		//   'editor' — render Preview HTML if set, otherwise Custom HTML.
+		//              `showPreview` is ignored on this path so the
+		//              Editor Preview tab always renders something when
+		//              the block has any markup at all.
+		//   'view'   — render Custom HTML only. Mirrors live front-end.
+		// Falls back to the legacy `context=edit` behaviour for any
+		// caller that doesn't set the custom arg (which is still how
+		// the actual post editor flags itself).
+		$mode = filter_input( INPUT_GET, 'ccb_render_mode' );
+		if ( 'editor' === $mode ) {
+			$type = [ 'preview', 'block' ];
+		} elseif ( 'view' === $mode ) {
+			$type = 'block';
+		} elseif ( 'edit' === filter_input( INPUT_GET, 'context' ) ) {
 			$type = [ 'preview', 'block' ];
 		}
 
@@ -478,10 +498,18 @@ class Loader extends ComponentAbstract {
 		// `blocks/preview-{slug}.php`) is gone. The Custom HTML and
 		// Preview HTML panels on the Builder page are the only render
 		// sources — keeping block authoring fully inside wp-admin.
+		//
+		// The `showPreview` gate is bypassed when the request is coming
+		// from the block builder's Editor Preview tab (signalled by
+		// `?ccb_render_mode=editor`): the tab is a developer-facing
+		// preview, so we want to see whatever's in the Preview HTML
+		// field regardless of whether the author has flipped the
+		// "Show preview in post editor" toggle yet.
+		$is_editor_preview = 'editor' === filter_input( INPUT_GET, 'ccb_render_mode' );
 		foreach ( $types as $current_type ) {
 			$db_markup = '';
 			if ( 'preview' === $current_type
-				&& ! empty( $block_config['showPreview'] )
+				&& ( $is_editor_preview || ! empty( $block_config['showPreview'] ) )
 				&& ! empty( $block_config['previewMarkup'] )
 			) {
 				$db_markup = $block_config['previewMarkup'];

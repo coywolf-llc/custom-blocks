@@ -55,6 +55,9 @@ This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis
 
 ## Changelog
 
+### 1.0.34
+- Fix both preview tabs broken in 1.0.32. Front-end Preview showed "Error loading block: Invalid parameter(s): context" because WP REST validates `context` against an enum of just `['edit']` and rejected the `context=view` override. Editor Preview showed "Block rendered as empty" for blocks whose render lives in Preview HTML but with `showPreview` off, because the renderer kept the same gate it uses for the post editor. Introduce a `ccb_render_mode` URL arg (separate from WP's `context`) the preview tabs send: `editor` walks Preview HTML → Custom HTML without the `showPreview` gate; `view` walks Custom HTML only.
+
 ### 1.0.33
 - Fix critical fatal in EditBlock — stale call to deleted method (#42).
 
