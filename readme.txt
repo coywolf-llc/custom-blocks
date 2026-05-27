@@ -104,6 +104,9 @@ the same GPL-2.0-or-later license.
 
 == Changelog ==
 
+= 1.0.43 =
+* Security + performance audit follow-up. Security: escape `</style>` in the iframe preview's inline CSS, and add `JSON_HEX_TAG | JSON_HEX_AMP` to the `ccbEditor` inline script so a user with `edit_theme_options` can't break out of the `<style>` / `<script>` tags via global-stylesheet content. Performance: cache `wp_get_global_stylesheet()` + `get_editor_stylesheets()` in a transient (busted on `switch_theme`, `save_post_wp_global_styles`, `customize_save_after`), cache `get_existing_coywolf_block_slugs()` via `wp_cache` keyed by lastpostmodified and rewrite it to a direct `post_name` column read, debounce the preview iframe's `apiFetch` by 500 ms, swap `wp_update_post` for a direct `$wpdb->update` + `clean_post_cache` in the post-content rewrite sweep (skips revisions / sitemap regen / save_post listeners), reuse the cached slug set inside `get_source_blocks()` instead of `get_page_by_path` per row, and clear stale user-scoped import stashes before writing a new one.
+
 = 1.0.42 =
 * Left-align the post-title input on the Builder page (#51).
 

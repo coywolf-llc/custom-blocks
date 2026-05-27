@@ -708,10 +708,43 @@ class ExportImport extends ComponentAbstract {
 	 * @return string Transient key fragment.
 	 */
 	protected function stash_envelope( $envelope ) {
-		$token  = wp_generate_password( 16, false, false );
-		$key    = $this->stash_transient_name( $token );
+		// Drop any previous unconfirmed stashes for this user before
+		// writing a new one. Without this, every uploaded-but-not-yet-
+		// confirmed file would leave an envelope row in wp_options
+		// until its 10-minute TTL elapsed — M4 in the 1.0.42 perf
+		// audit. We DELETE rather than wait for `delete_expired_transients`
+		// so a user re-uploading a different file doesn't bloat the
+		// options table.
+		$this->delete_user_stashes();
+
+		$token = wp_generate_password( 16, false, false );
+		$key   = $this->stash_transient_name( $token );
 		set_transient( $key, $envelope, 10 * MINUTE_IN_SECONDS );
 		return $token;
+	}
+
+	/**
+	 * Delete every still-live stash transient for the current user.
+	 * Called before writing a new stash and (defensively) when the
+	 * user finalises the import. Uses a direct DB query because there
+	 * isn't a `delete_transient_pattern()` in core.
+	 */
+	protected function delete_user_stashes() {
+		global $wpdb;
+		$prefix = '_transient_ccb_import_stash_' . get_current_user_id() . '_';
+		$like   = $wpdb->esc_like( $prefix ) . '%';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- targeted cleanup; transient API has no prefix-delete.
+		$names = $wpdb->get_col(
+			$wpdb->prepare( "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s", $like )
+		);
+		if ( empty( $names ) ) {
+			return;
+		}
+		foreach ( $names as $name ) {
+			// Strip the `_transient_` prefix to get the bare transient
+			// key; let `delete_transient` deal with the timeout row.
+			delete_transient( substr( (string) $name, strlen( '_transient_' ) ) );
+		}
 	}
 
 	/**
