@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.39
+Stable tag: 1.0.40
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.40 =
+* Hide Import from Genesis menu when upstream is deactivated (#49).
 
 = 1.0.40 =
 * Hide the "Import from Genesis" menu when the upstream Genesis Custom Blocks plugin is deactivated or deleted. Reverts the 1.0.28 carve-out that kept the page reachable as long as any Coywolf block existed — once the migration is done, that menu was just noise. The standalone "Rewrite post content now" tool moves with the page; reactivate Genesis briefly if you need to run it again.
