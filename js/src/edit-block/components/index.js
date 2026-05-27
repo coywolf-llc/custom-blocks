@@ -23,6 +23,7 @@ export { default as LocationButtons } from './location-buttons';
 export { default as Main } from './main';
 export { default as PostTitle } from './post-title';
 export { default as PostTypesSection } from './post-types-section';
+export { default as PreviewIframe } from './preview-iframe';
 export { default as PreviewNotice } from './preview-notice';
 export { default as Select } from './select';
 export { default as Side } from './side';
