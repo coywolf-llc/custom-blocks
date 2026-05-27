@@ -104,6 +104,9 @@ the same GPL-2.0-or-later license.
 
 == Changelog ==
 
+= 1.0.37 =
+* Fix "No route was found matching the URL" on both preview tabs (regression from 1.0.36). The new iframe component was `encodeURIComponent()`-ing the full block name; the `/` between the namespace and slug became `%2F`, which doesn't match the WP REST route pattern. Pass the block name raw.
+
 = 1.0.36 =
 * Render preview tabs in iframes; stop enqueueing theme CSS on the builder page (#45).
 
