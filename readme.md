@@ -55,6 +55,9 @@ This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis
 
 ## Changelog
 
+### 1.0.35
+- Load the active theme's editor stylesheets and theme.json global styles on the block builder page, and wrap the Editor Preview / Front-end Preview SSR output in `<div class="editor-styles-wrapper">` so the previews approximate how the block actually appears in the post editor and on the front end.
+
 ### 1.0.34
 - Fix both preview tabs broken in 1.0.32 (#43).
 

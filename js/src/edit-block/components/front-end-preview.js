@@ -72,14 +72,20 @@ const FrontEndPreview = ( { setEditorMode } ) => {
 		);
 	}
 
+	// Wrapping in `.editor-styles-wrapper` lets the theme's editor
+	// stylesheets (loaded by EditBlock::enqueue_theme_preview_styles)
+	// cascade onto the rendered block — themes that author their
+	// editor.css scoped under that class get a front-end-shaped preview.
 	return (
-		<ServerSideRender
-			block={ `coywolf-custom-blocks/${ block.name }` }
-			attributes={ previewAttributes }
-			className="coywolf-custom-blocks-editor__ssr"
-			httpMethod="POST"
-			urlQueryArgs={ { ccb_render_mode: 'view' } }
-		/>
+		<div className="editor-styles-wrapper">
+			<ServerSideRender
+				block={ `coywolf-custom-blocks/${ block.name }` }
+				attributes={ previewAttributes }
+				className="coywolf-custom-blocks-editor__ssr"
+				httpMethod="POST"
+				urlQueryArgs={ { ccb_render_mode: 'view' } }
+			/>
+		</div>
 	);
 };
 
