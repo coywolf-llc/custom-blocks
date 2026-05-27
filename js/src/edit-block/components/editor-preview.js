@@ -79,16 +79,19 @@ const EditorPreview = ( { setEditorMode } ) => {
 			}
 			{ hasAnyMarkup && block.name
 				? (
-					// Default `context=edit` URL arg sends the PHP renderer
-					// down the `['preview', 'block']` priority — so Preview
-					// HTML is used when `showPreview` is on, otherwise the
-					// Custom HTML falls through. Mirrors what a post-editor
-					// user sees when this block is inserted into a post.
+					// `ccb_render_mode=editor` makes the PHP renderer walk
+					// `previewMarkup → templateMarkup` *without* the
+					// `showPreview` gate — i.e. show whatever's in Preview
+					// HTML if it's set, otherwise the Custom HTML. The
+					// builder's preview tabs need to ignore the toggle
+					// since it controls post-editor behaviour, not the
+					// developer-facing preview tabs themselves.
 					<ServerSideRender
 						block={ `coywolf-custom-blocks/${ block.name }` }
 						attributes={ previewAttributes }
 						className="coywolf-custom-blocks-editor__ssr mt-6 w-full"
 						httpMethod="POST"
+						urlQueryArgs={ { ccb_render_mode: 'editor' } }
 					/>
 				) : null
 			}
