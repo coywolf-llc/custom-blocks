@@ -86,13 +86,22 @@ const EditorPreview = ( { setEditorMode } ) => {
 					// builder's preview tabs need to ignore the toggle
 					// since it controls post-editor behaviour, not the
 					// developer-facing preview tabs themselves.
-					<ServerSideRender
-						block={ `coywolf-custom-blocks/${ block.name }` }
-						attributes={ previewAttributes }
-						className="coywolf-custom-blocks-editor__ssr mt-6 w-full"
-						httpMethod="POST"
-						urlQueryArgs={ { ccb_render_mode: 'editor' } }
-					/>
+					//
+					// Wrapping in `.editor-styles-wrapper` lets the
+					// theme's editor stylesheets (loaded by
+					// EditBlock::enqueue_theme_preview_styles) cascade
+					// onto the rendered block — most editor CSS is
+					// written scoped under that class, so the preview
+					// approximates what the post editor shows.
+					<div className="editor-styles-wrapper mt-6 w-full">
+						<ServerSideRender
+							block={ `coywolf-custom-blocks/${ block.name }` }
+							attributes={ previewAttributes }
+							className="coywolf-custom-blocks-editor__ssr"
+							httpMethod="POST"
+							urlQueryArgs={ { ccb_render_mode: 'editor' } }
+						/>
+					</div>
 				) : null
 			}
 		</div>
