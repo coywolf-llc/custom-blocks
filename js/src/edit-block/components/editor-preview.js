@@ -36,7 +36,7 @@ const EditorPreview = ( { setEditorMode } ) => {
 	const { previewAttributes = {} } = block;
 	const fields = getFields();
 	const hasFields = getFieldsAsArray( fields ).length > 0;
-	const hasPreviewHtml = Boolean( block.showPreview && block.previewMarkup );
+	const hasAnyMarkup = Boolean( block.templateMarkup || block.previewMarkup );
 
 	/** @param {Object} newAttributes Attribute (field) names and values. */
 	const setAttributes = ( newAttributes ) => {
@@ -48,7 +48,7 @@ const EditorPreview = ( { setEditorMode } ) => {
 		} );
 	};
 
-	if ( ! hasFields && ! hasPreviewHtml ) {
+	if ( ! hasFields && ! hasAnyMarkup ) {
 		return (
 			<PreviewNotice>
 				<button
@@ -77,8 +77,13 @@ const EditorPreview = ( { setEditorMode } ) => {
 					/>
 				) : null
 			}
-			{ hasPreviewHtml && block.name
+			{ hasAnyMarkup && block.name
 				? (
+					// Default `context=edit` URL arg sends the PHP renderer
+					// down the `['preview', 'block']` priority — so Preview
+					// HTML is used when `showPreview` is on, otherwise the
+					// Custom HTML falls through. Mirrors what a post-editor
+					// user sees when this block is inserted into a post.
 					<ServerSideRender
 						block={ `coywolf-custom-blocks/${ block.name }` }
 						attributes={ previewAttributes }
