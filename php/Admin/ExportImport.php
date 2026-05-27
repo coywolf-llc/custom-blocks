@@ -108,6 +108,10 @@ class ExportImport extends ComponentAbstract {
 		$result       = isset( $_GET['result'] ) ? sanitize_key( wp_unslash( $_GET['result'] ) ) : '';
 		$imported_csv = isset( $_GET['imported'] ) ? sanitize_text_field( wp_unslash( $_GET['imported'] ) ) : '';
 		$errors_csv   = isset( $_GET['errors'] ) ? sanitize_text_field( wp_unslash( $_GET['errors'] ) ) : '';
+		$confirm_key  = isset( $_GET['confirm_key'] ) ? sanitize_key( wp_unslash( $_GET['confirm_key'] ) ) : '';
+		$confirm_slugs = isset( $_GET['confirm_slugs'] ) && is_array( $_GET['confirm_slugs'] )
+			? array_values( array_filter( array_map( 'sanitize_text_field', wp_unslash( $_GET['confirm_slugs'] ) ) ) )
+			: [];
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Coywolf Custom Blocks — Export & Import', 'coywolf-custom-blocks' ); ?></h1>
@@ -154,28 +158,87 @@ class ExportImport extends ComponentAbstract {
 
 			<h2><?php esc_html_e( 'Import', 'coywolf-custom-blocks' ); ?></h2>
 			<p>
-				<?php esc_html_e( 'Upload a JSON file produced by Export on this or another Coywolf Custom Blocks site. Blocks whose slug already exists on this site will be replaced with the version from the file.', 'coywolf-custom-blocks' ); ?>
+				<?php esc_html_e( 'Upload a JSON file produced by Export on this or another Coywolf Custom Blocks site. If a block in the file has the same slug as a block that already exists here, you\'ll be asked whether to replace it or create a new copy.', 'coywolf-custom-blocks' ); ?>
 			</p>
+
+			<?php if ( 'confirm' === $result && '' !== $confirm_key && ! empty( $confirm_slugs ) ) : ?>
+				<?php $this->render_confirm_form( $confirm_key, $confirm_slugs ); ?>
+			<?php else : ?>
+				<form
+					method="post"
+					enctype="multipart/form-data"
+					action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"
+				>
+					<input type="hidden" name="action" value="<?php echo esc_attr( self::IMPORT_ACTION ); ?>" />
+					<?php wp_nonce_field( self::IMPORT_ACTION ); ?>
+					<p>
+						<input
+							type="file"
+							name="ccb_import_file"
+							accept="application/json,.json"
+							required
+						/>
+					</p>
+					<p class="submit">
+						<button type="submit" class="button button-primary">
+							<?php esc_html_e( 'Upload and import', 'coywolf-custom-blocks' ); ?>
+						</button>
+					</p>
+				</form>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render the per-import confirmation prompt that's shown when at
+	 * least one block in the uploaded JSON file collides with a slug
+	 * that already exists on this site.
+	 *
+	 * @param string   $confirm_key The transient token from `stash_envelope()`.
+	 * @param string[] $slugs       Colliding slugs to display.
+	 */
+	protected function render_confirm_form( $confirm_key, $slugs ) {
+		?>
+		<div class="notice notice-warning inline" style="margin: 1em 0; padding: 1em 1.2em;">
+			<p>
+				<strong><?php esc_html_e( 'Some blocks in this file already exist on this site.', 'coywolf-custom-blocks' ); ?></strong>
+			</p>
+			<ul style="list-style: disc; padding-left: 1.5em; margin: 0.5em 0 1em;">
+				<?php foreach ( $slugs as $slug ) : ?>
+					<li><code><?php echo esc_html( $slug ); ?></code></li>
+				<?php endforeach; ?>
+			</ul>
 
 			<form
 				method="post"
-				enctype="multipart/form-data"
 				action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"
 			>
 				<input type="hidden" name="action" value="<?php echo esc_attr( self::IMPORT_ACTION ); ?>" />
+				<input type="hidden" name="ccb_payload_key" value="<?php echo esc_attr( $confirm_key ); ?>" />
 				<?php wp_nonce_field( self::IMPORT_ACTION ); ?>
+
 				<p>
-					<input
-						type="file"
-						name="ccb_import_file"
-						accept="application/json,.json"
-						required
-					/>
+					<label style="display:block; margin-bottom:0.5em;">
+						<input type="radio" name="ccb_import_mode" value="replace" checked />
+						<strong><?php esc_html_e( 'Replace the existing blocks', 'coywolf-custom-blocks' ); ?></strong>
+						—
+						<?php esc_html_e( 'Overwrite each matching block\'s configuration with the version from the file.', 'coywolf-custom-blocks' ); ?>
+					</label>
+					<label style="display:block;">
+						<input type="radio" name="ccb_import_mode" value="copy" />
+						<strong><?php esc_html_e( 'Create new copies', 'coywolf-custom-blocks' ); ?></strong>
+						—
+						<?php esc_html_e( 'Keep the existing blocks. Imported copies are renamed by appending a number (e.g. test-block → test-block-2).', 'coywolf-custom-blocks' ); ?>
+					</label>
 				</p>
 				<p class="submit">
 					<button type="submit" class="button button-primary">
-						<?php esc_html_e( 'Upload and import', 'coywolf-custom-blocks' ); ?>
+						<?php esc_html_e( 'Continue import', 'coywolf-custom-blocks' ); ?>
 					</button>
+					<a class="button" href="<?php echo esc_url( $this->page_url() ); ?>">
+						<?php esc_html_e( 'Cancel', 'coywolf-custom-blocks' ); ?>
+					</a>
 				</p>
 			</form>
 		</div>
@@ -415,67 +478,77 @@ class ExportImport extends ComponentAbstract {
 
 		check_admin_referer( self::IMPORT_ACTION );
 
-		if ( ! isset( $_FILES['ccb_import_file']['tmp_name'] ) || '' === $_FILES['ccb_import_file']['tmp_name'] ) {
-			wp_safe_redirect(
-				$this->page_url(
-					[
-						'result'  => 'error',
-						'message' => __( 'No file was uploaded.', 'coywolf-custom-blocks' ),
-					]
-				)
-			);
-			exit;
+		// Two entry points share this handler:
+		//
+		//   1. First upload — the form posts a `ccb_import_file`. We
+		//      parse the file, detect slug collisions, and either run
+		//      the import (if no collisions) or stash the parsed
+		//      envelope in a transient and redirect to a confirmation
+		//      screen.
+		//
+		//   2. Confirmation submit — the user picked a mode (replace
+		//      or copy) and posted the transient key + chosen mode
+		//      back. We retrieve the envelope and run the import.
+		$confirm_key = isset( $_POST['ccb_payload_key'] )
+			? sanitize_key( wp_unslash( $_POST['ccb_payload_key'] ) )
+			: '';
+		$mode        = isset( $_POST['ccb_import_mode'] )
+			? sanitize_key( wp_unslash( $_POST['ccb_import_mode'] ) )
+			: '';
+		if ( ! in_array( $mode, [ '', 'replace', 'copy' ], true ) ) {
+			$mode = '';
 		}
 
-		if ( ! empty( $_FILES['ccb_import_file']['error'] ) ) {
-			wp_safe_redirect(
-				$this->page_url(
-					[
-						'result'  => 'error',
-						'message' => __( 'Upload failed; the file was rejected by the server.', 'coywolf-custom-blocks' ),
-					]
-				)
-			);
-			exit;
-		}
-
-		// The uploaded temp file is on the local filesystem; safe to read directly.
-		$tmp_path = isset( $_FILES['ccb_import_file']['tmp_name'] ) ? sanitize_text_field( $_FILES['ccb_import_file']['tmp_name'] ) : '';
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		$raw = '' !== $tmp_path && is_uploaded_file( $tmp_path ) ? @file_get_contents( $tmp_path ) : false;
-		if ( false === $raw || '' === $raw ) {
-			wp_safe_redirect(
-				$this->page_url(
-					[
-						'result'  => 'error',
-						'message' => __( 'Could not read the uploaded file.', 'coywolf-custom-blocks' ),
-					]
-				)
-			);
-			exit;
-		}
-
-		$decoded = json_decode( $raw, true );
-		if ( ! is_array( $decoded ) || empty( $decoded ) ) {
-			wp_safe_redirect(
-				$this->page_url(
-					[
-						'result'  => 'error',
-						'message' => __( 'The file is not valid Coywolf Custom Blocks JSON.', 'coywolf-custom-blocks' ),
-					]
-				)
-			);
-			exit;
-		}
-
-		// Tolerate two shapes:
-		//   1. Direct envelope:  { "coywolf-custom-blocks/foo": {...}, ... }
-		//   2. Wrapped envelope: { "blocks": { ... } } from a future format
-		// Always normalize to (1).
-		if ( isset( $decoded['blocks'] ) && is_array( $decoded['blocks'] ) ) {
-			$envelope = $decoded['blocks'];
+		if ( '' !== $confirm_key ) {
+			$envelope = $this->load_stashed_envelope( $confirm_key );
+			if ( null === $envelope ) {
+				wp_safe_redirect(
+					$this->page_url(
+						[
+							'result'  => 'error',
+							'message' => __( 'Your import session expired. Please upload the file again.', 'coywolf-custom-blocks' ),
+						]
+					)
+				);
+				exit;
+			}
+			$this->delete_stashed_envelope( $confirm_key );
 		} else {
-			$envelope = $decoded;
+			$envelope = $this->envelope_from_upload();
+			if ( is_wp_error( $envelope ) ) {
+				wp_safe_redirect(
+					$this->page_url(
+						[
+							'result'  => 'error',
+							'message' => $envelope->get_error_message(),
+						]
+					)
+				);
+				exit;
+			}
+		}
+
+		// Detect collisions — if any of the incoming block slugs match
+		// existing posts AND the user hasn't told us how to handle them,
+		// stash the envelope and bounce to the confirmation screen.
+		$collisions = $this->find_slug_collisions( $envelope );
+		if ( ! empty( $collisions ) && '' === $mode ) {
+			$key = $this->stash_envelope( $envelope );
+			wp_safe_redirect(
+				$this->page_url(
+					[
+						'result'         => 'confirm',
+						'confirm_key'    => $key,
+						'confirm_slugs'  => $collisions,
+					]
+				)
+			);
+			exit;
+		}
+
+		// Default mode when there are no collisions: just import.
+		if ( '' === $mode ) {
+			$mode = 'replace';
 		}
 
 		$imported = [];
@@ -495,18 +568,31 @@ class ExportImport extends ComponentAbstract {
 				continue;
 			}
 
-			$slug = (string) $block_config['name'];
+			$original_slug = (string) $block_config['name'];
+			$slug          = $original_slug;
+			$renamed       = false;
 
-			// Normalize the namespace key — accept anything ending in `/{slug}`
-			// (including upstream's `genesis-custom-blocks/foo`) and rewrite it.
+			// Rename to a free slug when the user picked "create new
+			// copies" and the original slug is already in use. Updates
+			// the `name` field inside the block config and the envelope
+			// key so register_block_type lines up with the post we'll
+			// insert.
+			if ( 'copy' === $mode && in_array( $slug, $collisions, true ) ) {
+				$slug                 = $this->find_unique_slug( $slug );
+				$block_config['name'] = $slug;
+				$renamed              = ( $slug !== $original_slug );
+			}
+
 			$canonical_key = 'coywolf-custom-blocks/' . $slug;
 
 			$result = $this->insert_or_replace_block( $canonical_key, $block_config );
 			if ( is_wp_error( $result ) ) {
 				$errors[] = sprintf( '%s — %s', $slug, $result->get_error_message() );
-			} else {
-				$imported[] = ! empty( $block_config['title'] ) ? (string) $block_config['title'] : $slug;
+				continue;
 			}
+
+			$title      = ! empty( $block_config['title'] ) ? (string) $block_config['title'] : $slug;
+			$imported[] = $renamed ? sprintf( '%s (%s)', $title, $slug ) : $title;
 		}
 
 		wp_safe_redirect(
@@ -519,6 +605,136 @@ class ExportImport extends ComponentAbstract {
 			)
 		);
 		exit;
+	}
+
+	/**
+	 * Read the upload, decode the JSON, return the normalised envelope.
+	 *
+	 * @return array|\WP_Error Envelope on success, WP_Error with a
+	 *                        translated user-facing message on failure.
+	 */
+	protected function envelope_from_upload() {
+		if ( ! isset( $_FILES['ccb_import_file']['tmp_name'] ) || '' === $_FILES['ccb_import_file']['tmp_name'] ) {
+			return new \WP_Error( 'ccb_no_file', __( 'No file was uploaded.', 'coywolf-custom-blocks' ) );
+		}
+		if ( ! empty( $_FILES['ccb_import_file']['error'] ) ) {
+			return new \WP_Error( 'ccb_upload_failed', __( 'Upload failed; the file was rejected by the server.', 'coywolf-custom-blocks' ) );
+		}
+
+		$tmp_path = sanitize_text_field( $_FILES['ccb_import_file']['tmp_name'] );
+		if ( '' === $tmp_path || ! is_uploaded_file( $tmp_path ) ) {
+			return new \WP_Error( 'ccb_unreadable', __( 'Could not read the uploaded file.', 'coywolf-custom-blocks' ) );
+		}
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$raw = @file_get_contents( $tmp_path );
+		if ( false === $raw || '' === $raw ) {
+			return new \WP_Error( 'ccb_unreadable', __( 'Could not read the uploaded file.', 'coywolf-custom-blocks' ) );
+		}
+
+		$decoded = json_decode( $raw, true );
+		if ( ! is_array( $decoded ) || empty( $decoded ) ) {
+			return new \WP_Error( 'ccb_bad_json', __( 'The file is not valid Coywolf Custom Blocks JSON.', 'coywolf-custom-blocks' ) );
+		}
+
+		// Tolerate two shapes:
+		//   1. Direct envelope:  { "coywolf-custom-blocks/foo": {...}, ... }
+		//   2. Wrapped envelope: { "blocks": { ... } } from a future format
+		// Always normalise to (1).
+		if ( isset( $decoded['blocks'] ) && is_array( $decoded['blocks'] ) ) {
+			return $decoded['blocks'];
+		}
+		return $decoded;
+	}
+
+	/**
+	 * Returns the subset of block slugs in `$envelope` that already
+	 * have a matching `coywolf_custom_block` post.
+	 *
+	 * @param array $envelope
+	 * @return string[]
+	 */
+	protected function find_slug_collisions( $envelope ) {
+		$post_type  = coywolf_custom_blocks()->get_post_type_slug();
+		$collisions = [];
+		foreach ( $envelope as $block_config ) {
+			if ( ! is_array( $block_config ) || empty( $block_config['name'] ) ) {
+				continue;
+			}
+			$slug = (string) $block_config['name'];
+			if ( $slug !== '' && get_page_by_path( $slug, OBJECT, $post_type ) instanceof \WP_Post ) {
+				$collisions[] = $slug;
+			}
+		}
+		return array_values( array_unique( $collisions ) );
+	}
+
+	/**
+	 * Find the next free `{slug}-{n}` for `$slug`, starting at -2.
+	 *
+	 * @param string $slug
+	 * @return string
+	 */
+	protected function find_unique_slug( $slug ) {
+		$post_type = coywolf_custom_blocks()->get_post_type_slug();
+		$slug      = (string) $slug;
+		if ( '' === $slug ) {
+			return $slug;
+		}
+		if ( ! get_page_by_path( $slug, OBJECT, $post_type ) instanceof \WP_Post ) {
+			return $slug;
+		}
+		$n = 2;
+		while ( get_page_by_path( $slug . '-' . $n, OBJECT, $post_type ) instanceof \WP_Post ) {
+			$n++;
+		}
+		return $slug . '-' . $n;
+	}
+
+	/**
+	 * Stash a parsed envelope in a 10-minute transient keyed by a random
+	 * token + the current user id (so two admins can't collide on the
+	 * same key). Returns the token for the confirmation URL.
+	 *
+	 * @param array $envelope
+	 * @return string Transient key fragment.
+	 */
+	protected function stash_envelope( $envelope ) {
+		$token  = wp_generate_password( 16, false, false );
+		$key    = $this->stash_transient_name( $token );
+		set_transient( $key, $envelope, 10 * MINUTE_IN_SECONDS );
+		return $token;
+	}
+
+	/**
+	 * Reverse of `stash_envelope()`. Returns null if the transient is
+	 * gone (expired or wrong user).
+	 *
+	 * @param string $token
+	 * @return array|null
+	 */
+	protected function load_stashed_envelope( $token ) {
+		$envelope = get_transient( $this->stash_transient_name( $token ) );
+		return is_array( $envelope ) ? $envelope : null;
+	}
+
+	/**
+	 * Drop a stashed envelope once it's been consumed.
+	 *
+	 * @param string $token
+	 */
+	protected function delete_stashed_envelope( $token ) {
+		delete_transient( $this->stash_transient_name( $token ) );
+	}
+
+	/**
+	 * Compute the transient name for a given token. User-scoped so two
+	 * admins importing at the same time can't read each other's stash.
+	 *
+	 * @param string $token
+	 * @return string
+	 */
+	protected function stash_transient_name( $token ) {
+		return 'ccb_import_stash_' . get_current_user_id() . '_' . preg_replace( '/[^A-Za-z0-9]/', '', (string) $token );
 	}
 
 	/**

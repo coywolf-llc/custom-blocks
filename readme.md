@@ -55,6 +55,9 @@ This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis
 
 ## Changelog
 
+### 1.0.39
+- Export & Import: when an uploaded JSON file contains a block whose slug already exists, the importer now asks whether to **replace** the existing block or **create a new copy**. Picking "copy" renames the imported block by appending the lowest free `-N` suffix (`test-block` → `test-block-2`, then `-3`, etc.). Previously the import always silently replaced the existing block.
+
 ### 1.0.38
 - Drop stale 'fall back to theme template file' help text (#47).
 
