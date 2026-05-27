@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.30
+Stable tag: 1.0.31
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.31 =
+* Drop the theme-template-file fallback — Custom HTML / Preview HTML only (#40).
 
 = 1.0.31 =
 * Drop the theme-template-file fallback. Block rendering now reads only Custom HTML / Preview HTML from the Builder page; the `blocks/block-{slug}.php`, `blocks/preview-{slug}.php`, `blocks/css/block-{slug}.css`, and `blocks/blocks.css` lookups are gone. The "Template:" badge on the Editor Preview / Front-end Preview pages, the "Template" column on the Custom Blocks list table, the `template-file` REST route, and the JS `useTemplate` hook + `TemplateFile` component are all removed. Genesis-import-time template translation still works (one-shot read of the theme file at import).
