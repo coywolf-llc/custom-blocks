@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.36
+Stable tag: 1.0.37
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.37 =
+* Fix 'No route was found' on preview tabs (regression from 1.0.36) (#46).
 
 = 1.0.37 =
 * Fix "No route was found matching the URL" on both preview tabs (regression from 1.0.36). The new iframe component was `encodeURIComponent()`-ing the full block name; the `/` between the namespace and slug became `%2F`, which doesn't match the WP REST route pattern. Pass the block name raw.
