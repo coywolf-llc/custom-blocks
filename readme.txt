@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.38
+Stable tag: 1.0.39
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.39 =
+* Export & Import: prompt on slug collision instead of silently replacing (#48).
 
 = 1.0.39 =
 * Export & Import: when an uploaded JSON file contains a block whose slug already exists, the importer now asks whether to replace the existing block or create a new copy. Picking "copy" renames the imported block by appending the lowest free `-N` suffix (`test-block` → `test-block-2`, then `-3`, etc.). Previously the import always silently replaced the existing block.
