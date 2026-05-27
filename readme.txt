@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.37
+Stable tag: 1.0.38
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.38 =
+* Drop stale 'fall back to theme template file' help text (#47).
 
 = 1.0.38 =
 * Strip the stale "Leave empty to fall back to the theme template file…" help text under the Custom HTML panel. The theme-file fallback itself was removed in 1.0.31; only the UI text was left behind.
