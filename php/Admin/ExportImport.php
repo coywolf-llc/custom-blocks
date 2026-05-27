@@ -576,11 +576,20 @@ class ExportImport extends ComponentAbstract {
 			// copies" and the original slug is already in use. Updates
 			// the `name` field inside the block config and the envelope
 			// key so register_block_type lines up with the post we'll
-			// insert.
+			// insert. Also append the same numeric suffix to the
+			// block's title so the All Blocks list and inserter make
+			// the copies easy to tell apart ("Test block" → "Test
+			// block 2").
 			if ( 'copy' === $mode && in_array( $slug, $collisions, true ) ) {
 				$slug                 = $this->find_unique_slug( $slug );
 				$block_config['name'] = $slug;
 				$renamed              = ( $slug !== $original_slug );
+				if ( $renamed && ! empty( $block_config['title'] ) ) {
+					$suffix = substr( $slug, strlen( $original_slug ) + 1 );
+					if ( '' !== $suffix ) {
+						$block_config['title'] = (string) $block_config['title'] . ' ' . $suffix;
+					}
+				}
 			}
 
 			$canonical_key = 'coywolf-custom-blocks/' . $slug;

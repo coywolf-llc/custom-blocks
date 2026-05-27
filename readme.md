@@ -55,6 +55,9 @@ This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis
 
 ## Changelog
 
+### 1.0.41
+- Import "create new copies" mode now also appends the numeric suffix to the block's **title**, not just the slug. `test-block` → `test-block-2` carries `Test block` → `Test block 2`, so the All Blocks list and inserter make the copies easy to tell apart at a glance.
+
 ### 1.0.40
 - Hide Import from Genesis menu when upstream is deactivated (#49).
 
