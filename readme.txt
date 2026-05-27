@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.32
+Stable tag: 1.0.33
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.33 =
+* Fix critical fatal in EditBlock — stale call to deleted method (#42).
 
 = 1.0.33 =
 * Fix critical fatal "Call to undefined method `EditBlock::get_template_file()`" when opening a block for editing. PR #40 removed the method but missed one caller in `enqueue_assets()` that was populating a `template` field on the `ccbEditor` JS global. The JS never read that field — drop it.
