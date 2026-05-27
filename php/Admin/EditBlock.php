@@ -10,7 +10,6 @@
 namespace Coywolf\CustomBlocks\Admin;
 
 use WP_Post;
-use Coywolf\CustomBlocks\Blocks\Block;
 use Coywolf\CustomBlocks\ComponentAbstract;
 
 /**
@@ -123,7 +122,6 @@ class EditBlock extends ComponentAbstract {
 		);
 
 		$post_id = get_the_ID();
-		$block   = new Block( $post_id );
 		wp_add_inline_script(
 			self::SCRIPT_SLUG,
 			sprintf(
@@ -137,7 +135,6 @@ class EditBlock extends ComponentAbstract {
 							'titlePlaceholder'   => __( 'Block title', 'coywolf-custom-blocks' ),
 							'richEditingEnabled' => false,
 						],
-						'template'         => $this->get_template_file( $block->name ),
 						'initialEdits'     => null,
 						'isOnboardingPost' => false,
 						'categories'       => get_block_categories( get_post() ),

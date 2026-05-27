@@ -55,6 +55,9 @@ This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis
 
 ## Changelog
 
+### 1.0.33
+- Fix critical fatal "Call to undefined method `EditBlock::get_template_file()`" when opening a block for editing. PR #40 removed the method but missed one caller in `enqueue_assets()` that was populating a `template` field on the `ccbEditor` JS global. The JS never read that field — drop it.
+
 ### 1.0.32
 - Wire both preview tabs to Custom HTML / Preview HTML (#41).
 
