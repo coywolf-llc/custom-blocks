@@ -65,7 +65,13 @@ const PreviewIframe = ( { blockName, attributes = {}, urlQueryArgs = {}, classNa
 		setError( null );
 		setHtml( null );
 
-		const path = '/wp/v2/block-renderer/' + encodeURIComponent( blockName ) + buildQueryString( {
+		// Don't encode `blockName` — its `namespace/slug` form contains a
+		// literal `/` that's part of the WP REST route pattern. Encoding
+		// it to `%2F` makes the router miss the route and return
+		// "No route was found matching the URL and request method".
+		// Both halves of the name already match `[a-z0-9-]+` (validated
+		// by WP and on insert), so passing them raw is safe.
+		const path = '/wp/v2/block-renderer/' + blockName + buildQueryString( {
 			context: 'edit',
 			...urlQueryArgs,
 		} );
