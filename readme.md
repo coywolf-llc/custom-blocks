@@ -55,6 +55,9 @@ This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis
 
 ## Changelog
 
+### 1.0.40
+- Hide the **Import from Genesis** menu when the upstream Genesis Custom Blocks plugin is deactivated or deleted. Reverts the 1.0.28 carve-out that kept the page reachable as long as any Coywolf block existed — once the migration is done, that menu was just noise. The standalone "Rewrite post content now" tool moves with the page; reactivate Genesis briefly if you need to run it again.
+
 ### 1.0.39
 - Export & Import: prompt on slug collision instead of silently replacing (#48).
 

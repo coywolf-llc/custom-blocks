@@ -288,13 +288,13 @@ class ImportFromGenesis extends ComponentAbstract {
 	 * isn't loaded on every admin pageview.
 	 */
 	public function add_submenu_page() {
-		// Show the page whenever upstream Genesis Custom Blocks is active
-		// (the importer flow), OR whenever the site already has Coywolf
-		// blocks the rewrite-only tool can target. Without the second
-		// branch, users who imported, ticked off the rewrite-now box, and
-		// later removed upstream would have no UI to fix references in
-		// their existing post content.
-		if ( ! $this->is_genesis_custom_blocks_active() && ! $this->has_any_coywolf_blocks() ) {
+		// Only show the menu while upstream Genesis Custom Blocks is
+		// actually active. Once the user deactivates or deletes it,
+		// there's nothing to import and the page should disappear. (The
+		// rewrite-only branch we added in 1.0.28 — accessible after
+		// upstream was removed — turned out to be unwanted noise once
+		// migrations were complete.)
+		if ( ! $this->is_genesis_custom_blocks_active() ) {
 			return;
 		}
 		add_submenu_page(
@@ -318,31 +318,6 @@ class ImportFromGenesis extends ComponentAbstract {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 		return is_plugin_active( 'genesis-custom-blocks/genesis-custom-blocks.php' );
-	}
-
-	/**
-	 * Lightweight existence check used to decide whether to surface this
-	 * page's menu when upstream is gone. One indexed COUNT, cached in a
-	 * static so admin_menu doesn't refire it within the same request.
-	 *
-	 * @return bool
-	 */
-	protected function has_any_coywolf_blocks() {
-		static $has = null;
-		if ( null !== $has ) {
-			return $has;
-		}
-		global $wpdb;
-		$post_type = coywolf_custom_blocks()->get_post_type_slug();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- one indexed count, no caching layer fits.
-		$count = (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ( 'auto-draft', 'trash' )",
-				$post_type
-			)
-		);
-		$has = $count > 0;
-		return $has;
 	}
 
 	/**
