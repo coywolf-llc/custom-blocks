@@ -4,7 +4,7 @@
 
 Build custom Gutenberg blocks in the WordPress admin — no SFTP, no theme files. A privacy-respecting fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) with WP Engine telemetry, the WPE update server, and Genesis Pro upsells removed; ships an inline Custom HTML editor, native JSON export/import, and a one-shot importer for migrating off upstream.
 
-- **Version:** 1.0.42
+- **Version:** 1.0.43
 - **Requires WordPress:** 6.0 or later
 - **Tested up to:** 7.0
 - **Requires PHP:** 7.0 or later
@@ -54,6 +54,9 @@ Yes. The field is intended for use by site administrators (editing `coywolf_cust
 This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) by WP Engine / StudioPress, originally created by Luke Carbis, Ryan Kienstra, Stino11, Rheinard Korf, and the StudioPress / WP Engine team. All credit for the original plugin and its design belongs to them; this fork exists to keep the codebase alive and self-contained for Coywolf sites. Released under the same GPL-2.0-or-later license.
 
 ## Changelog
+
+### 1.0.43
+- Security + performance audit follow-up (#52).
 
 ### 1.0.43
 - Security + performance audit follow-up. Security: escape `</style>` in the iframe preview's inline CSS, and add `JSON_HEX_TAG | JSON_HEX_AMP` to the `ccbEditor` inline script so a user with `edit_theme_options` can't break out of the `<style>` / `<script>` tags via global-stylesheet content. Performance: cache `wp_get_global_stylesheet()` + `get_editor_stylesheets()` in a transient (busted on `switch_theme`, `save_post_wp_global_styles`, `customize_save_after`), cache `get_existing_coywolf_block_slugs()` via `wp_cache` keyed by lastpostmodified and rewrite it to a direct `post_name` column read, debounce the preview iframe's `apiFetch` by 500 ms, swap `wp_update_post` for a direct `$wpdb->update` + `clean_post_cache` in the post-content rewrite sweep (skips revisions / sitemap regen / save_post listeners), reuse the cached slug set inside `get_source_blocks()` instead of `get_page_by_path` per row, and clear stale user-scoped import stashes before writing a new one.
