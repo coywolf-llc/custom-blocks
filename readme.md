@@ -55,6 +55,9 @@ This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis
 
 ## Changelog
 
+### 1.0.32
+- Both preview tabs in the block builder now render from the block's Custom HTML / Preview HTML. **Editor Preview** keeps the default `context=edit` REST arg so the PHP renderer walks `previewMarkup → templateMarkup` — matches the post editor. **Front-end Preview** overrides to `context=view` so the renderer walks only `templateMarkup` — matches the live site. Front-end Preview now also reads attributes from the in-memory edited block, so changes made on Editor Preview show up here without saving first.
+
 ### 1.0.31
 - Drop the theme-template-file fallback — Custom HTML / Preview HTML only (#40).
 
