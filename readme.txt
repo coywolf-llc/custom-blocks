@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.40
+Stable tag: 1.0.41
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.41 =
+* Append same numeric suffix to the title when import renames a slug (#50).
 
 = 1.0.41 =
 * Import "create new copies" mode now also appends the numeric suffix to the block's title, not just the slug. `test-block` → `test-block-2` carries `Test block` → `Test block 2`, so the All Blocks list and inserter make the copies easy to tell apart at a glance.
