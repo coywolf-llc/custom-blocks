@@ -47,6 +47,12 @@ class EditBlock extends ComponentAbstract {
 		add_action( 'admin_footer', [ $this, 'enqueue_assets' ] );
 		add_filter( 'admin_footer_text', [ $this, 'conditionally_prevent_footer_text' ] );
 		add_filter( 'update_footer', [ $this, 'conditionally_prevent_update_text' ], 11 );
+
+		// Bust the cached theme preview-styles payload whenever something
+		// that could change `wp_get_global_stylesheet()` happens.
+		add_action( 'switch_theme', [ $this, 'flush_preview_styles_cache' ] );
+		add_action( 'save_post_wp_global_styles', [ $this, 'flush_preview_styles_cache' ] );
+		add_action( 'customize_save_after', [ $this, 'flush_preview_styles_cache' ] );
 	}
 
 	/**
@@ -122,6 +128,13 @@ class EditBlock extends ComponentAbstract {
 		);
 
 		$post_id = get_the_ID();
+		// JSON_HEX_TAG escapes `<` to `<`, which prevents a value
+		// containing the literal `</script>` (most likely from the
+		// `previewStyles.inline` payload that's seeded from the active
+		// theme's global stylesheet) from breaking out of the inline
+		// `<script>` element. Catches the script-context half of the
+		// audit's M1 finding; the iframe-context half is handled in
+		// PreviewIframe's JS-side `escapeStyleEnders()`.
 		wp_add_inline_script(
 			self::SCRIPT_SLUG,
 			sprintf(
@@ -139,7 +152,8 @@ class EditBlock extends ComponentAbstract {
 						'isOnboardingPost' => false,
 						'categories'       => get_block_categories( get_post() ),
 						'previewStyles'    => $this->collect_theme_preview_styles(),
-					]
+					],
+					JSON_HEX_TAG | JSON_HEX_AMP
 				)
 			),
 			'before'
@@ -182,6 +196,20 @@ class EditBlock extends ComponentAbstract {
 	 * @return array{urls:string[],inline:string}
 	 */
 	protected function collect_theme_preview_styles() {
+		// theme.json-heavy sites produce hundreds of KB of CSS from
+		// `wp_get_global_stylesheet()`. Inlining that into the
+		// `ccbEditor` JS global on every block-builder pageview was
+		// flagged H2 in the 1.0.42 perf audit. Cache the result in a
+		// short transient and bust it on signals that can change the
+		// output: theme switch, global-style post save, and any direct
+		// edit_theme_options request (covers Customizer pushes that
+		// don't post-save).
+		$cache_key = 'coywolf_ccb_preview_styles_v1_' . get_stylesheet();
+		$cached    = get_transient( $cache_key );
+		if ( is_array( $cached ) && isset( $cached['urls'], $cached['inline'] ) ) {
+			return $cached;
+		}
+
 		$urls = function_exists( 'get_editor_stylesheets' ) ? get_editor_stylesheets() : [];
 		$urls = is_array( $urls ) ? array_values( array_filter( array_map( 'strval', $urls ) ) ) : [];
 
@@ -190,10 +218,26 @@ class EditBlock extends ComponentAbstract {
 			$inline = (string) wp_get_global_stylesheet();
 		}
 
-		return [
+		$payload = [
 			'urls'   => $urls,
 			'inline' => $inline,
 		];
+
+		set_transient( $cache_key, $payload, HOUR_IN_SECONDS );
+
+		return $payload;
+	}
+
+	/**
+	 * Cache-bust the preview-styles transient for every stylesheet that
+	 * could plausibly be active. Hooked from {@see register_hooks()}.
+	 */
+	public function flush_preview_styles_cache() {
+		// Multiple stylesheets may exist if the user switches themes;
+		// we don't know which transient is "stale", so delete by the
+		// current key (covers the common case) and let the rest expire
+		// on their HOUR_IN_SECONDS TTL.
+		delete_transient( 'coywolf_ccb_preview_styles_v1_' . get_stylesheet() );
 	}
 
 	/**

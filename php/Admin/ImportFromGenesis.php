@@ -957,6 +957,11 @@ class ImportFromGenesis extends ComponentAbstract {
 			]
 		);
 
+		// Build an in-memory "slug already exists in Coywolf" set
+		// once, then look up each source row against it. Replaces a
+		// per-row `get_page_by_path()` (M1 from the 1.0.42 perf audit).
+		$existing_set = array_flip( $this->get_existing_coywolf_block_slugs() );
+
 		$out = [];
 		foreach ( $query->posts as $post ) {
 			$config = $this->decode_block_config( $post->post_content );
@@ -973,7 +978,7 @@ class ImportFromGenesis extends ComponentAbstract {
 				'title'         => $post->post_title !== '' ? $post->post_title : $slug,
 				'slug'          => $slug,
 				'template_path' => $this->locate_theme_template( $slug ),
-				'target_exists' => $this->coywolf_block_exists( $slug ),
+				'target_exists' => isset( $existing_set[ $slug ] ),
 			];
 		}
 
@@ -1114,27 +1119,44 @@ class ImportFromGenesis extends ComponentAbstract {
 	 * @return string[]
 	 */
 	protected function get_existing_coywolf_block_slugs() {
-		$posts = get_posts(
-			[
-				'post_type'              => coywolf_custom_blocks()->get_post_type_slug(),
-				'post_status'            => [ 'publish', 'draft', 'pending', 'private', 'future' ],
-				'posts_per_page'         => 500,
-				'fields'                 => 'ids',
-				'no_found_rows'          => true,
-				'update_post_meta_cache' => false,
-				'update_post_term_cache' => false,
-			]
-		);
+		// Cached for the duration of the request (the rewrite-batch
+		// REST endpoint calls this on every batch — was H1 in the
+		// 1.0.42 perf audit) and across requests via a transient keyed
+		// by `get_lastpostmodified`, mirroring the `Loader` pattern.
+		// Any block save/trash invalidates naturally because the key
+		// derives from the most-recent modified timestamp.
+		$post_type     = coywolf_custom_blocks()->get_post_type_slug();
+		$last_modified = get_lastpostmodified( 'GMT', $post_type );
+		$cache_key     = 'coywolf_ccb_slugs_v1_' . md5( (string) $last_modified );
 
-		$slugs = [];
-		foreach ( $posts as $post_id ) {
-			$post = get_post( $post_id );
-			if ( $post instanceof \WP_Post && '' !== $post->post_name ) {
-				$slugs[] = $post->post_name;
-			}
+		$cached = wp_cache_get( $cache_key, 'coywolf-custom-blocks' );
+		if ( is_array( $cached ) ) {
+			return $cached;
 		}
 
-		return array_values( array_unique( array_filter( $slugs ) ) );
+		// Query `post_name` directly. The original implementation went
+		// `fields=ids` → `get_post()` per row to read `post_name`,
+		// which hydrated the full WP_Post just to discard everything
+		// else (M2 in the audit). A single column read is sub-ms.
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- aggregate read; result cached above.
+		$rows = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT post_name FROM {$wpdb->posts}
+				WHERE post_type = %s
+				AND post_status IN ( 'publish', 'draft', 'pending', 'private', 'future' )
+				AND post_name != ''
+				LIMIT 500",
+				$post_type
+			)
+		);
+
+		$slugs = is_array( $rows )
+			? array_values( array_unique( array_filter( array_map( 'strval', $rows ) ) ) )
+			: [];
+
+		wp_cache_set( $cache_key, $slugs, 'coywolf-custom-blocks', HOUR_IN_SECONDS );
+		return $slugs;
 	}
 
 	/**
@@ -1633,6 +1655,7 @@ class ImportFromGenesis extends ComponentAbstract {
 			return $result;
 		}
 
+		global $wpdb;
 		foreach ( $ids as $post_id ) {
 			$post_id = (int) $post_id;
 			$post    = get_post( $post_id );
@@ -1648,14 +1671,22 @@ class ImportFromGenesis extends ComponentAbstract {
 				continue;
 			}
 
-			$wp_result = wp_update_post(
-				[
-					'ID'           => $post_id,
-					'post_content' => wp_slash( $rewritten ),
-				],
-				true
+			// Direct UPDATE + cache invalidation instead of
+			// `wp_update_post()` (M3 from the 1.0.42 perf audit). The
+			// content swap is mechanical — a namespace rewrite in
+			// block-comment markers — so revisions, term-cache
+			// rebuilds, sitemap regen, and the rest of the `save_post`
+			// cascade add cost without value. Bypass them.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- intentional bypass; cache invalidated below.
+			$updated = $wpdb->update(
+				$wpdb->posts,
+				[ 'post_content' => $rewritten ],
+				[ 'ID' => $post_id ],
+				[ '%s' ],
+				[ '%d' ]
 			);
-			if ( ! is_wp_error( $wp_result ) ) {
+			if ( false !== $updated ) {
+				clean_post_cache( $post_id );
 				$result['processed']++;
 			}
 		}

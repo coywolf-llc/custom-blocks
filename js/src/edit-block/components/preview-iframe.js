@@ -62,39 +62,47 @@ const PreviewIframe = ( { blockName, attributes = {}, urlQueryArgs = {}, classNa
 
 	useEffect( () => {
 		let cancelled = false;
-		setError( null );
-		setHtml( null );
 
-		// Don't encode `blockName` — its `namespace/slug` form contains a
-		// literal `/` that's part of the WP REST route pattern. Encoding
-		// it to `%2F` makes the router miss the route and return
-		// "No route was found matching the URL and request method".
-		// Both halves of the name already match `[a-z0-9-]+` (validated
-		// by WP and on insert), so passing them raw is safe.
-		const path = '/wp/v2/block-renderer/' + blockName + buildQueryString( {
-			context: 'edit',
-			...urlQueryArgs,
-		} );
+		// Debounce the fetch by 500 ms so typing in a `previewAttributes`
+		// field doesn't fire one render per keystroke. Mirrors the
+		// behaviour of `@wordpress/server-side-render`, which we used
+		// before the iframe refactor (PR #45).
+		const timer = window.setTimeout( () => {
+			setError( null );
+			setHtml( null );
 
-		apiFetch( {
-			path,
-			method: 'POST',
-			data: { attributes },
-		} ).then( ( response ) => {
-			if ( cancelled ) {
-				return;
-			}
-			const rendered = response && 'string' === typeof response.rendered ? response.rendered : '';
-			setHtml( rendered );
-		} ).catch( ( err ) => {
-			if ( cancelled ) {
-				return;
-			}
-			setError( err && err.message ? err.message : __( 'Unknown error.', 'coywolf-custom-blocks' ) );
-		} );
+			// Don't encode `blockName` — its `namespace/slug` form contains a
+			// literal `/` that's part of the WP REST route pattern. Encoding
+			// it to `%2F` makes the router miss the route and return
+			// "No route was found matching the URL and request method".
+			// Both halves of the name already match `[a-z0-9-]+` (validated
+			// by WP and on insert), so passing them raw is safe.
+			const path = '/wp/v2/block-renderer/' + blockName + buildQueryString( {
+				context: 'edit',
+				...urlQueryArgs,
+			} );
+
+			apiFetch( {
+				path,
+				method: 'POST',
+				data: { attributes },
+			} ).then( ( response ) => {
+				if ( cancelled ) {
+					return;
+				}
+				const rendered = response && 'string' === typeof response.rendered ? response.rendered : '';
+				setHtml( rendered );
+			} ).catch( ( err ) => {
+				if ( cancelled ) {
+					return;
+				}
+				setError( err && err.message ? err.message : __( 'Unknown error.', 'coywolf-custom-blocks' ) );
+			} );
+		}, 500 );
 
 		return () => {
 			cancelled = true;
+			window.clearTimeout( timer );
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ blockName, attributesKey, queryKey ] );
@@ -190,8 +198,16 @@ const buildSrcDoc = ( renderedHtml, previewStyles ) => {
 		.map( ( url ) => `<link rel="stylesheet" href="${ escapeAttr( url ) }">` )
 		.join( '' );
 
+	// Escape any literal `</style` inside the inline payload before
+	// interpolating into the `<style>…</style>` block — without this an
+	// attacker who can write to `wp_get_global_stylesheet()` (any user
+	// with `edit_theme_options` on multi-author sites) could break out
+	// of the style element with `</style><script>…` and execute JS in
+	// the same-origin iframe. M1 finding from the 1.0.42 security
+	// audit. Case-insensitive because HTML parses both `</STYLE` and
+	// `</style` as end tags.
 	const inlineStyle = previewStyles.inline
-		? `<style>${ previewStyles.inline }</style>`
+		? `<style>${ escapeStyleEnders( previewStyles.inline ) }</style>`
 		: '';
 
 	// `<base target="_parent">` keeps any anchor clicks from trying to
@@ -246,5 +262,17 @@ const escapeAttr = ( value ) => String( value )
 	.replace( /"/g, '&quot;' )
 	.replace( /</g, '&lt;' )
 	.replace( />/g, '&gt;' );
+
+/**
+ * Defang any literal `</style` (case-insensitive) inside a string so it
+ * can't close the surrounding `<style>` element when interpolated. The
+ * backslash splits the token across the HTML parser's view of the
+ * stylesheet without changing the CSS itself — `</st\yle` is still a
+ * syntactically empty rule that CSS ignores.
+ *
+ * @param {string} value
+ * @return {string}
+ */
+const escapeStyleEnders = ( value ) => String( value ).replace( /<\/style/gi, '<\\/style' );
 
 export default PreviewIframe;
