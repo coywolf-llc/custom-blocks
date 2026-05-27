@@ -18,8 +18,9 @@ import { useBlock, useField } from '../hooks';
  * Always-visible "Custom HTML" panel that lives below the fields grid.
  *
  * Binds to the block's `templateMarkup` storage and exposes it as a plain
- * textarea — the inline replacement for the `{theme}/blocks/block-{name}.php`
- * template file workflow.
+ * textarea. As of 1.0.31 the legacy `{theme}/blocks/block-{slug}.php`
+ * theme-file fallback is gone — this textarea is the only source of
+ * the block's front-end markup.
  *
  * Field references use the `{{field-name}}` syntax; substitution happens
  * server-side in TemplateEditor::render_markup(). The dropdown above the
@@ -152,9 +153,6 @@ const CustomHtmlPanel = () => {
 				} }
 				aria-label={ __( 'Custom HTML for this block', 'coywolf-custom-blocks' ) }
 			/>
-			<p className="text-xs text-gray-600 mt-2">
-				{ __( 'Leave empty to fall back to the theme template file (blocks/block-{slug}.php), if one exists.', 'coywolf-custom-blocks' ) }
-			</p>
 		</div>
 	);
 };
