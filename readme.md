@@ -4,7 +4,7 @@
 
 Build custom Gutenberg blocks in the WordPress admin — no SFTP, no theme files. A privacy-respecting fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) with WP Engine telemetry, the WPE update server, and Genesis Pro upsells removed; ships an inline Custom HTML editor, native JSON export/import, and a one-shot importer for migrating off upstream.
 
-- **Version:** 1.0.33
+- **Version:** 1.0.34
 - **Requires WordPress:** 6.0 or later
 - **Tested up to:** 7.0
 - **Requires PHP:** 7.0 or later
@@ -54,6 +54,9 @@ Yes. The field is intended for use by site administrators (editing `coywolf_cust
 This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) by WP Engine / StudioPress, originally created by Luke Carbis, Ryan Kienstra, Stino11, Rheinard Korf, and the StudioPress / WP Engine team. All credit for the original plugin and its design belongs to them; this fork exists to keep the codebase alive and self-contained for Coywolf sites. Released under the same GPL-2.0-or-later license.
 
 ## Changelog
+
+### 1.0.34
+- Fix both preview tabs broken in 1.0.32 (#43).
 
 ### 1.0.34
 - Fix both preview tabs broken in 1.0.32. Front-end Preview showed "Error loading block: Invalid parameter(s): context" because WP REST validates `context` against an enum of just `['edit']` and rejected the `context=view` override. Editor Preview showed "Block rendered as empty" for blocks whose render lives in Preview HTML but with `showPreview` off, because the renderer kept the same gate it uses for the post editor. Introduce a `ccb_render_mode` URL arg (separate from WP's `context`) the preview tabs send: `editor` walks Preview HTML → Custom HTML without the `showPreview` gate; `view` walks Custom HTML only.
