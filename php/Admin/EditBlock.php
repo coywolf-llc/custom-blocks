@@ -138,6 +138,7 @@ class EditBlock extends ComponentAbstract {
 						'initialEdits'     => null,
 						'isOnboardingPost' => false,
 						'categories'       => get_block_categories( get_post() ),
+						'previewStyles'    => $this->collect_theme_preview_styles(),
 					]
 				)
 			),
@@ -160,48 +161,39 @@ class EditBlock extends ComponentAbstract {
 			$editor_style_config['dependencies'],
 			$editor_style_config['version']
 		);
-
-		$this->enqueue_theme_preview_styles();
 	}
 
 	/**
-	 * Enqueue the theme's editor stylesheets and any theme.json-generated
-	 * global styles so the block builder's Editor Preview / Front-end
-	 * Preview tabs render close to how the block actually appears in the
-	 * post editor and on the live site.
+	 * Gather the active theme's editor stylesheets and theme.json global
+	 * stylesheet so the JS-side preview iframes can inject them.
 	 *
-	 * Both flavours are loaded with a low priority (added last) so theme
-	 * styles cascade over wp-admin chrome where their selectors are
-	 * specific enough — most editor stylesheets are written to be scoped
-	 * under `.editor-styles-wrapper`, which is the wrapper we apply to
-	 * the SSR output inside each preview component.
+	 * Returns an array with two keys:
+	 *  - `urls`   : every URL from `get_editor_stylesheets()` (theme
+	 *               stylesheets registered via `add_editor_style()` plus
+	 *               any core editor CSS that rides along).
+	 *  - `inline` : assembled `wp_get_global_stylesheet()` output for
+	 *               block themes, or an empty string otherwise.
+	 *
+	 * Replaces the 1.0.35 approach that `wp_enqueue_style()`'d these onto
+	 * the block builder page directly — that risked unscoped editor CSS
+	 * leaking into the wp-admin chrome. Now the preview tabs render in
+	 * their own iframes that scope everything internally.
+	 *
+	 * @return array{urls:string[],inline:string}
 	 */
-	protected function enqueue_theme_preview_styles() {
-		// 1. Editor stylesheets registered via `add_editor_style()` and
-		//    the core stylesheets WP injects for the iframe editor.
+	protected function collect_theme_preview_styles() {
 		$urls = function_exists( 'get_editor_stylesheets' ) ? get_editor_stylesheets() : [];
-		foreach ( $urls as $i => $url ) {
-			wp_enqueue_style(
-				'coywolf-ccb-theme-editor-style-' . $i,
-				$url,
-				[],
-				null
-			);
+		$urls = is_array( $urls ) ? array_values( array_filter( array_map( 'strval', $urls ) ) ) : [];
+
+		$inline = '';
+		if ( function_exists( 'wp_get_global_stylesheet' ) ) {
+			$inline = (string) wp_get_global_stylesheet();
 		}
 
-		// 2. theme.json-generated global stylesheet. Inlined because
-		//    `wp_get_global_stylesheet()` returns a CSS string assembled
-		//    from theme.json (no URL). Block themes scope these styles
-		//    under `body`, `.wp-site-blocks`, and similar — they cascade
-		//    cleanly onto `.editor-styles-wrapper` content.
-		if ( function_exists( 'wp_get_global_stylesheet' ) ) {
-			$global_css = wp_get_global_stylesheet();
-			if ( '' !== $global_css ) {
-				wp_register_style( 'coywolf-ccb-theme-global', false, [], null );
-				wp_enqueue_style( 'coywolf-ccb-theme-global' );
-				wp_add_inline_style( 'coywolf-ccb-theme-global', $global_css );
-			}
-		}
+		return [
+			'urls'   => $urls,
+			'inline' => $inline,
+		];
 	}
 
 	/**

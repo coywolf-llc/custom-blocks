@@ -7,12 +7,11 @@ import * as React from 'react';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import ServerSideRender from '@wordpress/server-side-render';
 
 /**
  * Internal dependencies
  */
-import { PreviewNotice } from './';
+import { PreviewIframe, PreviewNotice } from './';
 import { BUILDER_EDITING_MODE } from '../constants';
 import { useBlock, useField } from '../hooks';
 import { Fields } from '../../block-editor/components';
@@ -82,26 +81,18 @@ const EditorPreview = ( { setEditorMode } ) => {
 					// `ccb_render_mode=editor` makes the PHP renderer walk
 					// `previewMarkup → templateMarkup` *without* the
 					// `showPreview` gate — i.e. show whatever's in Preview
-					// HTML if it's set, otherwise the Custom HTML. The
-					// builder's preview tabs need to ignore the toggle
-					// since it controls post-editor behaviour, not the
-					// developer-facing preview tabs themselves.
+					// HTML if it's set, otherwise the Custom HTML.
 					//
-					// Wrapping in `.editor-styles-wrapper` lets the
-					// theme's editor stylesheets (loaded by
-					// EditBlock::enqueue_theme_preview_styles) cascade
-					// onto the rendered block — most editor CSS is
-					// written scoped under that class, so the preview
-					// approximates what the post editor shows.
-					<div className="editor-styles-wrapper mt-6 w-full">
-						<ServerSideRender
-							block={ `coywolf-custom-blocks/${ block.name }` }
-							attributes={ previewAttributes }
-							className="coywolf-custom-blocks-editor__ssr"
-							httpMethod="POST"
-							urlQueryArgs={ { ccb_render_mode: 'editor' } }
-						/>
-					</div>
+					// PreviewIframe renders the result inside an isolated
+					// iframe with the theme's editor stylesheets and
+					// theme.json global styles injected, so theme CSS
+					// can't leak into the wp-admin chrome.
+					<PreviewIframe
+						className="mt-6 w-full"
+						blockName={ `coywolf-custom-blocks/${ block.name }` }
+						attributes={ previewAttributes }
+						urlQueryArgs={ { ccb_render_mode: 'editor' } }
+					/>
 				) : null
 			}
 		</div>

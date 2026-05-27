@@ -9,12 +9,11 @@ import * as React from 'react';
 import { useSelect } from '@wordpress/data';
 import { PostSavedState } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
-import ServerSideRender from '@wordpress/server-side-render';
 
 /**
  * Internal dependencies
  */
-import { PreviewNotice } from './';
+import { PreviewIframe, PreviewNotice } from './';
 import { BUILDER_EDITING_MODE } from '../constants';
 import { useBlock } from '../hooks';
 
@@ -72,20 +71,16 @@ const FrontEndPreview = ( { setEditorMode } ) => {
 		);
 	}
 
-	// Wrapping in `.editor-styles-wrapper` lets the theme's editor
-	// stylesheets (loaded by EditBlock::enqueue_theme_preview_styles)
-	// cascade onto the rendered block — themes that author their
-	// editor.css scoped under that class get a front-end-shaped preview.
+	// PreviewIframe renders the result inside an isolated iframe with
+	// the theme's editor stylesheets and theme.json global styles
+	// injected — theme CSS stays inside the iframe and can't leak into
+	// the wp-admin chrome.
 	return (
-		<div className="editor-styles-wrapper">
-			<ServerSideRender
-				block={ `coywolf-custom-blocks/${ block.name }` }
-				attributes={ previewAttributes }
-				className="coywolf-custom-blocks-editor__ssr"
-				httpMethod="POST"
-				urlQueryArgs={ { ccb_render_mode: 'view' } }
-			/>
-		</div>
+		<PreviewIframe
+			blockName={ `coywolf-custom-blocks/${ block.name }` }
+			attributes={ previewAttributes }
+			urlQueryArgs={ { ccb_render_mode: 'view' } }
+		/>
 	);
 };
 
