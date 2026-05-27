@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.35
+Stable tag: 1.0.36
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.36 =
+* Render preview tabs in iframes; stop enqueueing theme CSS on the builder page (#45).
 
 = 1.0.36 =
 * Move the Editor Preview and Front-end Preview tabs into iframes so the theme's editor stylesheets and `theme.json` global styles can be injected without leaking into the wp-admin chrome. Replaces the 1.0.35 approach that enqueued theme CSS onto the block builder page. Each preview fetches the SSR output via REST, then wraps it in a same-origin `srcdoc` iframe whose `<body class="editor-styles-wrapper">` carries the styles. The iframe auto-sizes to its content.

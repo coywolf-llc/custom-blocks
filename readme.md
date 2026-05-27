@@ -4,7 +4,7 @@
 
 Build custom Gutenberg blocks in the WordPress admin — no SFTP, no theme files. A privacy-respecting fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) with WP Engine telemetry, the WPE update server, and Genesis Pro upsells removed; ships an inline Custom HTML editor, native JSON export/import, and a one-shot importer for migrating off upstream.
 
-- **Version:** 1.0.35
+- **Version:** 1.0.36
 - **Requires WordPress:** 6.0 or later
 - **Tested up to:** 7.0
 - **Requires PHP:** 7.0 or later
@@ -54,6 +54,9 @@ Yes. The field is intended for use by site administrators (editing `coywolf_cust
 This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) by WP Engine / StudioPress, originally created by Luke Carbis, Ryan Kienstra, Stino11, Rheinard Korf, and the StudioPress / WP Engine team. All credit for the original plugin and its design belongs to them; this fork exists to keep the codebase alive and self-contained for Coywolf sites. Released under the same GPL-2.0-or-later license.
 
 ## Changelog
+
+### 1.0.36
+- Render preview tabs in iframes; stop enqueueing theme CSS on the builder page (#45).
 
 ### 1.0.36
 - Move the Editor Preview and Front-end Preview tabs into iframes so the theme's editor stylesheets and `theme.json` global styles can be injected without leaking into the wp-admin chrome. Replaces the 1.0.35 approach that enqueued theme CSS onto the block builder page. Each preview fetches the SSR output via REST, then wraps it in a same-origin `srcdoc` iframe whose `<body class="editor-styles-wrapper">` carries the styles. The iframe auto-sizes to its content.
