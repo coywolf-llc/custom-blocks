@@ -21,7 +21,8 @@ front-end markup in the in-admin Custom HTML field (no
 * Inline Custom HTML editor — a textarea below the fields grid on the block
   editor screen. The HTML is saved on the block's post record and renders
   verbatim. `<script>`, `<iframe>`, and inline event handlers pass through.
-  Theme template files continue to work as a fallback.
+  Custom HTML and Preview HTML are the only render sources (no theme-file
+  fallback).
 * No external server calls, no analytics. The WP Engine plugin update
   server integration, the dormant Google Analytics client, and the Genesis
   Pro upgrade nag have all been removed. The only outbound request this
@@ -102,6 +103,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.31 =
+* Drop the theme-template-file fallback. Block rendering now reads only Custom HTML / Preview HTML from the Builder page; the `blocks/block-{slug}.php`, `blocks/preview-{slug}.php`, `blocks/css/block-{slug}.css`, and `blocks/blocks.css` lookups are gone. The "Template:" badge on the Editor Preview / Front-end Preview pages, the "Template" column on the Custom Blocks list table, the `template-file` REST route, and the JS `useTemplate` hook + `TemplateFile` component are all removed. Genesis-import-time template translation still works (one-shot read of the theme file at import).
 
 = 1.0.30 =
 * Add a progress bar to the standalone post-content rewrite tool (#39).

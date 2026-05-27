@@ -9,7 +9,6 @@
 
 namespace Coywolf\CustomBlocks\Admin;
 
-use WP_Error;
 use WP_Post;
 use Coywolf\CustomBlocks\Blocks\Block;
 use Coywolf\CustomBlocks\ComponentAbstract;
@@ -49,7 +48,6 @@ class EditBlock extends ComponentAbstract {
 		add_action( 'admin_footer', [ $this, 'enqueue_assets' ] );
 		add_filter( 'admin_footer_text', [ $this, 'conditionally_prevent_footer_text' ] );
 		add_filter( 'update_footer', [ $this, 'conditionally_prevent_update_text' ], 11 );
-		add_action( 'rest_api_init', [ $this, 'register_route_template_file' ] );
 	}
 
 	/**
@@ -279,87 +277,4 @@ class EditBlock extends ComponentAbstract {
 		return $text;
 	}
 
-	/**
-	 * Registers a route to get the template file.
-	 */
-	public function register_route_template_file() {
-		register_rest_route(
-			coywolf_custom_blocks()->get_slug(),
-			'template-file',
-			[
-				'callback'            => [ $this, 'get_template_file_response' ],
-				'permission_callback' => function () {
-					return current_user_can( self::CABAPILITY );
-				},
-				'args'                => [
-					'blockName' => [
-						'description' => __( 'Block name', 'coywolf-custom-blocks' ),
-						'type'        => 'string',
-					],
-				],
-			]
-		);
-	}
-
-	/**
-	 * Gets the response for the `template-file` endpoint.
-	 *
-	 * @param array $data Data sent in the GET request.
-	 * @return WP_REST_Response|WP_Error Response to the request.
-	 */
-	public function get_template_file_response( $data ) {
-		if ( empty( $data['blockName'] ) ) {
-			return new WP_Error(
-				'no_block_name',
-				__( 'Please pass a block name', 'coywolf-custom-blocks' )
-			);
-		}
-
-		// `blockName` flows into theme-file path strings via
-		// get_template_locations(). Constrain to the same character set
-		// the post-name slug allows so a value like `../../../wp-config`
-		// can't be used to oracle `file_exists()` outside the theme's
-		// `blocks/` directory. The endpoint is reachable by anyone with
-		// `edit_posts`, so this needs a strict allowlist.
-		if ( ! is_string( $data['blockName'] ) || ! preg_match( '/^[a-z0-9-]+$/', $data['blockName'] ) ) {
-			return new WP_Error(
-				'invalid_block_name',
-				__( 'Invalid block name.', 'coywolf-custom-blocks' ),
-				[ 'status' => 400 ]
-			);
-		}
-
-		return rest_ensure_response( $this->get_template_file( $data['blockName'] ) );
-	}
-
-
-	/**
-	 * Gets the template path and whether it exists.
-	 *
-	 * @param string $block_name The block name (slug).
-	 * @return array Template file data.
-	 */
-	public function get_template_file( $block_name ) {
-		$locations     = coywolf_custom_blocks()->get_template_locations( $block_name, 'block' );
-		$template_path = coywolf_custom_blocks()->locate_template( $locations );
-
-		$template_exists = ! empty( $template_path );
-		if ( ! $template_exists ) {
-			$template_path = get_stylesheet_directory() . "/blocks/block-{$block_name}.php";
-		}
-
-		$stylesheet_locations = coywolf_custom_blocks()->get_stylesheet_locations( $block_name );
-		$stylesheet_path      = coywolf_custom_blocks()->locate_template( $stylesheet_locations );
-		$stylesheet_url       = coywolf_custom_blocks()->get_url_from_path( $stylesheet_path );
-
-		return [
-			'templateExists' => $template_exists,
-			'templatePath'   => str_replace(
-				WP_CONTENT_DIR,
-				basename( WP_CONTENT_DIR ),
-				$template_path
-			),
-			'cssUrl'         => $stylesheet_url,
-		];
-	}
 }

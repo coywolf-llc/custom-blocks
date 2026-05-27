@@ -51,7 +51,7 @@ import {
 	NO_FIELD_SELECTED,
 } from '../constants';
 import { DEFAULT_LOCATION } from '../../common/constants';
-import { useBlock, useTemplate } from '../hooks';
+import { useBlock } from '../hooks';
 
 /**
  * @callback onErrorType Handler for errors.
@@ -113,7 +113,6 @@ import { useBlock, useTemplate } from '../hooks';
  */
 const Editor = ( { onError, postId, postType, settings } ) => {
 	const { block } = useBlock();
-	const { template } = useTemplate();
 	const post = useSelect(
 		( select ) => select( 'core' ).getEntityRecord( 'postType', postType, postId ),
 		[ postId, postType ]
@@ -131,11 +130,7 @@ const Editor = ( { onError, postId, postType, settings } ) => {
 	return (
 		<StrictMode>
 			<div className="h-screen flex flex-col items-center text-black">
-				{ template?.cssUrl ? <link rel="stylesheet" href={ template.cssUrl } type="text/css" /> : null }
-				{ ! template?.cssUrl && Boolean( block.templateCss )
-					? <style>{ block.templateCss }</style>
-					: null
-				}
+				{ Boolean( block.templateCss ) ? <style>{ block.templateCss }</style> : null }
 				<BrowserURL />
 				<UnsavedChangesWarning />
 				<SlotFillProvider>

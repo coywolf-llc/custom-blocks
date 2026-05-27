@@ -14,7 +14,7 @@ Build custom Gutenberg blocks in the WordPress admin — no SFTP, no theme files
 
 Coywolf Custom Blocks lets you define your own Gutenberg blocks (fields + markup) entirely in the WordPress admin. Each block lives as a `coywolf_custom_block` post: configure its fields in the editor, write its front-end markup in the in-admin Custom HTML field (no `blocks/block-{slug}.php` theme file required), and it renders site-wide.
 
-- **Inline Custom HTML editor.** Block markup is authored as a textarea below the fields grid on the block editor screen. The HTML is saved on the block's post record and renders verbatim — `<script>`, `<iframe>`, inline event handlers all pass through. Theme template files at `{theme}/blocks/block-{slug}.php` continue to work as a fallback when the field is empty.
+- **Inline Custom HTML editor.** Block markup is authored as a textarea below the fields grid on the block editor screen. The HTML is saved on the block's post record and renders verbatim — `<script>`, `<iframe>`, inline event handlers all pass through. As of 1.0.31, the legacy `{theme}/blocks/block-{slug}.php` fallback is gone — the Custom HTML and Preview HTML panels on the Builder page are the only render sources.
 - **No external server calls, no analytics.** The WP Engine plugin update server integration, the dormant Google Analytics client (`GAClient.js` / `window.GcbAnalytics`), and the Genesis Pro upgrade nag have all been removed. The only outbound request this plugin ever makes is `GET api.github.com/repos/coywolf-llc/custom-blocks/releases/latest` for update checks.
 - **Self-updates from GitHub Releases.** Plugin updates appear on Dashboard → Updates and install with the standard one-click flow. Downloads are restricted to a GitHub-owned host allowlist.
 - **Renamespaced to coexist with upstream.** Every identifier that would collide with the original Genesis Custom Blocks plugin has been renamed (PHP namespace `Coywolf\CustomBlocks`, post type `coywolf_custom_block`, block prefix `coywolf-custom-blocks/`, text domain, options, hooks, REST routes, script/style handles, JS globals `ccbEditor` / `ccbBlocks` / `coywolfCustomBlocks`). Both plugins can be active simultaneously.
@@ -54,6 +54,9 @@ Yes. The field is intended for use by site administrators (editing `coywolf_cust
 This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) by WP Engine / StudioPress, originally created by Luke Carbis, Ryan Kienstra, Stino11, Rheinard Korf, and the StudioPress / WP Engine team. All credit for the original plugin and its design belongs to them; this fork exists to keep the codebase alive and self-contained for Coywolf sites. Released under the same GPL-2.0-or-later license.
 
 ## Changelog
+
+### 1.0.31
+- Drop the theme-template-file fallback. Block rendering now reads only Custom HTML / Preview HTML from the Builder page; the `blocks/block-{slug}.php`, `blocks/preview-{slug}.php`, `blocks/css/block-{slug}.css`, and `blocks/blocks.css` lookups are gone. The "Template:" badge on the Editor Preview / Front-end Preview pages, the "Template" column on the Custom Blocks list table, the `template-file` REST route, and the JS `useTemplate` hook + `TemplateFile` component are all removed. Genesis-import-time template translation still works (one-shot read of the theme file at import).
 
 ### 1.0.30
 - Add a progress bar to the standalone post-content rewrite tool (#39).
