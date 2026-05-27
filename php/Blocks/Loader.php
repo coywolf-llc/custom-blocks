@@ -235,13 +235,6 @@ class Loader extends ComponentAbstract {
 			$css_config['version']
 		);
 
-		$block_names = wp_list_pluck( $this->blocks, 'name' );
-
-		foreach ( $block_names as $block_name ) {
-			$this->enqueue_block_styles( $block_name, [ 'preview', 'block' ] );
-		}
-
-		$this->enqueue_global_styles();
 	}
 
 	/**
@@ -406,12 +399,6 @@ class Loader extends ComponentAbstract {
 					$attributes[ $attribute_name ] = $schema->settings['default'];
 				}
 			}
-
-			$did_enqueue_styles = $this->enqueue_block_styles( $block->name, 'block' );
-
-			// The wp_enqueue_style function handles duplicates, so we don't need to worry about multiple blocks
-			// loading the global styles more than once.
-			$this->enqueue_global_styles();
 		}
 
 		/**
@@ -453,76 +440,19 @@ class Loader extends ComponentAbstract {
 		ob_start();
 		$this->block_template( $block->name, $type );
 
-		if ( empty( $did_enqueue_styles ) ) {
-			$this->template_editor->render_css(
-				isset( $this->blocks[ "coywolf-custom-blocks/{$block->name}" ]['templateCss'] )
-					? $this->blocks[ "coywolf-custom-blocks/{$block->name}" ]['templateCss']
-					: '',
-				$block->name
-			);
-		}
+		// Render legacy `templateCss` if present — the Template Editor UI
+		// that wrote it was removed in 1.0.23 but stored data is still
+		// honoured so existing blocks keep their styles. Authors who
+		// want block CSS now embed a `<style>` block inside the Custom
+		// HTML panel itself.
+		$this->template_editor->render_css(
+			isset( $this->blocks[ "coywolf-custom-blocks/{$block->name}" ]['templateCss'] )
+				? $this->blocks[ "coywolf-custom-blocks/{$block->name}" ]['templateCss']
+				: '',
+			$block->name
+		);
 
 		return ob_get_clean();
-	}
-
-	/**
-	 * Enqueues styles for the block.
-	 *
-	 * @param string       $name The name of the block (slug as defined in UI).
-	 * @param string|array $type The type of template to load.
-	 * @return bool Whether this found styles and enqueued them.
-	 */
-	protected function enqueue_block_styles( $name, $type = 'block' ) {
-		$locations = [];
-		$types     = (array) $type;
-
-		foreach ( $types as $type ) {
-			$locations = array_merge(
-				$locations,
-				coywolf_custom_blocks()->get_stylesheet_locations( $name, $type )
-			);
-		}
-
-		$stylesheet_path = coywolf_custom_blocks()->locate_template( $locations );
-		$stylesheet_url  = coywolf_custom_blocks()->get_url_from_path( $stylesheet_path );
-
-		if ( ! empty( $stylesheet_url ) ) {
-			wp_enqueue_style(
-				"coywolf-custom-blocks__block-{$name}",
-				$stylesheet_url,
-				[],
-				wp_get_theme()->get( 'Version' )
-			);
-
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Enqueues global block styles.
-	 */
-	protected function enqueue_global_styles() {
-		$locations = [
-			'blocks/css/blocks.css',
-			'blocks/blocks.css',
-		];
-
-		$stylesheet_path = coywolf_custom_blocks()->locate_template( $locations );
-		$stylesheet_url  = coywolf_custom_blocks()->get_url_from_path( $stylesheet_path );
-
-		/**
-		 * Enqueue the stylesheet, if it exists.
-		 */
-		if ( ! empty( $stylesheet_url ) ) {
-			wp_enqueue_style(
-				'coywolf-custom-blocks__global-styles',
-				$stylesheet_url,
-				[],
-				filemtime( $stylesheet_path )
-			);
-		}
 	}
 
 	/**
@@ -532,14 +462,6 @@ class Loader extends ComponentAbstract {
 	 * @param string|array $type The type of template to load.
 	 */
 	protected function block_template( $name, $type = 'block' ) {
-		// Loading async it might not come from a query, this breaks load_template().
-		global $wp_query;
-
-		// So lets fix it.
-		if ( empty( $wp_query ) ) {
-			$wp_query = new WP_Query(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		}
-
 		$types        = (array) $type;
 		$block_config = isset( $this->blocks[ "coywolf-custom-blocks/{$name}" ] )
 			? $this->blocks[ "coywolf-custom-blocks/{$name}" ]
@@ -547,20 +469,16 @@ class Loader extends ComponentAbstract {
 
 		// Walk each requested type in priority order. For the editor
 		// preview path we get ['preview', 'block'] from
-		// render_block_template, so the preview sources are consulted
-		// first and we fall through to the regular block sources only
-		// if no preview is set. For frontend rendering we get just
-		// ['block'] and preview sources are skipped entirely.
+		// render_block_template, so the preview source is consulted
+		// first and falls through to the regular block source only when
+		// no preview is set. For frontend rendering we get just
+		// ['block'] and the preview source is skipped entirely.
 		//
-		// Within each type, the DB-stored markup (entered via the
-		// in-admin Custom HTML / Preview HTML panels) wins over the
-		// matching theme file (`blocks/block-{slug}.php` /
-		// `blocks/preview-{slug}.php`). That preserves the
-		// no-SFTP-required v1.0.3 workflow.
-		$last_templates_checked = [];
+		// As of 1.0.31, the theme-file fallback (`blocks/block-{slug}.php`,
+		// `blocks/preview-{slug}.php`) is gone. The Custom HTML and
+		// Preview HTML panels on the Builder page are the only render
+		// sources — keeping block authoring fully inside wp-admin.
 		foreach ( $types as $current_type ) {
-
-			// 1. DB-stored markup for this type.
 			$db_markup = '';
 			if ( 'preview' === $current_type
 				&& ! empty( $block_config['showPreview'] )
@@ -574,36 +492,21 @@ class Loader extends ComponentAbstract {
 				$this->template_editor->render_markup( $db_markup );
 				return;
 			}
-
-			// 2. Theme file fallback for this type.
-			$templates              = coywolf_custom_blocks()->get_template_locations( $name, $current_type );
-			$last_templates_checked = $templates;
-			$located                = coywolf_custom_blocks()->locate_template( $templates );
-			if ( ! empty( $located ) ) {
-				/**
-				 * Allows overriding the theme template.
-				 *
-				 * @param string $located The located template.
-				 */
-				$theme_template = apply_filters( 'coywolf_custom_blocks_override_theme_template', $located );
-
-				// This is not a load once template, so require_once is false.
-				load_template( $theme_template, false );
-				return;
-			}
 		}
 
-		if ( ! current_user_can( 'edit_posts' ) || empty( $last_templates_checked[0] ) ) {
+		// Nothing to render — the block has no Custom HTML and (when
+		// previewed in the editor) no Preview HTML either. Surface a
+		// hint to logged-in editors so they aren't left wondering why
+		// the block looks blank; visitors see nothing.
+		if ( ! current_user_can( 'edit_posts' ) ) {
 			return;
 		}
-
-		// Only show the template not found notice on the frontend if WP_DEBUG is enabled.
 		if ( is_admin() || ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
 			printf(
 				'<div class="notice notice-warning">%s</div>',
 				wp_kses_post(
-					/* translators: %1$s: file path */
-					sprintf( __( 'No Template Editor markup or template file was found: %1$s', 'coywolf-custom-blocks' ), '<code>' . esc_html( $last_templates_checked[0] ) . '</code>' )
+					/* translators: %s: block name */
+					sprintf( __( 'No Custom HTML is set for the %s block. Edit the block in Custom Blocks → Builder to add some.', 'coywolf-custom-blocks' ), '<code>' . esc_html( $name ) . '</code>' )
 				)
 			);
 		}

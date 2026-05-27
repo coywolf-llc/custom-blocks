@@ -48,7 +48,6 @@ class BlockPost extends ComponentAbstract {
 	public function register_hooks() {
 		add_action( 'init', [ $this, 'register_post_type' ] );
 		add_action( 'plugins_loaded', [ $this, 'add_caps' ] );
-		add_action( 'edit_form_before_permalink', [ $this, 'template_location' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 		add_action( 'init', [ $this, 'register_controls' ] );
 		add_filter( 'coywolf_custom_blocks_field_value', [ $this, 'get_field_value' ], 10, 3 );
@@ -268,44 +267,6 @@ class BlockPost extends ComponentAbstract {
 	}
 
 	/**
-	 * Display the template location below the title.
-	 */
-	public function template_location() {
-		$post   = get_post();
-		$screen = get_current_screen();
-
-		if ( ! is_object( $screen ) || $this->slug !== $screen->post_type ) {
-			return;
-		}
-
-		if ( ! isset( $post->post_name ) || empty( $post->post_name ) ) {
-			return;
-		}
-
-		$locations = coywolf_custom_blocks()->get_template_locations( $post->post_name, 'block' );
-		$template  = coywolf_custom_blocks()->locate_template( $locations, '', true );
-
-		if ( ! $template ) {
-			return;
-		}
-
-		// Formatting to make the template paths easier to understand.
-		$template_short  = str_replace( WP_CONTENT_DIR, basename( WP_CONTENT_DIR ), $template );
-		$template_parts  = explode( '/', $template_short );
-		$filename        = array_pop( $template_parts );
-		$template_breaks = '/' . trailingslashit( implode( '/', $template_parts ) );
-
-		if ( $template ) {
-			?>
-			<div id="edit-slug-box">
-				<strong><?php esc_html_e( 'Template:', 'coywolf-custom-blocks' ); ?></strong>
-				<?php echo esc_html( $template_breaks ); ?><strong><?php echo esc_html( $filename ); ?></strong>
-			</div>
-			<?php
-		}
-	}
-
-	/**
 	 * Change the columns in the Custom Blocks list table
 	 *
 	 * @param array $columns An array of column name ⇒ label. The name is passed to functions to identify the column.
@@ -316,7 +277,6 @@ class BlockPost extends ComponentAbstract {
 		$new_columns = [
 			'cb'       => $columns['cb'],
 			'title'    => $columns['title'],
-			'template' => __( 'Template', 'coywolf-custom-blocks' ),
 			'category' => __( 'Category', 'coywolf-custom-blocks' ),
 			'keywords' => __( 'Keywords', 'coywolf-custom-blocks' ),
 			'posts'    => __( 'Posts', 'coywolf-custom-blocks' ),
@@ -334,30 +294,6 @@ class BlockPost extends ComponentAbstract {
 	 * @return void
 	 */
 	public function list_table_content( $column, $post_id ) {
-		if ( 'template' === $column ) {
-			$block     = new Block( $post_id );
-			$locations = coywolf_custom_blocks()->get_template_locations( $block->name, 'block' );
-			$template  = coywolf_custom_blocks()->locate_template( $locations, '', true );
-
-			if ( $template ) {
-				// Formatting to make the template path easier to understand.
-				$template_short  = str_replace( WP_CONTENT_DIR . '/themes/', '', $template );
-				$template_parts  = explode( '/', $template_short );
-				$template_breaks = implode( '/', $template_parts );
-				echo wp_kses(
-					'<code>' . $template_breaks . '</code>',
-					[
-						'code' => [],
-						'wbr'  => [],
-					]
-				);
-			} elseif ( ! empty( $block->template_markup ) ) {
-				esc_html_e( 'Template Editor markup found', 'coywolf-custom-blocks' );
-			} else {
-				esc_html_e( 'No Template Editor markup or template found', 'coywolf-custom-blocks' );
-			}
-		}
-
 		if ( 'keywords' === $column ) {
 			$block = new Block( $post_id );
 			echo esc_html( implode( ', ', $block->keywords ) );
