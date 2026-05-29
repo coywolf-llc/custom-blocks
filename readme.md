@@ -4,7 +4,7 @@
 
 Easily create and use custom blocks in WordPress. Export the custom blocks you create and import them on other sites, or share them with others. A privacy-respecting fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) with WP Engine telemetry, the WPE update server, and Genesis Pro upsells removed; ships an inline Custom HTML editor, native JSON export/import, and a one-shot importer for migrating off upstream.
 
-- **Version:** 1.0.44
+- **Version:** 1.0.45
 - **Requires WordPress:** 6.0 or later
 - **Tested up to:** 7.0
 - **Requires PHP:** 7.0 or later
@@ -54,6 +54,9 @@ Yes. The field is intended for use by site administrators (editing `coywolf_cust
 This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) by WP Engine / StudioPress, originally created by Luke Carbis, Ryan Kienstra, Stino11, Rheinard Korf, and the StudioPress / WP Engine team. All credit for the original plugin and its design belongs to them; this fork exists to keep the codebase alive and self-contained for Coywolf sites. Released under the same GPL-2.0-or-later license.
 
 ## Changelog
+
+### 1.0.45
+- Third audit cleanup: uninstall transients, template-cache GC, dead admin.css, list-table decode (#54).
 
 ### 1.0.45
 - Audit cleanup (no exploitable issues found in the third security + performance pass): fix `uninstall.php` deleting the wrong GitHub-release transient keys (they were orphaned on uninstall); add opportunistic GC so the compiled PHP-template cache (`uploads/coywolf-custom-blocks/templates/tpl-*.php`) prunes files older than 30 days on each cache-miss write instead of growing forever; remove the dead `css/admin.css` that enqueued on every wp-admin page to style a Pro menu item that no longer exists; decode each All Blocks list-table row's config once instead of four times.

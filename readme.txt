@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.44
+Stable tag: 1.0.45
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.45 =
+* Third audit cleanup: uninstall transients, template-cache GC, dead admin.css, list-table decode (#54).
 
 = 1.0.45 =
 * Audit cleanup (no exploitable issues found in the third security + performance pass): fix `uninstall.php` deleting the wrong GitHub-release transient keys (they were orphaned on uninstall); add opportunistic GC so the compiled PHP-template cache (`uploads/coywolf-custom-blocks/templates/tpl-*.php`) prunes files older than 30 days on each cache-miss write instead of growing forever; remove the dead `css/admin.css` that enqueued on every wp-admin page to style a Pro menu item that no longer exists; decode each All Blocks list-table row's config once instead of four times.
