@@ -294,24 +294,50 @@ class BlockPost extends ComponentAbstract {
 	 * @return void
 	 */
 	public function list_table_content( $column, $post_id ) {
+		// WordPress fires this once per column, so a row with the
+		// keywords/category/posts/pages columns triggers four separate
+		// calls for the same post. Memoise the Block per post id so its
+		// post_content is JSON-decoded once per row instead of four
+		// times.
+		$block = $this->get_block_for_row( $post_id );
+
 		if ( 'keywords' === $column ) {
-			$block = new Block( $post_id );
 			echo esc_html( implode( ', ', $block->keywords ) );
 		}
 		if ( 'category' === $column ) {
-			$block = new Block( $post_id );
 			echo esc_html( $block->category['title'] );
 		}
 
 		if ( 'posts' === $column ) {
-			$block = new Block( $post_id );
 			echo $this->render_usage_cell( $block->name, 'post' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes
 		}
 
 		if ( 'pages' === $column ) {
-			$block = new Block( $post_id );
 			echo $this->render_usage_cell( $block->name, 'page' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes
 		}
+	}
+
+	/**
+	 * Per-request cache of `Block` objects keyed by post id, so the
+	 * list table decodes each row's post_content once across its four
+	 * custom-column callbacks.
+	 *
+	 * @var array<int,Block>
+	 */
+	protected $row_blocks = [];
+
+	/**
+	 * Get (and memoise) the Block for a list-table row.
+	 *
+	 * @param int $post_id The block post id.
+	 * @return Block
+	 */
+	protected function get_block_for_row( $post_id ) {
+		$post_id = (int) $post_id;
+		if ( ! isset( $this->row_blocks[ $post_id ] ) ) {
+			$this->row_blocks[ $post_id ] = new Block( $post_id );
+		}
+		return $this->row_blocks[ $post_id ];
 	}
 
 	/**

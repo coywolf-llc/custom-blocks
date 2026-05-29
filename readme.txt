@@ -104,6 +104,9 @@ the same GPL-2.0-or-later license.
 
 == Changelog ==
 
+= 1.0.45 =
+* Audit cleanup (no exploitable issues found in the third security + performance pass): fix `uninstall.php` deleting the wrong GitHub-release transient keys (they were orphaned on uninstall); add opportunistic GC so the compiled PHP-template cache (`uploads/coywolf-custom-blocks/templates/tpl-*.php`) prunes files older than 30 days on each cache-miss write instead of growing forever; remove the dead `css/admin.css` that enqueued on every wp-admin page to style a Pro menu item that no longer exists; decode each All Blocks list-table row's config once instead of four times.
+
 = 1.0.44 =
 * Reword the plugin description (#53).
 

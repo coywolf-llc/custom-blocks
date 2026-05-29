@@ -76,22 +76,12 @@ class Admin extends ComponentAbstract {
 
 	/**
 	 * Register any hooks that this component needs.
-	 */
-	public function register_hooks() {
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
-	}
-
-	/**
-	 * Enqueue scripts and styles used globally in the WP Admin.
 	 *
-	 * @return void
+	 * Intentionally empty: the only thing this component used to do was
+	 * enqueue `css/admin.css` on every wp-admin page, but its sole rule
+	 * styled a `coywolf-custom-blocks-pro` admin-menu item that no
+	 * longer exists (the Genesis Pro upsell was removed during the
+	 * fork). The dead stylesheet and its site-wide enqueue are gone.
 	 */
-	public function enqueue_scripts() {
-		wp_enqueue_style(
-			'coywolf-custom-blocks',
-			$this->plugin->get_url( 'css/admin.css' ),
-			[],
-			$this->plugin->get_version()
-		);
-	}
+	public function register_hooks() {}
 }
