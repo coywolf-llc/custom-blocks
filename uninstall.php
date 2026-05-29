@@ -70,10 +70,15 @@ foreach ( $options as $option_name ) {
 
 /**
  * Plugin transients (GitHub updater cache + the legacy welcome-nag flag).
+ *
+ * The site-transient names must match `GitHub_Updater::TRANSIENT_KEY`
+ * (`coywolf_custom_blocks_gh_release` + `_neg`). They previously used a
+ * `coywolf_ccb_gh_release` prefix that the updater never wrote, so the
+ * real release-cache transients were orphaned on uninstall.
  */
 delete_transient( 'coywolf_custom_blocks_show_welcome' );
-delete_site_transient( 'coywolf_ccb_gh_release' );
-delete_site_transient( 'coywolf_ccb_gh_release_neg' );
+delete_site_transient( 'coywolf_custom_blocks_gh_release' );
+delete_site_transient( 'coywolf_custom_blocks_gh_release_neg' );
 
 /**
  * Compiled-template cache directory.

@@ -118,9 +118,9 @@ class TemplateEditor {
 	 * Caching: filename is a hash of the rendered content. Two
 	 * identical templates resolve to the same file; modifying a
 	 * block's Custom HTML produces a new hash and a new file. Old
-	 * cached files survive across edits because cleaning them up
-	 * would require tracking the prior hash; the cache directory is
-	 * cleared on plugin uninstall (uninstall.php).
+	 * cached files are reaped opportunistically by
+	 * `maybe_prune_cache()` on the next cache-miss write (and the whole
+	 * directory is cleared on plugin uninstall).
 	 *
 	 * Failure modes: if the cache directory can't be created or the
 	 * file can't be written (permission errors, disk full,
@@ -141,6 +141,12 @@ class TemplateEditor {
 		$file = $cache_dir . '/tpl-' . $hash . '.php';
 
 		if ( ! file_exists( $file ) ) {
+			// A cache miss is the only moment the directory grows, so
+			// it's also where we prune stale files — keeps the dir from
+			// accumulating one file per unique render over a site's
+			// lifetime without needing a cron event.
+			$this->maybe_prune_cache( $cache_dir );
+
 			// Use the wp-filesystem when possible so hosts that
 			// enforce certain ownership/permissions on PHP-written
 			// files still see writes succeed; fall back to a plain
@@ -158,6 +164,48 @@ class TemplateEditor {
 			return '<!-- Coywolf Custom Blocks: PHP error in Custom HTML — ' . esc_html( $err->getMessage() ) . ' -->';
 		}
 		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Number of days a compiled `tpl-*.php` file may go untouched before
+	 * `maybe_prune_cache()` reaps it.
+	 *
+	 * @var int
+	 */
+	const CACHE_TTL_DAYS = 30;
+
+	/**
+	 * Delete compiled template files that haven't been modified in the
+	 * last {@see CACHE_TTL_DAYS} days.
+	 *
+	 * Runs at most once per request (guarded by a static flag) and only
+	 * from a cache-miss write path, so the cost — one `glob()` plus a
+	 * handful of `unlink()`s — is amortised against the rarer event of a
+	 * never-before-seen render. If a still-used template happens to be
+	 * older than the TTL it's reaped and simply rewritten on its next
+	 * render (a one-time cache miss), so correctness is unaffected.
+	 *
+	 * @param string $cache_dir Absolute path returned by get_template_cache_dir().
+	 */
+	protected function maybe_prune_cache( $cache_dir ) {
+		static $pruned = false;
+		if ( $pruned ) {
+			return;
+		}
+		$pruned = true;
+
+		$files = glob( $cache_dir . '/tpl-*.php' );
+		if ( empty( $files ) ) {
+			return;
+		}
+
+		$cutoff = time() - ( self::CACHE_TTL_DAYS * DAY_IN_SECONDS );
+		foreach ( $files as $file ) {
+			$mtime = @filemtime( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a racing unlink is fine.
+			if ( false !== $mtime && $mtime < $cutoff ) {
+				@unlink( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+			}
+		}
 	}
 
 	/**

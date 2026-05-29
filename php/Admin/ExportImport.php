@@ -10,10 +10,10 @@
  * round-trips cleanly: a file produced by Export can be uploaded back
  * via Import on another site without conversion.
  *
- * Imports reuse the JSON envelope shape — keying by block namespace —
- * so the legacy Tools → Import flow (php/Admin/Import.php) and this
- * page accept the same files. Existing blocks of the same slug are
- * replaced; never silently duplicated.
+ * Imports accept the same envelope shape. When an uploaded file
+ * contains a slug that already exists on this site, the importer asks
+ * whether to replace the existing block or create a renamed copy
+ * (see render_confirm_form()); nothing is ever silently overwritten.
  *
  * @package   Coywolf\CustomBlocks
  * @copyright Copyright(c) 2026, Coywolf LLC
