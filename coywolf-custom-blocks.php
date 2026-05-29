@@ -8,7 +8,7 @@
  *
  * Plugin Name: Coywolf Custom Blocks
  * Plugin URI: https://github.com/coywolf-llc/custom-blocks
- * Description: The easy way to build custom blocks for Gutenberg. A fork of Genesis Custom Blocks by WP Engine / StudioPress, with telemetry and external update servers removed.
+ * Description: Easily create and use custom blocks in WordPress. Export the custom blocks you create and import them on other sites, or share them with others.
  * Version: 1.0.43
  * Author: Coywolf
  * Author URI: https://coywolf.com

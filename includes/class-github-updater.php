@@ -336,7 +336,7 @@ final class Coywolf_Custom_Blocks_GitHub_Updater {
 		$info->download_link = $this->pick_package_url( $release );
 		$info->last_updated  = isset( $release['published_at'] ) ? $release['published_at'] : '';
 		$info->sections      = array(
-			'description' => 'Coywolf Custom Blocks — a fork of Genesis Custom Blocks with telemetry and external update servers removed.',
+			'description' => 'Easily create and use custom blocks in WordPress. Export the custom blocks you create and import them on other sites, or share them with others.',
 			'changelog'   => $this->render_changelog( isset( $release['body'] ) ? $release['body'] : '' ),
 		);
 		$info->icons         = $this->icon_urls();

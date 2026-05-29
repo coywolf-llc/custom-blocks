@@ -8,7 +8,7 @@ Stable tag: 1.0.43
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Build custom Gutenberg blocks in the WordPress admin — no SFTP, no theme files. Privacy-respecting fork of Genesis Custom Blocks.
+Easily create and use custom blocks in WordPress. Export the custom blocks you create and import them on other sites, or share them with others.
 
 == Description ==
 
@@ -103,6 +103,9 @@ the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
 == Changelog ==
+
+= 1.0.44 =
+* Reword the plugin description to lead with creating, using, exporting, importing, and sharing custom blocks instead of the fork/telemetry framing.
 
 = 1.0.43 =
 * Security + performance audit follow-up (#52).
