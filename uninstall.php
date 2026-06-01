@@ -69,16 +69,19 @@ foreach ( $options as $option_name ) {
 }
 
 /**
- * Plugin transients (GitHub updater cache + the legacy welcome-nag flag).
- *
- * The site-transient names must match `GitHub_Updater::TRANSIENT_KEY`
- * (`coywolf_custom_blocks_gh_release` + `_neg`). They previously used a
- * `coywolf_ccb_gh_release` prefix that the updater never wrote, so the
- * real release-cache transients were orphaned on uninstall.
+ * Legacy welcome-nag transient.
  */
 delete_transient( 'coywolf_custom_blocks_show_welcome' );
+/* wporg-strip:start — GitHub self-updater cache (removed from the WordPress.org build) */
+/*
+ * GitHub-updater release cache. The site-transient names match the updater's
+ * TRANSIENT_KEY (`coywolf_custom_blocks_gh_release` + `_neg`). They previously
+ * used a `coywolf_ccb_gh_release` prefix that the updater never wrote, so the
+ * real release-cache transients were orphaned on uninstall.
+ */
 delete_site_transient( 'coywolf_custom_blocks_gh_release' );
 delete_site_transient( 'coywolf_custom_blocks_gh_release_neg' );
+/* wporg-strip:end */
 
 /**
  * Compiled-template cache directory.
