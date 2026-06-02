@@ -7,11 +7,11 @@
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  *
  * Plugin Name: Coywolf Custom Blocks
- * Plugin URI: https://github.com/coywolf-llc/custom-blocks
+ * Plugin URI: https://coywolf.com/notes/custom-blocks-easily-create-and-use-custom-blocks-in-wordpress/
  * Description: Easily create and use custom blocks in WordPress. Export the custom blocks you create and import them on other sites, or share them with others.
  * Version: 1.0.52
  * Author: Coywolf
- * Author URI: https://coywolf.com
+ * Author URI: https://coywolf.com/jon-henshaw/
  * License: GPL2
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: coywolf-custom-blocks
