@@ -84,6 +84,15 @@ class Settings extends ComponentAbstract {
 	 * Register Genesis Custom Blocks settings.
 	 */
 	public function register_settings() {
-		register_setting( self::SETTINGS_GROUP, self::DELETE_ON_UNINSTALL_OPTION_NAME );
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::DELETE_ON_UNINSTALL_OPTION_NAME,
+			[
+				'type'              => 'boolean',
+				'sanitize_callback' => static function ( $value ) {
+					return $value ? '1' : '';
+				},
+			]
+		);
 	}
 }

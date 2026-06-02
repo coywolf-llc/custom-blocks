@@ -174,8 +174,8 @@ class Loader extends ComponentAbstract {
 					echo esc_html__( 'Coywolf Custom Blocks: build artefacts are missing — its blocks will not appear in the inserter.', 'coywolf-custom-blocks' );
 					echo '</strong></p><p>';
 					printf(
-						/* translators: %s: anchor opening tag for the GitHub releases page */
-						esc_html__( 'This usually means the plugin was installed from a source archive (e.g. custom-blocks-main.zip) rather than the release zip. Re-upload %scoywolf-custom-blocks.zip%s from the latest GitHub release.', 'coywolf-custom-blocks' ),
+						/* translators: %1$s: opening anchor/code tag; %2$s: closing code/anchor tag. */
+						esc_html__( 'This usually means the plugin was installed from a source archive (e.g. custom-blocks-main.zip) rather than the release zip. Re-upload %1$scoywolf-custom-blocks.zip%2$s from the latest GitHub release.', 'coywolf-custom-blocks' ),
 						'<a href="https://github.com/coywolf-llc/custom-blocks/releases/latest" target="_blank" rel="noopener noreferrer"><code>',
 						'</code></a>'
 					);

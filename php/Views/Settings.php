@@ -9,6 +9,10 @@
 
 use Coywolf\CustomBlocks\Admin\Settings;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 ?>
 <div class="wrap coywolf-custom-blocks-settings">
 	<h1><?php esc_html_e( 'Coywolf Custom Blocks Settings', 'coywolf-custom-blocks' ); ?></h1>

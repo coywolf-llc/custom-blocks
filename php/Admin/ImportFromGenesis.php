@@ -953,7 +953,7 @@ class ImportFromGenesis extends ComponentAbstract {
 				'update_post_meta_cache' => false,
 				'update_post_term_cache' => false,
 				// Run the query even if the post type is not registered (upstream inactive).
-				'suppress_filters'       => true,
+				'suppress_filters'       => false,
 			]
 		);
 

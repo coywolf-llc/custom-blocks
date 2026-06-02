@@ -9,6 +9,10 @@
  * @license   http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 global $title;
 
 header( 'Content-Type: ' . get_option( 'html_type' ) . '; charset=' . get_option( 'blog_charset' ) );

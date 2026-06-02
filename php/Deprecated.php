@@ -14,6 +14,10 @@
 use function Coywolf\CustomBlocks\add_block;
 use function Coywolf\CustomBlocks\add_field;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Show a PHP error to warn developers using deprecated functions.
  *
