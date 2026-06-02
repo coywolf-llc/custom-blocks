@@ -9,6 +9,10 @@
 
 namespace Coywolf\CustomBlocks;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Add a new block.
  *

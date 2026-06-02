@@ -96,17 +96,12 @@ $uploads = wp_get_upload_dir();
 if ( isset( $uploads['basedir'] ) && is_string( $uploads['basedir'] ) ) {
 	$dir = rtrim( $uploads['basedir'], '/' ) . '/coywolf-custom-blocks';
 	if ( is_dir( $dir ) ) {
-		$it = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
-		foreach ( $it as $node ) {
-			if ( $node->isDir() ) {
-				@rmdir( $node->getPathname() ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
-			} else {
-				@unlink( $node->getPathname() ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
-			}
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
-		@rmdir( $dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+		global $wp_filesystem;
+		if ( WP_Filesystem() ) {
+			$wp_filesystem->rmdir( $dir, true );
+		}
 	}
 }

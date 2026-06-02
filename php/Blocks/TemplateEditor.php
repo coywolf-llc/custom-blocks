@@ -203,7 +203,7 @@ class TemplateEditor {
 		foreach ( $files as $file ) {
 			$mtime = @filemtime( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a racing unlink is fine.
 			if ( false !== $mtime && $mtime < $cutoff ) {
-				@unlink( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+				wp_delete_file( $file );
 			}
 		}
 	}
@@ -223,7 +223,7 @@ class TemplateEditor {
 		}
 		$dir = rtrim( $uploads['basedir'], '/' ) . '/coywolf-custom-blocks/templates';
 		if ( file_exists( $dir ) ) {
-			return is_dir( $dir ) && is_writable( $dir ) ? $dir : '';
+			return is_dir( $dir ) && wp_is_writable( $dir ) ? $dir : '';
 		}
 		if ( ! wp_mkdir_p( $dir ) ) {
 			return '';

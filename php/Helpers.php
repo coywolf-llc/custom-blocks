@@ -9,6 +9,10 @@
 
 use Coywolf\CustomBlocks\Blocks\Field;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Return the value of a block field.
  *
