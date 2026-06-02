@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.52
+Stable tag: 1.0.53
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,6 +122,9 @@ the same GPL-2.0-or-later license.
 5. A Review Summary block rendered on the front end, showing a 4.6 out of 5 rating alongside "What I Liked Most" and "Could Be Better" columns.
 
 == Changelog ==
+
+= 1.0.53 =
+* Set distinct Plugin URI and Author URI (#62).
 
 = 1.0.52 =
 * Add WordPress.org screenshots + captions (#61).
