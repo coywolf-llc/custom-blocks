@@ -1,5 +1,5 @@
 === Coywolf Custom Blocks ===
-Contributors: coywolf
+Contributors: jonhenshaw
 Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
