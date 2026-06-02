@@ -113,6 +113,14 @@ original plugin and its design belongs to them; this fork exists to keep
 the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
+== Screenshots ==
+
+1. A new, empty block in the Coywolf Custom Blocks builder, showing the Custom HTML field where front-end markup is defined using field slugs wrapped in double curly braces.
+2. The Coywolf Custom Blocks builder showing the Review Summary block's editor fields, including Schema Type, Review Name, Rating, Strengths, and Brand, with block settings in the right sidebar.
+3. The Content Blocks listing in WordPress showing all 12 published Coywolf Custom Blocks, including Accordion, Blockquote, Newsletter, and Review Summary, with their categories, keywords, and usage counts.
+4. The Coywolf Custom Blocks Export & Import screen in WordPress, with options to export all blocks as a single JSON file or upload a JSON file to import blocks.
+5. A Review Summary block rendered on the front end, showing a 4.6 out of 5 rating alongside "What I Liked Most" and "Could Be Better" columns.
+
 == Changelog ==
 
 = 1.0.51 =
