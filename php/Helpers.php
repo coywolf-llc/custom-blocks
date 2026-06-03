@@ -21,6 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return mixed
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Public template API; intentionally unprefixed for block-template authors (renaming breaks existing templates / upstream compatibility).
 function block_field( $name, $is_echo = true ) {
 	$attributes = coywolf_custom_blocks()->loader->get_data( 'attributes' );
 	$config     = coywolf_custom_blocks()->loader->get_data( 'config' );
@@ -104,6 +105,7 @@ function block_field( $name, $is_echo = true ) {
  *
  * @return mixed
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Public template API; intentionally unprefixed for block-template authors (renaming breaks existing templates / upstream compatibility).
 function block_value( $name ) {
 	return block_field( $name, false );
 }
@@ -113,6 +115,7 @@ function block_value( $name ) {
  *
  * @return array
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Public template API; intentionally unprefixed for block-template authors (renaming breaks existing templates / upstream compatibility).
 function block_config() {
 	$config = coywolf_custom_blocks()->loader->get_data( 'config' );
 
@@ -130,6 +133,7 @@ function block_config() {
  *
  * @return array|null
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Public template API; intentionally unprefixed for block-template authors (renaming breaks existing templates / upstream compatibility).
 function block_field_config( $name ) {
 	$config = coywolf_custom_blocks()->loader->get_data( 'config' );
 

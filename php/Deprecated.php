@@ -47,6 +47,7 @@ function coywolf_custom_blocks_deprecated_function( $func, $version, $replacemen
  *
  * @return array
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Public template API; intentionally unprefixed for block-template authors (renaming breaks existing templates / upstream compatibility).
 function block_lab_get_icons() {
 	coywolf_custom_blocks_deprecated_function( 'block_lab_get_icons', '1.3.5', 'coywolf_custom_blocks()->get_icons()' );
 	return [];
@@ -59,6 +60,7 @@ function block_lab_get_icons() {
  *
  * @return array
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Public template API; intentionally unprefixed for block-template authors (renaming breaks existing templates / upstream compatibility).
 function block_lab_allowed_svg_tags() {
 	coywolf_custom_blocks_deprecated_function( 'block_lab_allowed_svg_tags', '1.3.5', 'coywolf_custom_blocks()->allowed_svg_tags()' );
 	return coywolf_custom_blocks()->allowed_svg_tags();
@@ -70,6 +72,7 @@ function block_lab_allowed_svg_tags() {
  * @param string $block_name   The block name (slug), like 'example-block'.
  * @param array  $block_config An associative array containing the block configuration.
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Public template API; intentionally unprefixed for block-template authors (renaming breaks existing templates / upstream compatibility).
 function block_lab_add_block( $block_name, $block_config = [] ) {
 	coywolf_custom_blocks_deprecated_function( 'block_lab_add_block', '1.5.4', 'Coywolf\\CustomBlocks\\add_block()' );
 	add_block( $block_name, $block_config );
@@ -82,6 +85,7 @@ function block_lab_add_block( $block_name, $block_config = [] ) {
  * @param string $field_name   The field name (slug), like 'first-name'.
  * @param array  $field_config An associative array containing the field configuration.
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Public template API; intentionally unprefixed for block-template authors (renaming breaks existing templates / upstream compatibility).
 function block_lab_add_field( $block_name, $field_name, $field_config = [] ) {
 	coywolf_custom_blocks_deprecated_function( 'block_lab_add_field', '1.5.4', 'Coywolf\\CustomBlocks\\add_field()' );
 	add_field( $block_name, $field_name, $field_config );
@@ -92,6 +96,7 @@ function block_lab_add_field( $block_name, $field_name, $field_config = [] ) {
  *
  * @param string $name The name of the repeater field.
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Public template API; intentionally unprefixed for block-template authors (renaming breaks existing templates / upstream compatibility).
 function block_row( $name ) {
 	unset( $name );
 	_deprecated_function( 'block_row', '1.0.0' );
@@ -102,6 +107,7 @@ function block_row( $name ) {
  *
  * @param string $name The name of the repeater field.
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Public template API; intentionally unprefixed for block-template authors (renaming breaks existing templates / upstream compatibility).
 function block_rows( $name ) {
 	unset( $name );
 	_deprecated_function( 'block_rows', '1.0.0' );
@@ -112,6 +118,7 @@ function block_rows( $name ) {
  *
  * @param string $name The name of the repeater field.
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Public template API; intentionally unprefixed for block-template authors (renaming breaks existing templates / upstream compatibility).
 function reset_block_rows( $name ) {
 	unset( $name );
 	_deprecated_function( 'reset_block_rows', '1.0.0' );
@@ -122,6 +129,7 @@ function reset_block_rows( $name ) {
  *
  * @param string $name The name of the repeater field.
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Public template API; intentionally unprefixed for block-template authors (renaming breaks existing templates / upstream compatibility).
 function block_row_count( $name ) {
 	unset( $name );
 	_deprecated_function( 'block_row_count', '1.0.0' );
@@ -132,6 +140,7 @@ function block_row_count( $name ) {
  *
  * @param string $name (Optional) The name of the repeater field.
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Public template API; intentionally unprefixed for block-template authors (renaming breaks existing templates / upstream compatibility).
 function block_row_index( $name = '' ) {
 	unset( $name );
 	_deprecated_function( 'block_row_index', '1.0.0' );
@@ -143,6 +152,7 @@ function block_row_index( $name = '' ) {
  * @param string $name The name of the sub-field.
  * @param bool   $is_echo Whether to echo and return the field, or just return the field.
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Public template API; intentionally unprefixed for block-template authors (renaming breaks existing templates / upstream compatibility).
 function block_sub_field( $name, $is_echo = true ) {
 	unset( $name, $is_echo );
 	_deprecated_function( 'block_sub_field', '1.0.0' );
@@ -153,6 +163,7 @@ function block_sub_field( $name, $is_echo = true ) {
  *
  * @param string $name The name of the sub-field.
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Public template API; intentionally unprefixed for block-template authors (renaming breaks existing templates / upstream compatibility).
 function block_sub_value( $name ) {
 	unset( $name );
 	_deprecated_function( 'block_sub_value', '1.0.0' );

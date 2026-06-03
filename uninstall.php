@@ -19,9 +19,9 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-$delete_on_uninstall_option = 'coywolf_custom_blocks_delete_on_uninstall';
+$coywolf_delete_on_uninstall_option = 'coywolf_custom_blocks_delete_on_uninstall';
 
-if ( '1' !== (string) get_option( $delete_on_uninstall_option ) ) {
+if ( '1' !== (string) get_option( $coywolf_delete_on_uninstall_option ) ) {
 	return;
 }
 
@@ -31,7 +31,7 @@ if ( '1' !== (string) get_option( $delete_on_uninstall_option ) ) {
  * `wp_delete_post( $id, true )` bypasses the trash and cleans up post meta,
  * term relationships, attachments-as-parent, and revisions.
  */
-$block_post_ids = get_posts(
+$coywolf_block_post_ids = get_posts(
 	array(
 		'post_type'      => 'coywolf_custom_block',
 		'post_status'    => 'any',
@@ -41,8 +41,8 @@ $block_post_ids = get_posts(
 	)
 );
 
-if ( is_array( $block_post_ids ) ) {
-	foreach ( $block_post_ids as $post_id ) {
+if ( is_array( $coywolf_block_post_ids ) ) {
+	foreach ( $coywolf_block_post_ids as $post_id ) {
 		wp_delete_post( (int) $post_id, true );
 	}
 }
@@ -55,16 +55,16 @@ if ( is_array( $block_post_ids ) ) {
  * plugin happens to be co-installed, its `genesis_custom_blocks_*` options
  * belong to it and must be left alone.
  */
-$options = array(
+$coywolf_options = array(
 	'coywolf_custom_blocks_delete_on_uninstall',
 	'coywolf_custom_blocks_notices',
 	'coywolf_custom_blocks_example_post_id', // Legacy: previously written by the now-removed Onboarding component.
 );
 
-foreach ( $options as $option_name ) {
-	delete_option( $option_name );
+foreach ( $coywolf_options as $coywolf_option_name ) {
+	delete_option( $coywolf_option_name );
 	if ( is_multisite() ) {
-		delete_site_option( $option_name );
+		delete_site_option( $coywolf_option_name );
 	}
 }
 
@@ -92,16 +92,16 @@ delete_site_transient( 'coywolf_custom_blocks_gh_release_neg' );
  * time. Drop the whole directory on uninstall — its only callers
  * are gone.
  */
-$uploads = wp_get_upload_dir();
-if ( isset( $uploads['basedir'] ) && is_string( $uploads['basedir'] ) ) {
-	$dir = rtrim( $uploads['basedir'], '/' ) . '/coywolf-custom-blocks';
-	if ( is_dir( $dir ) ) {
+$coywolf_uploads = wp_get_upload_dir();
+if ( isset( $coywolf_uploads['basedir'] ) && is_string( $coywolf_uploads['basedir'] ) ) {
+	$coywolf_dir = rtrim( $coywolf_uploads['basedir'], '/' ) . '/coywolf-custom-blocks';
+	if ( is_dir( $coywolf_dir ) ) {
 		if ( ! function_exists( 'WP_Filesystem' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
 		global $wp_filesystem;
 		if ( WP_Filesystem() ) {
-			$wp_filesystem->rmdir( $dir, true );
+			$wp_filesystem->rmdir( $coywolf_dir, true );
 		}
 	}
 }
