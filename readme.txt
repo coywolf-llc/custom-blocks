@@ -25,11 +25,13 @@ front-end markup in the in-admin Custom HTML field (no
   fallback).
 * No external server calls, no analytics. The WP Engine plugin update
   server integration, the dormant Google Analytics client, and the Genesis
-  Pro upgrade nag have all been removed. The only outbound request this
-  plugin ever makes is a check for new releases on the GitHub API.
-* Self-updates from GitHub Releases. Plugin updates appear on Dashboard ->
-  Updates and install with the standard one-click flow. Downloads are
-  restricted to a GitHub-owned host allowlist.
+  Pro upgrade nag have all been removed.
+<!-- wporg-strip:start -->
+* Self-updates from GitHub Releases -- the only outbound request this build
+  makes is a check for new releases on the GitHub API. Plugin updates appear
+  on Dashboard -> Updates and install with the standard one-click flow;
+  package downloads are restricted to a GitHub-owned host allowlist.
+<!-- wporg-strip:end -->
 * Renamespaced to coexist with upstream. Every identifier that could
   collide with Genesis Custom Blocks has been renamed, so both plugins can
   be active simultaneously.
@@ -51,6 +53,13 @@ front-end markup in the in-admin Custom HTML field (no
 
 == Installation ==
 
+1. In WordPress, go to Plugins -> Add New, search for "Coywolf Custom
+   Blocks", click Install Now, then Activate.
+2. Go to Custom Blocks -> Add New to define your first block.
+<!-- wporg-strip:start -->
+
+Installing the GitHub build instead?
+
 1. Go to the latest GitHub release:
    https://github.com/coywolf-llc/custom-blocks/releases/latest
 2. Under Assets, download coywolf-custom-blocks.zip -- NOT the
@@ -58,19 +67,21 @@ front-end markup in the in-admin Custom HTML field (no
    the built JS/CSS bundles; the source zip does not, and uploading it
    will break the block editor.
 3. In WordPress, go to Plugins -> Add New -> Upload Plugin, upload the
-   zip, and click Activate.
-4. Go to Custom Blocks -> Add New to define your first block.
-
-Once installed, updates surface on Dashboard -> Updates just like a
-plugin installed from wordpress.org.
+   zip, and click Activate. Once installed, updates surface on
+   Dashboard -> Updates.
+<!-- wporg-strip:end -->
 
 == Frequently Asked Questions ==
 
 = Does this call home to WP Engine, StudioPress, Google Analytics, or anyone else? =
 
-No. The only outbound request the plugin makes is to api.github.com to
-check for new releases of this repository. Update package downloads are
-restricted to GitHub-owned hosts.
+No. The WP Engine update server, the dormant Google Analytics client, and
+the Genesis Pro upgrade nag have all been removed.
+<!-- wporg-strip:start -->
+The only outbound request this build makes is to api.github.com to check
+for new releases of this plugin; update-package downloads are restricted to
+GitHub-owned hosts.
+<!-- wporg-strip:end -->
 
 = Can I run this alongside the original Genesis Custom Blocks plugin? =
 

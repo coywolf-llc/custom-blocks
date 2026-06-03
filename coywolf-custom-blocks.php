@@ -87,6 +87,7 @@ coywolf_custom_blocks()
 add_action( 'plugins_loaded', [ coywolf_custom_blocks(), 'plugin_loaded' ] );
 add_action( 'plugins_loaded', [ coywolf_custom_blocks(), 'require_deprecated' ], 11 );
 
+/* wporg-strip:start — GitHub self-updater (removed from the WordPress.org build) */
 /**
  * GitHub-releases-based self-updater. Replaces the original WP Engine update
  * server integration so this plugin only ever talks to github.com.
@@ -103,3 +104,4 @@ require_once __DIR__ . '/includes/class-github-updater.php';
 	__FILE__,
 	get_file_data( __FILE__, [ 'Version' => 'Version' ] )['Version']
 ) )->init();
+/* wporg-strip:end */
