@@ -15,7 +15,6 @@
  * License: GPL2
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: coywolf-custom-blocks
- * Domain Path: languages
  */
 
 use Coywolf\CustomBlocks\Plugin;
