@@ -329,7 +329,7 @@ class ImportFromGenesis extends ComponentAbstract {
 		}
 
 		$source_blocks = $this->get_source_blocks();
-		$result        = isset( $_GET['result'] ) ? sanitize_key( wp_unslash( $_GET['result'] ) ) : '';
+		$result        = isset( $_GET['result'] ) ? sanitize_key( wp_unslash( $_GET['result'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
 
 		// `imported[]`, `skipped[]`, and `errors[]` now come through as
 		// PHP arrays rather than a delimited string — see the redirect
@@ -337,16 +337,16 @@ class ImportFromGenesis extends ComponentAbstract {
 		// keeps the page robust if a stray legacy URL still uses the
 		// old `?imported=A|B` shape (it'll show up as a 1-element list
 		// with the names jammed together, but at least it won't crash).
-		$imported_titles = isset( $_GET['imported'] ) && is_array( $_GET['imported'] )
-			? array_values( array_filter( array_map( 'sanitize_text_field', wp_unslash( $_GET['imported'] ) ) ) )
+		$imported_titles = isset( $_GET['imported'] ) && is_array( $_GET['imported'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
+			? array_values( array_filter( array_map( 'sanitize_text_field', wp_unslash( $_GET['imported'] ) ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
 			: [];
-		$skipped_titles  = isset( $_GET['skipped'] ) && is_array( $_GET['skipped'] )
-			? array_values( array_filter( array_map( 'sanitize_text_field', wp_unslash( $_GET['skipped'] ) ) ) )
+		$skipped_titles  = isset( $_GET['skipped'] ) && is_array( $_GET['skipped'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
+			? array_values( array_filter( array_map( 'sanitize_text_field', wp_unslash( $_GET['skipped'] ) ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
 			: [];
-		$error_lines     = isset( $_GET['errors'] ) && is_array( $_GET['errors'] )
-			? array_values( array_filter( array_map( 'sanitize_text_field', wp_unslash( $_GET['errors'] ) ) ) )
+		$error_lines     = isset( $_GET['errors'] ) && is_array( $_GET['errors'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
+			? array_values( array_filter( array_map( 'sanitize_text_field', wp_unslash( $_GET['errors'] ) ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
 			: [];
-		$rewrite_count   = isset( $_GET['rewrite_count'] ) && '' !== $_GET['rewrite_count'] ? (int) $_GET['rewrite_count'] : null;
+		$rewrite_count   = isset( $_GET['rewrite_count'] ) && '' !== $_GET['rewrite_count'] ? (int) $_GET['rewrite_count'] : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Import from Genesis Custom Blocks', 'coywolf-custom-blocks' ); ?></h1>
@@ -1631,7 +1631,7 @@ class ImportFromGenesis extends ComponentAbstract {
 		$batch_size = max( 1, (int) $batch_size );
 		$after      = max( 0, (int) $after );
 
-		$ids = $wpdb->get_col(
+		$ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time Genesis import scan; query is prepared (%d/%s) and a direct uncached read is required to find posts with genesis-custom-blocks markup.
 			$wpdb->prepare(
 				"SELECT ID FROM {$wpdb->posts}
 				WHERE ID > %d

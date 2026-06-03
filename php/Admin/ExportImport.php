@@ -105,12 +105,12 @@ class ExportImport extends ComponentAbstract {
 		}
 
 		$total_blocks = $this->count_blocks();
-		$result       = isset( $_GET['result'] ) ? sanitize_key( wp_unslash( $_GET['result'] ) ) : '';
-		$imported_csv = isset( $_GET['imported'] ) ? sanitize_text_field( wp_unslash( $_GET['imported'] ) ) : '';
-		$errors_csv   = isset( $_GET['errors'] ) ? sanitize_text_field( wp_unslash( $_GET['errors'] ) ) : '';
-		$confirm_key  = isset( $_GET['confirm_key'] ) ? sanitize_key( wp_unslash( $_GET['confirm_key'] ) ) : '';
-		$confirm_slugs = isset( $_GET['confirm_slugs'] ) && is_array( $_GET['confirm_slugs'] )
-			? array_values( array_filter( array_map( 'sanitize_text_field', wp_unslash( $_GET['confirm_slugs'] ) ) ) )
+		$result       = isset( $_GET['result'] ) ? sanitize_key( wp_unslash( $_GET['result'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
+		$imported_csv = isset( $_GET['imported'] ) ? sanitize_text_field( wp_unslash( $_GET['imported'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
+		$errors_csv   = isset( $_GET['errors'] ) ? sanitize_text_field( wp_unslash( $_GET['errors'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
+		$confirm_key  = isset( $_GET['confirm_key'] ) ? sanitize_key( wp_unslash( $_GET['confirm_key'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
+		$confirm_slugs = isset( $_GET['confirm_slugs'] ) && is_array( $_GET['confirm_slugs'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
+			? array_values( array_filter( array_map( 'sanitize_text_field', wp_unslash( $_GET['confirm_slugs'] ) ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
 			: [];
 		?>
 		<div class="wrap">
@@ -285,7 +285,7 @@ class ExportImport extends ComponentAbstract {
 				<?php
 			endif;
 		} elseif ( 'error' === $result ) {
-			$msg = isset( $_GET['message'] ) ? sanitize_text_field( wp_unslash( $_GET['message'] ) ) : '';
+			$msg = isset( $_GET['message'] ) ? sanitize_text_field( wp_unslash( $_GET['message'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
 			?>
 			<div class="notice notice-error is-dismissible">
 				<p><?php echo esc_html( '' !== $msg ? $msg : __( 'Import failed.', 'coywolf-custom-blocks' ) ); ?></p>
@@ -319,7 +319,7 @@ class ExportImport extends ComponentAbstract {
 		if ( isset( $_POST['post'] ) && is_array( $_POST['post'] ) ) {
 			$post_ids = array_filter( array_map( 'intval', wp_unslash( $_POST['post'] ) ) );
 		} elseif ( isset( $_REQUEST['post'] ) ) {
-			$raw      = wp_unslash( $_REQUEST['post'] );
+			$raw      = wp_unslash( $_REQUEST['post'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Cast to int on the next line via array_map( 'intval', ... ).
 			$post_ids = array_filter( array_map( 'intval', is_array( $raw ) ? $raw : [ $raw ] ) );
 		}
 
@@ -453,10 +453,10 @@ class ExportImport extends ComponentAbstract {
 	 * the relevant screen and only when our query arg is present.
 	 */
 	public function maybe_render_bulk_notice() {
-		if ( ! isset( $_GET['ccb_export_status'] ) ) {
+		if ( ! isset( $_GET['ccb_export_status'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
 			return;
 		}
-		$status = sanitize_key( wp_unslash( $_GET['ccb_export_status'] ) );
+		$status = sanitize_key( wp_unslash( $_GET['ccb_export_status'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
 		if ( 'nothing' !== $status ) {
 			return;
 		}
@@ -623,14 +623,14 @@ class ExportImport extends ComponentAbstract {
 	 *                        translated user-facing message on failure.
 	 */
 	protected function envelope_from_upload() {
-		if ( ! isset( $_FILES['ccb_import_file']['tmp_name'] ) || '' === $_FILES['ccb_import_file']['tmp_name'] ) {
+		if ( ! isset( $_FILES['ccb_import_file']['tmp_name'] ) || '' === $_FILES['ccb_import_file']['tmp_name'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Import upload; check_admin_referer + manage_options verified before this runs.
 			return new \WP_Error( 'ccb_no_file', __( 'No file was uploaded.', 'coywolf-custom-blocks' ) );
 		}
-		if ( ! empty( $_FILES['ccb_import_file']['error'] ) ) {
+		if ( ! empty( $_FILES['ccb_import_file']['error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Import upload; check_admin_referer + manage_options verified before this runs.
 			return new \WP_Error( 'ccb_upload_failed', __( 'Upload failed; the file was rejected by the server.', 'coywolf-custom-blocks' ) );
 		}
 
-		$tmp_path = sanitize_text_field( $_FILES['ccb_import_file']['tmp_name'] );
+		$tmp_path = sanitize_text_field( $_FILES['ccb_import_file']['tmp_name'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Import upload; check_admin_referer + manage_options verified before this runs.
 		if ( '' === $tmp_path || ! is_uploaded_file( $tmp_path ) ) {
 			return new \WP_Error( 'ccb_unreadable', __( 'Could not read the uploaded file.', 'coywolf-custom-blocks' ) );
 		}
