@@ -53,6 +53,33 @@ Yes. The field is intended for use by site administrators (editing `coywolf_cust
 
 This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) by WP Engine / StudioPress, originally created by Luke Carbis, Ryan Kienstra, Stino11, Rheinard Korf, and the StudioPress / WP Engine team. All credit for the original plugin and its design belongs to them; this fork exists to keep the codebase alive and self-contained for Coywolf sites. Released under the same GPL-2.0-or-later license.
 
+## Screenshots
+
+### Block builder
+A new, empty block in the Coywolf Custom Blocks builder, showing the Custom HTML field where front-end markup is defined using field slugs wrapped in double curly braces.
+
+![Block builder](.wordpress-org/screenshot-1.png)
+
+### Editor fields
+The Coywolf Custom Blocks builder showing the Review Summary block's editor fields, including Schema Type, Review Name, Rating, Strengths, and Brand, with block settings in the right sidebar.
+
+![Editor fields](.wordpress-org/screenshot-2.png)
+
+### Content Blocks listing
+The Content Blocks listing in WordPress showing all 12 published Coywolf Custom Blocks, including Accordion, Blockquote, Newsletter, and Review Summary, with their categories, keywords, and usage counts.
+
+![Content Blocks listing](.wordpress-org/screenshot-3.png)
+
+### Export & Import
+The Coywolf Custom Blocks Export & Import screen in WordPress, with options to export all blocks as a single JSON file or upload a JSON file to import blocks.
+
+![Export & Import](.wordpress-org/screenshot-4.png)
+
+### Front-end output
+A Review Summary block rendered on the front end, showing a 4.6 out of 5 rating alongside "What I Liked Most" and "Could Be Better" columns.
+
+![Front-end output](.wordpress-org/screenshot-5.png)
+
 ## Changelog
 
 ### 1.0.60
