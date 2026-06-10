@@ -38,6 +38,7 @@ front-end markup in the in-admin Custom HTML field (no
 * Renamespaced to coexist with upstream. Every identifier that could
   collide with Genesis Custom Blocks has been renamed, so both plugins can
   be active simultaneously.
+* Import from upstream Genesis Custom Blocks. The "Import from Genesis"
   page lists every genesis_custom_block on the site with per-row checkboxes
   and a "select all" toggle. Imported blocks get a best-effort translation
   of their theme template files into the in-admin {{field-slug}} syntax.
@@ -110,7 +111,10 @@ StudioPress, originally created by Luke Carbis, Ryan Kienstra, Stino11,
 Rheinard Korf, and the StudioPress / WP Engine team. All credit for the
 original plugin and its design belongs to them; this fork exists to keep
 the codebase alive and self-contained for Coywolf sites. Released under
-the same GPL-2.0-or-later license.
+the same GPL-2.0-or-later license. Upstream code copyright (c) 2022
+Genesis Custom Blocks (WP Engine / StudioPress); that notice is preserved
+here for the whole fork, while the per-file headers carry the Coywolf LLC
+notice.
 
 == Privacy ==
 
