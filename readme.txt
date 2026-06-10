@@ -113,6 +113,10 @@ original plugin and its design belongs to them; this fork exists to keep
 the codebase alive and self-contained for Coywolf sites. Released under
 the same GPL-2.0-or-later license.
 
+== Privacy ==
+
+Privacy-first: this plugin includes no analytics, no tracking, and no data gathering. Nothing about you, your site, or your visitors is ever collected or sent anywhere.
+
 == Screenshots ==
 
 1. A new, empty block in the Coywolf Custom Blocks builder, showing the Custom HTML field where front-end markup is defined using field slugs wrapped in double curly braces.
