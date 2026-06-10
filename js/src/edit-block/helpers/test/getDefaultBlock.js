@@ -11,7 +11,7 @@ describe( 'getDefaultBlock', () => {
 			name: 'block',
 			title: 'block',
 			excluded: [],
-			icon: 'coywolf_custom_blocks',
+			icon: 'lu/LuSquareCode',
 			category: {
 				icon: null,
 				slug: 'text',
@@ -29,7 +29,7 @@ describe( 'getDefaultBlock', () => {
 			name: 'block-923',
 			title: 'block-923',
 			excluded: [],
-			icon: 'coywolf_custom_blocks',
+			icon: 'lu/LuSquareCode',
 			category: {
 				icon: null,
 				slug: 'text',

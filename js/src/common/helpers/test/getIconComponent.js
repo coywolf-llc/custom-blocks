@@ -2,41 +2,50 @@
  * Internal dependencies
  */
 import { getIconComponent } from '../';
+import { DefaultIcon, loadLibrary } from '../../icons';
 
 global.ccbEditor = { controls: {} };
 
+/*
+ * Test order matters: the icon cache is module-level, so the
+ * "before the library loads" assertions must run before any test that
+ * awaits `loadLibrary( 'lu' )` and primes the cache for the rest of
+ * the file.
+ */
 describe( 'getIconComponent', () => {
+	it( 'returns a lazy wrapper for Lucide slugs before the library loads', () => {
+		const component = getIconComponent( 'lu/LuHeart' );
+		expect( component ).not.toBeNull();
+		expect( component.displayName ).toEqual( 'LazyIcon(lu/LuHeart)' );
+	} );
+
+	it( 'falls back to the local default glyph when the slug is empty or malformed', () => {
+		expect( getIconComponent( '' ) ).toBe( DefaultIcon );
+		expect( getIconComponent( null ) ).toBe( DefaultIcon );
+		expect( getIconComponent( undefined ) ).toBe( DefaultIcon );
+	} );
+
 	it.each( [
-		// Lucide is eagerly bundled — these resolve synchronously to
-		// the real react-icons component.
 		[ 'lu/LuSquareCode', 'LuSquareCode' ],
 		[ 'lu/LuHeart', 'LuHeart' ],
 		[ 'lu/LuUser', 'LuUser' ],
-	] )( 'resolves %s to the %s component synchronously',
-		( slug, expectedName ) => {
+	] )( 'resolves %s to the real %s component once Lucide has loaded',
+		async ( slug, expectedName ) => {
+			await loadLibrary( 'lu' );
 			const component = getIconComponent( slug );
 			expect( component ).not.toBeNull();
 			expect( component.name ).toEqual( expectedName );
 		}
 	);
 
-	it( 'falls back to LuSquareCode when the slug is empty or malformed', () => {
-		expect( getIconComponent( '' ).name ).toEqual( 'LuSquareCode' );
-		expect( getIconComponent( null ).name ).toEqual( 'LuSquareCode' );
-		expect( getIconComponent( undefined ).name ).toEqual( 'LuSquareCode' );
-	} );
-
-	it( 'falls back to LuSquareCode when the icon name does not exist in Lucide', () => {
-		const component = getIconComponent( 'lu/LuDoesNotExist' );
-		expect( component.name ).toEqual( 'LuSquareCode' );
+	it( 'falls back to the local default glyph for unknown names in a loaded library', async () => {
+		await loadLibrary( 'lu' );
+		expect( getIconComponent( 'lu/LuDoesNotExist' ) ).toBe( DefaultIcon );
 	} );
 
 	it( 'returns a lazy wrapper for slugs in not-yet-loaded libraries', () => {
-		// `bi` is dynamic-imported in v1.0.18+ — picker triggers its
-		// load when the user opens that library. In the test env
-		// nothing's loaded, so getIconComponent returns the LazyIcon
-		// wrapper, which renders LuSquareCode while the chunk loads
-		// and the real BiBox once it lands.
+		// `bi` is never loaded in this file, so the wrapper renders the
+		// default glyph until the chunk lands and BiBox takes over.
 		const component = getIconComponent( 'bi/BiBox' );
 		expect( component ).not.toBeNull();
 		expect( component.displayName ).toEqual( 'LazyIcon(bi/BiBox)' );
