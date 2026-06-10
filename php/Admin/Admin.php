@@ -38,6 +38,13 @@ class Admin extends ComponentAbstract {
 	public $edit_block;
 
 	/**
+	 * Import-from-Genesis admin page.
+	 *
+	 * @var ImportFromGenesis
+	 */
+	public $import_from_genesis;
+
+	/**
 	 * Native Coywolf JSON export/import admin page.
 	 *
 	 * @var ExportImport
@@ -56,6 +63,10 @@ class Admin extends ComponentAbstract {
 
 		$this->edit_block = new EditBlock();
 		coywolf_custom_blocks()->register_component( $this->edit_block );
+
+		// Migration tool: list and import upstream genesis_custom_block posts.
+		$this->import_from_genesis = new ImportFromGenesis();
+		coywolf_custom_blocks()->register_component( $this->import_from_genesis );
 
 		// Native JSON export/import — its own submenu page + row/bulk actions
 		// on the block list table.
