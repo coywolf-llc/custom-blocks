@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.61
+Stable tag: 1.0.62
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -126,6 +126,9 @@ Privacy-first: this plugin includes no analytics, no tracking, and no data gathe
 5. A Review Summary block rendered on the front end, showing a 4.6 out of 5 rating alongside "What I Liked Most" and "Could Be Better" columns.
 
 == Changelog ==
+
+= 1.0.62 =
+* Readme: state the privacy-first stance (no analytics, no data gathering) (#72).
 
 = 1.0.61 =
 * Render plugin screenshots in the GitHub readme (#71).
