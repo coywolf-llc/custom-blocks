@@ -13,6 +13,7 @@
  * @see ./LazyIcon.js    Lazy-render React component for a single stored slug.
  */
 
+export { default as DefaultIcon } from './DefaultIcon';
 export { default as LazyIcon } from './LazyIcon';
 export {
 	LIBRARIES,

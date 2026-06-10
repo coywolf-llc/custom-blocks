@@ -2,7 +2,6 @@
  * External dependencies
  */
 import * as React from 'react';
-import { LuSquareCode } from 'react-icons/lu';
 
 /**
  * WordPress dependencies
@@ -12,6 +11,7 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import DefaultIcon from './DefaultIcon';
 import { getCachedLibrary, loadLibrary, parseIconSlug } from './iconCache';
 
 /**
@@ -71,13 +71,13 @@ const LazyIcon = ( { slug, className, style, size } ) => {
 		};
 	}, [ lib, name, IconComponent ] );
 
-	// Render the Lucide square-code glyph while the library is in
-	// flight (or if the resolved name turned out to be missing). Lucide
-	// is eagerly bundled in the main entry, so LuSquareCode is always
+	// Render the local square-code glyph while the library is in
+	// flight (or if the resolved name turned out to be missing). The
+	// glyph is the one statically bundled icon, so it is always
 	// available synchronously — keeps the picker preview and Gutenberg
 	// inserter from flashing blank when an existing block uses an icon
 	// from a not-yet-loaded library or a slug that no longer resolves.
-	const Renderable = IconComponent || LuSquareCode;
+	const Renderable = IconComponent || DefaultIcon;
 
 	return <Renderable className={ className } style={ style } size={ size } />;
 };
