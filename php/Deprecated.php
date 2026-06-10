@@ -7,7 +7,7 @@
  * @see Coywolf\CustomBlocks\ComponentAbstract->_call()
  *
  * @package   Coywolf\CustomBlocks
- * @copyright Copyright(c) 2022, Genesis Custom Blocks
+ * @copyright Copyright(c) 2026, Coywolf LLC
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Show a PHP error to warn developers using deprecated functions.
  *
  * @param string $func        The function that was called.
- * @param string $version     The version of Genesis Custom Blocks that deprecated the function.
+ * @param string $version     The plugin version that deprecated the function.
  * @param string $replacement The function that should have been called.
  */
 function coywolf_custom_blocks_deprecated_function( $func, $version, $replacement ) {

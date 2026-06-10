@@ -5,8 +5,8 @@
  * @package Coywolf\CustomBlocks
  *
  * Plugin Name: Testing Blocks
- * Plugin URI: https://github.com/studiopress/genesis-custom-blocks
- * Author: Genesis Custom Blocks contributors
+ * Plugin URI: https://github.com/coywolf-llc/custom-blocks
+ * Author: Coywolf Custom Blocks contributors
  */
 
 use function Coywolf\CustomBlocks\add_block;

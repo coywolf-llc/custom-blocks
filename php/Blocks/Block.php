@@ -3,7 +3,7 @@
  * Block.
  *
  * @package   Coywolf\CustomBlocks
- * @copyright Copyright(c) 2022, Genesis Custom Blocks
+ * @copyright Copyright(c) 2026, Coywolf LLC
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
@@ -94,7 +94,7 @@ class Block {
 	 * `?context=edit` request — i.e. inside the post editor. Lets a
 	 * block show a placeholder/summary in the editor while emitting
 	 * something completely different (e.g. invisible Schema.org JSON-LD)
-	 * on the front end. Mirrors upstream Genesis Custom Blocks' theme
+	 * on the front end. Mirrors the upstream plugin's theme
 	 * `blocks/preview-{slug}.php` convention.
 	 *
 	 * @var string
@@ -110,9 +110,7 @@ class Block {
 	 * places.
 	 *
 	 * When `false`, `preview_markup` is preserved in storage but
-	 * ignored at render time. The Genesis importer flips this to
-	 * `true` automatically when it imports a block that ships a
-	 * matching `blocks/preview-{slug}.php` file.
+	 * ignored at render time.
 	 *
 	 * @var bool
 	 */

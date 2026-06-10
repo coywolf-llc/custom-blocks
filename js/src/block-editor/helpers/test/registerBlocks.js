@@ -23,7 +23,7 @@ const expectedArgs = {
 };
 
 describe( 'registerBlocks', () => {
-	it( 'should not register any block if there is no Genesis Custom Blocks block passed', () => {
+	it( 'should not register any block if there is no Coywolf Custom Blocks block passed', () => {
 		registerBlocks( {}, {}, Edit );
 		expect( mockRegisterBlockType ).toHaveBeenCalledTimes( 0 );
 	} );

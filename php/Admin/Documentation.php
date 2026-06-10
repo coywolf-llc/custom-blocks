@@ -100,7 +100,7 @@ class Documentation extends ComponentAbstract {
 	public function render_page() {
 		// Defensive cap check — WordPress's menu loader already gates this
 		// page on `manage_options`, but the other admin renderers in this
-		// plugin (EditBlock, ExportImport, ImportFromGenesis) all re-check
+		// plugin (EditBlock, ExportImport) all re-check
 		// inside their render methods so add_menu_page slip-ups don't
 		// surface unauthorized content. Match that posture here.
 		if ( ! current_user_can( 'manage_options' ) ) {

@@ -2,7 +2,7 @@
 
 # Coywolf Custom Blocks
 
-Easily create and use custom blocks in WordPress. Export the custom blocks you create and import them on other sites, or share them with others. A privacy-respecting fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) with WP Engine telemetry, the WPE update server, and Genesis Pro upsells removed; ships an inline Custom HTML editor, native JSON export/import, and a one-shot importer for migrating off upstream.
+Easily create and use custom blocks in WordPress. Export the custom blocks you create and import them on other sites, or share them with others. A privacy-respecting fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) with WP Engine telemetry, the WPE update server, and Genesis Pro upsells removed; ships an inline Custom HTML editor and native JSON export/import.
 
 - **Version:** 1.0.63
 - **Requires WordPress:** 6.0 or later
@@ -18,7 +18,6 @@ Coywolf Custom Blocks lets you define your own Gutenberg blocks (fields + markup
 - **No external server calls, no analytics.** The WP Engine plugin update server integration, the dormant Google Analytics client (`GAClient.js` / `window.GcbAnalytics`), and the Genesis Pro upgrade nag have all been removed. The only outbound request this plugin ever makes is `GET api.github.com/repos/coywolf-llc/custom-blocks/releases/latest` for update checks.
 - **Self-updates from GitHub Releases.** Plugin updates appear on Dashboard → Updates and install with the standard one-click flow. Downloads are restricted to a GitHub-owned host allowlist.
 - **Renamespaced to coexist with upstream.** Every identifier that would collide with the original Genesis Custom Blocks plugin has been renamed (PHP namespace `Coywolf\CustomBlocks`, post type `coywolf_custom_block`, block prefix `coywolf-custom-blocks/`, text domain, options, hooks, REST routes, script/style handles, JS globals `ccbEditor` / `ccbBlocks` / `coywolfCustomBlocks`). Both plugins can be active simultaneously.
-- **Import from upstream Genesis Custom Blocks.** Custom Blocks → Import from Genesis lists every `genesis_custom_block` post on the site with per-row checkboxes and a "select all" toggle. Imported blocks get a best-effort translation of their theme template files (the `block_field()` / `block_value()` calls are converted to the in-admin `{{field-slug}}` syntax). An optional checkbox additionally rewrites every `<!-- wp:genesis-custom-blocks/foo -->` comment across all post content to `<!-- wp:coywolf-custom-blocks/foo -->` so existing pages keep rendering after upstream is removed.
 - **Native JSON export and import.** Custom Blocks → Export & Import downloads one or more blocks as a single JSON file (per-row "Export" link, "Export selected" bulk action, or "Export all" button). Upload that file on another Coywolf Custom Blocks site to recreate the blocks; existing slugs are replaced rather than duplicated.
 - **Opt-in uninstall cleanup.** A "Delete plugin data on uninstall" checkbox in Settings controls whether `uninstall.php` drops every block definition and plugin option when the plugin is deleted. Unchecked by default — deactivate-and-delete is non-destructive.
 
@@ -39,7 +38,7 @@ No. The only outbound request the plugin makes is to `api.github.com` to check f
 
 ### Can I run this alongside the original Genesis Custom Blocks plugin?
 
-Yes. Every identifier that could collide has been renamed, so both plugins activate cleanly and keep their own data. Blocks you create in one are not visible in the other — they are distinct post types. Use **Custom Blocks → Import from Genesis** to copy blocks across and (optionally) rewrite existing post content site-wide.
+Yes. Every identifier that could collide has been renamed, so both plugins activate cleanly and keep their own data. Blocks you create in one are not visible in the other — they are distinct post types. (The one-time tool that imported upstream blocks and rewrote existing post content was removed once migration was complete; it remains available in the project's git history.)
 
 ### Do I need to work with the Genesis Framework or any other Genesis plugin/theme?
 
@@ -51,7 +50,7 @@ Yes. The field is intended for use by site administrators (editing `coywolf_cust
 
 ### What is the upstream relationship?
 
-This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) by WP Engine / StudioPress, originally created by Luke Carbis, Ryan Kienstra, Stino11, Rheinard Korf, and the StudioPress / WP Engine team. All credit for the original plugin and its design belongs to them; this fork exists to keep the codebase alive and self-contained for Coywolf sites. Released under the same GPL-2.0-or-later license.
+This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) by WP Engine / StudioPress, originally created by Luke Carbis, Ryan Kienstra, Stino11, Rheinard Korf, and the StudioPress / WP Engine team. All credit for the original plugin and its design belongs to them; this fork exists to keep the codebase alive and self-contained for Coywolf sites. Released under the same GPL-2.0-or-later license. Upstream code copyright © 2022 Genesis Custom Blocks (WP Engine / StudioPress); that notice is preserved here for the whole fork, while the per-file headers carry the Coywolf LLC notice.
 
 ## Privacy
 

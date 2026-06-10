@@ -3,7 +3,7 @@
  * Helper functions.
  *
  * @package   Coywolf\CustomBlocks
- * @copyright Copyright(c) 2022, Genesis Custom Blocks
+ * @copyright Copyright(c) 2026, Coywolf LLC
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
@@ -33,10 +33,10 @@ function block_field( $name, $is_echo = true ) {
 	$default_fields = [ 'className' => 'string' ];
 
 	/**
-	 * Filters the default fields that are allowed in addition to Genesis Custom Blocks fields.
+	 * Filters the default fields that are allowed in addition to Coywolf Custom Blocks fields.
 	 *
 	 * Adding an attribute to this can enable outputting it via block_field().
-	 * Normally, this function only returns or echoes Genesis Custom Blocks attributes (fields), and one default field.
+	 * Normally, this function only returns or echoes Coywolf Custom Blocks attributes (fields), and one default field.
 	 * But this allows getting block attributes that might have been added by other plugins or JS.
 	 * To allow getting another attribute, add it to the $default_fields associative array.
 	 * For example, 'your-example-field' => 'array'.

@@ -1,16 +1,16 @@
 <?php
 /**
- * TestGenesisCustomBlocks
+ * TestCoywolfCustomBlocks
  *
  * @package Coywolf\CustomBlocks
  */
 
 /**
- * Class TestGenesisCustomBlocks
+ * Class TestCoywolfCustomBlocks
  *
  * @package Coywolf\CustomBlocks
  */
-class TestGenesisCustomBlocks extends \WP_UnitTestCase {
+class TestCoywolfCustomBlocks extends \WP_UnitTestCase {
 
 	/**
 	 * Test coywolf_custom_blocks().

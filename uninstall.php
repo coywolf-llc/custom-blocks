@@ -51,8 +51,8 @@ if ( is_array( $coywolf_block_post_ids ) ) {
  * Plugin options to drop. Includes the opt-in flag itself so a reinstall
  * starts from a clean slate.
  *
- * Only `coywolf_*` keys are listed. If the upstream Genesis Custom Blocks
- * plugin happens to be co-installed, its `genesis_custom_blocks_*` options
+ * Only `coywolf_*` keys are listed. If the upstream plugin this fork came
+ * from happens to be co-installed, its own (differently prefixed) options
  * belong to it and must be left alone.
  */
 $coywolf_options = array(

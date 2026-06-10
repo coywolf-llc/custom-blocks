@@ -1,6 +1,6 @@
 <?php
 /**
- * Helper functions for the Genesis Custom Blocks plugin.
+ * Helper functions for the Coywolf Custom Blocks plugin.
  *
  * These are publicly accessible via a magic method, like coywolf_custom_blocks()->get_template_locations().
  * So these methods should generally be 'getter' functions, and should not affect the global state.

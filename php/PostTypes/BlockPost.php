@@ -3,7 +3,7 @@
  * Block Post Type.
  *
  * @package   Coywolf\CustomBlocks
- * @copyright Copyright(c) 2022, Genesis Custom Blocks
+ * @copyright Copyright(c) 2026, Coywolf LLC
  * @license http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
@@ -194,7 +194,7 @@ class BlockPost extends ComponentAbstract {
 			'menu_position' => 100,
 			// Use the WordPress core "block-default" dashicon — a generic
 			// custom-blocks glyph that fits the rest of the wp-admin nav
-			// without any Genesis branding.
+			// without any upstream branding.
 			'menu_icon'     => 'dashicons-block-default',
 			'query_var'     => true,
 			'rewrite'       => [ 'slug' => $this->slug ],

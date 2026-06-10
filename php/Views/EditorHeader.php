@@ -1,11 +1,11 @@
 <?php
 /**
- * Genesis Custom Blocks Pro custom editor header.
+ * Custom editor header.
  *
  * Forked from wp-admin/admin-header.php.
  *
  * @package   Coywolf\CustomBlocks
- * @copyright Copyright(c) 2022, Genesis Custom Blocks
+ * @copyright Copyright(c) 2026, Coywolf LLC
  * @license   http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
