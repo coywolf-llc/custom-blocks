@@ -18,8 +18,8 @@ import { getIconComponent } from '../../common/helpers';
 /**
  * Loops through all of the blocks, but not guaranteed to be sequential.
  *
- * @param {Object}                  coywolfCustomBlocks Genesis Custom Blocks properties, available via wp_localize_script().
- * @param {Object}                  ccbBlocks           The registered Genesis Custom Blocks blocks, available via wp_add_inline_script().
+ * @param {Object}                  coywolfCustomBlocks Coywolf Custom Blocks properties, available via wp_localize_script().
+ * @param {Object}                  ccbBlocks           The registered Coywolf Custom Blocks blocks, available via wp_add_inline_script().
  * @param {React.FunctionComponent} EditComponent       The edit component to render the blocks.
  */
 const registerBlocks = ( coywolfCustomBlocks, ccbBlocks, EditComponent ) => {

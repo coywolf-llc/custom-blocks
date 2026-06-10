@@ -38,7 +38,6 @@ front-end markup in the in-admin Custom HTML field (no
 * Renamespaced to coexist with upstream. Every identifier that could
   collide with Genesis Custom Blocks has been renamed, so both plugins can
   be active simultaneously.
-* Import from upstream Genesis Custom Blocks. The "Import from Genesis"
   page lists every genesis_custom_block on the site with per-row checkboxes
   and a "select all" toggle. Imported blocks get a best-effort translation
   of their theme template files into the in-admin {{field-slug}} syntax.

@@ -1,9 +1,9 @@
 <?php
 /**
- * Genesis Custom Blocks Settings.
+ * Coywolf Custom Blocks Settings.
  *
  * @package   Coywolf\CustomBlocks
- * @copyright Copyright(c) 2022, Genesis Custom Blocks
+ * @copyright Copyright(c) 2026, Coywolf LLC
  * @license   http://opensource.org/licenses/GPL-2.0 GNU General Public License, version 2 (GPL-2.0)
  */
 
@@ -24,7 +24,7 @@ class Settings extends ComponentAbstract {
 	const NOTICES_OPTION_NAME = 'coywolf_custom_blocks_notices';
 
 	/**
-	 * Settings group to opt into analytics.
+	 * Settings group for the plugin settings page.
 	 *
 	 * @var string
 	 */
@@ -60,7 +60,7 @@ class Settings extends ComponentAbstract {
 	}
 
 	/**
-	 * Add submenu pages to the Genesis Custom Blocks menu.
+	 * Add submenu pages to the Custom Blocks menu.
 	 */
 	public function add_submenu_pages() {
 		add_submenu_page(
@@ -81,7 +81,7 @@ class Settings extends ComponentAbstract {
 	}
 
 	/**
-	 * Register Genesis Custom Blocks settings.
+	 * Register Coywolf Custom Blocks settings.
 	 */
 	public function register_settings() {
 		register_setting(
