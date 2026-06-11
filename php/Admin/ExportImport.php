@@ -731,7 +731,7 @@ class ExportImport extends ComponentAbstract {
 	 */
 	protected function delete_user_stashes() {
 		global $wpdb;
-		$prefix = '_transient_ccb_import_stash_' . get_current_user_id() . '_';
+		$prefix = '_transient_coywolf_ccb_import_stash_' . get_current_user_id() . '_';
 		$like   = $wpdb->esc_like( $prefix ) . '%';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- targeted cleanup; transient API has no prefix-delete.
 		$names = $wpdb->get_col(
@@ -776,7 +776,7 @@ class ExportImport extends ComponentAbstract {
 	 * @return string
 	 */
 	protected function stash_transient_name( $token ) {
-		return 'ccb_import_stash_' . get_current_user_id() . '_' . preg_replace( '/[^A-Za-z0-9]/', '', (string) $token );
+		return 'coywolf_ccb_import_stash_' . get_current_user_id() . '_' . preg_replace( '/[^A-Za-z0-9]/', '', (string) $token );
 	}
 
 	/**

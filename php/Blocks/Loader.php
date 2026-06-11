@@ -203,7 +203,7 @@ class Loader extends ComponentAbstract {
 		// Add dynamic Gutenberg blocks.
 		wp_add_inline_script(
 			$js_handle,
-			'const ccbBlocks = ' . wp_json_encode( $this->blocks ),
+			'const coywolfCcbBlocks = ' . wp_json_encode( $this->blocks ),
 			'before'
 		);
 
