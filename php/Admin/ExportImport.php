@@ -88,8 +88,8 @@ class ExportImport extends ComponentAbstract {
 	public function add_submenu_page() {
 		add_submenu_page(
 			'edit.php?post_type=' . coywolf_custom_blocks()->get_post_type_slug(),
-			__( 'Export & Import', 'coywolf-custom-blocks' ),
-			__( 'Export & Import', 'coywolf-custom-blocks' ),
+			__( 'Import/Export', 'coywolf-custom-blocks' ),
+			__( 'Import/Export', 'coywolf-custom-blocks' ),
 			'manage_options',
 			self::PAGE_SLUG,
 			[ $this, 'render_page' ]
@@ -114,7 +114,7 @@ class ExportImport extends ComponentAbstract {
 			: [];
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Coywolf Custom Blocks — Export & Import', 'coywolf-custom-blocks' ); ?></h1>
+			<h1><?php esc_html_e( 'Coywolf Custom Blocks — Import/Export', 'coywolf-custom-blocks' ); ?></h1>
 
 			<?php $this->render_notice( $result, $imported_csv, $errors_csv ); ?>
 

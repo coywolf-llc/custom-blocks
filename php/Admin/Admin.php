@@ -56,23 +56,28 @@ class Admin extends ComponentAbstract {
 	 * Initialise the Admin component.
 	 */
 	public function init() {
+		// Component order below is also SUBMENU order: each component
+		// registers its page on admin_menu at the same priority, so the
+		// Custom Blocks menu reads All Blocks, Add Block (both from the
+		// post type), Settings, Import/Export, Import from Genesis (only
+		// while upstream is active), Documentation.
 		$this->settings = new Settings();
 		coywolf_custom_blocks()->register_component( $this->settings );
 
-		$this->documentation = new Documentation();
-		coywolf_custom_blocks()->register_component( $this->documentation );
-
 		$this->edit_block = new EditBlock();
 		coywolf_custom_blocks()->register_component( $this->edit_block );
-
-		// Migration tool: list and import upstream genesis_custom_block posts.
-		$this->import_from_genesis = new ImportFromGenesis();
-		coywolf_custom_blocks()->register_component( $this->import_from_genesis );
 
 		// Native JSON export/import — its own submenu page + row/bulk actions
 		// on the block list table.
 		$this->export_import = new ExportImport();
 		coywolf_custom_blocks()->register_component( $this->export_import );
+
+		// Migration tool: list and import upstream genesis_custom_block posts.
+		$this->import_from_genesis = new ImportFromGenesis();
+		coywolf_custom_blocks()->register_component( $this->import_from_genesis );
+
+		$this->documentation = new Documentation();
+		coywolf_custom_blocks()->register_component( $this->documentation );
 	}
 
 	/**

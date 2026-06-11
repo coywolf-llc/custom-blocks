@@ -215,7 +215,6 @@ jobs:
             --exclude '.nvmrc' \
             --exclude '.npmrc' \
             --exclude '.wp-env.json' \
-            --exclude '.wordpress-org' \
             --exclude 'CONTRIBUTING.md' \
             --exclude 'composer.json' \
             --exclude 'composer.lock' \

@@ -21,7 +21,7 @@ Coywolf Custom Blocks lets you define your own Gutenberg blocks (fields + markup
 - **Self-updates from GitHub Releases.** Plugin updates appear on Dashboard → Updates and install with the standard one-click flow. Downloads are restricted to a GitHub-owned host allowlist.
 - **Renamespaced to coexist with upstream.** Every identifier that would collide with the original Genesis Custom Blocks plugin has been renamed (PHP namespace `Coywolf\CustomBlocks`, post type `coywolf_custom_block`, block prefix `coywolf-custom-blocks/`, text domain, options, hooks, REST routes, script/style handles, JS globals `coywolfCcbEditor` / `coywolfCcbBlocks` / `coywolfCustomBlocks`). Both plugins can be active simultaneously.
 - **Import from upstream Genesis Custom Blocks.** Custom Blocks → Import from Genesis lists every `genesis_custom_block` post on the site with per-row checkboxes and a "select all" toggle. Imported blocks get a best-effort translation of their theme template files (the `block_field()` / `block_value()` calls are converted to the in-admin `{{field-slug}}` syntax). An optional checkbox additionally rewrites every `<!-- wp:genesis-custom-blocks/foo -->` comment across all post content to `<!-- wp:coywolf-custom-blocks/foo -->` so existing pages keep rendering after upstream is removed.
-- **Native JSON export and import.** Custom Blocks → Export & Import downloads one or more blocks as a single JSON file (per-row "Export" link, "Export selected" bulk action, or "Export all" button). Upload that file on another Coywolf Custom Blocks site to recreate the blocks; existing slugs are replaced rather than duplicated.
+- **Native JSON export and import.** Custom Blocks → Import/Export downloads one or more blocks as a single JSON file (per-row "Export" link, "Export selected" bulk action, or "Export all" button). Upload that file on another Coywolf Custom Blocks site to recreate the blocks; existing slugs are replaced rather than duplicated.
 - **Opt-in uninstall cleanup.** A "Delete plugin data on uninstall" checkbox in Settings controls whether `uninstall.php` drops every block definition and plugin option when the plugin is deleted. Unchecked by default — deactivate-and-delete is non-destructive.
 
 ## Installation
@@ -29,7 +29,7 @@ Coywolf Custom Blocks lets you define your own Gutenberg blocks (fields + markup
 1. Go to the [latest GitHub release](https://github.com/coywolf-llc/custom-blocks/releases/latest).
 2. Under **Assets**, download **`coywolf-custom-blocks.zip`** — _not_ the auto-generated "Source code (zip)" link. The release zip contains the built JS/CSS bundles; the source zip does not, and uploading it will break the editor.
 3. In WordPress, go to **Plugins → Add New → Upload Plugin**, upload the zip, and click Activate.
-4. Go to **Custom Blocks → Add New** to define your first block.
+4. Go to **Custom Blocks → Add Block** to define your first block.
 
 Once installed, updates surface on **Dashboard → Updates** just like a plugin installed from wordpress.org.
 
@@ -94,10 +94,10 @@ The Content Blocks listing in WordPress showing all 12 published Coywolf Custom 
 
 ![Content Blocks listing](.wordpress-org/screenshot-3.png)
 
-### Export & Import
-The Coywolf Custom Blocks Export & Import screen in WordPress, with options to export all blocks as a single JSON file or upload a JSON file to import blocks.
+### Import/Export
+The Coywolf Custom Blocks Import/Export screen in WordPress, with options to export all blocks as a single JSON file or upload a JSON file to import blocks.
 
-![Export & Import](.wordpress-org/screenshot-4.png)
+![Import/Export](.wordpress-org/screenshot-4.png)
 
 ### Front-end output
 A Review Summary block rendered on the front end, showing a 4.6 out of 5 rating alongside "What I Liked Most" and "Could Be Better" columns.
