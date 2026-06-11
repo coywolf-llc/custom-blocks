@@ -85,6 +85,7 @@ class Documentation extends ComponentAbstract {
 			.coywolf-docs a { color: #2271b1; }
 			.coywolf-docs table { border-collapse: collapse; margin: 12px 0; }
 			.coywolf-docs th, .coywolf-docs td { padding: 6px 12px; border: 1px solid #dcdcde; }
+			.coywolf-docs-image { display: block; max-width: 100%; height: auto; margin: 0.75em 0 1.25em; border: 1px solid #c3c4c7; border-radius: 4px; }
 		';
 		wp_register_style( 'coywolf-custom-blocks-docs', false, [], '1.0' ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 		wp_enqueue_style( 'coywolf-custom-blocks-docs' );
@@ -126,7 +127,7 @@ class Documentation extends ComponentAbstract {
 		// the whole file) only fires once per release — the readme only
 		// changes when the plugin is updated.
 		$mtime     = (int) filemtime( $path );
-		$cache_key = 'coywolf_ccb_docs_v2_' . $mtime;
+		$cache_key = 'coywolf_ccb_docs_v3_' . $mtime; // v3: screenshots render as <img>.
 		$html      = get_transient( $cache_key );
 		if ( false === $html ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local plugin file.
@@ -177,11 +178,11 @@ class Documentation extends ComponentAbstract {
 			$markdown
 		);
 
-		// 2. Strip any `<img>` tags. The readme's leading logo banner
-		//    is meant for the GitHub repo view; on the Documentation
-		//    page it just renders as a broken image (the `.wordpress-org/`
-		//    asset directory isn't shipped in the plugin install).
-		$markdown = preg_replace( '#<img\s+[^>]*?/?>#i', '', $markdown );
+		// 2. Strip the standalone `<img>` logo banner line — it's meant
+		//    for the GitHub repo view, and the page provides its own
+		//    heading. Markdown ![alt](path) images (the screenshots)
+		//    are NOT stripped; inline_md() renders them.
+		$markdown = preg_replace( '/^\s*<img\b[^>]*>\s*$/m', '', $markdown );
 
 		// 3. Line-based processing. Each line is either a heading, a
 		//    list item, a blank line (paragraph break), or a regular
@@ -311,6 +312,24 @@ class Documentation extends ComponentAbstract {
 		// leaves * alone).
 		$text = preg_replace( '/\*\*(.+?)\*\*/', '<strong>$1</strong>', $text );
 
+		// Images: ![alt](path) — must run before the link rule, which
+		// would otherwise swallow the bracketed part. $m[1] is already
+		// escaped (ENT_QUOTES) by the esc_html() above, so it's
+		// attribute-safe. Relative paths resolve to the installed
+		// plugin copy, with a GitHub fallback when the file didn't
+		// ship — see image_src().
+		$text = preg_replace_callback(
+			'/!\[([^\]]*)\]\(([^)\s]+)\)/',
+			function ( $m ) {
+				return sprintf(
+					'<img class="coywolf-docs-image" src="%s" alt="%s" />',
+					esc_url( $this->image_src( $m[2] ) ),
+					$m[1]
+				);
+			},
+			$text
+		);
+
 		// Inline links: [text](https?://...). The brackets and parens
 		// pass through esc_html unchanged.
 		$text = preg_replace_callback(
@@ -336,5 +355,29 @@ class Documentation extends ComponentAbstract {
 		);
 
 		return $text;
+	}
+
+	/**
+	 * Resolve a Markdown image path to a browser-loadable URL.
+	 *
+	 * Absolute URLs pass through. Repo-relative paths (the readme's
+	 * `.wordpress-org/screenshot-*.png` references) resolve to the
+	 * installed plugin copy when the file shipped in the zip; otherwise
+	 * they fall back to the file on GitHub so the page still shows its
+	 * screenshots on builds that exclude the asset directory.
+	 *
+	 * @param string $path Image path as written in the Markdown.
+	 * @return string URL.
+	 */
+	protected function image_src( $path ) {
+		if ( preg_match( '#^https?://#i', $path ) ) {
+			return $path;
+		}
+		$path = preg_replace( '#^\./#', '', $path ); // "./x" → "x"; keeps dot-prefixed names like ".wordpress-org".
+		$root = coywolf_custom_blocks()->get_path();
+		if ( file_exists( $root . $path ) ) {
+			return coywolf_custom_blocks()->get_url( $path );
+		}
+		return 'https://raw.githubusercontent.com/coywolf-llc/custom-blocks/main/' . $path;
 	}
 }

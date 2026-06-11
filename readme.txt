@@ -56,7 +56,7 @@ front-end markup in the in-admin Custom HTML field (no
   An optional checkbox rewrites every wp:genesis-custom-blocks/foo block
   comment across all post content to wp:coywolf-custom-blocks/foo so
   existing pages keep rendering after upstream is removed.
-* Native JSON export and import. The "Export & Import" page downloads one
+* Native JSON export and import. The "Import/Export" page downloads one
   or more blocks as a single JSON file. Upload that file on another
   Coywolf Custom Blocks site to recreate the blocks; existing slugs are
   replaced rather than duplicated.
@@ -76,13 +76,13 @@ front-end markup in the in-admin Custom HTML field (no
    will break the block editor.
 3. In WordPress, go to Plugins -> Add New -> Upload Plugin, upload the
    zip, and click Activate.
-4. Go to Custom Blocks -> Add New to define your first block.
+4. Go to Custom Blocks -> Add Block to define your first block.
 
 Once installed, updates surface on Dashboard -> Updates just like a
 plugin installed from wordpress.org.
 <!-- wporg-strip:end -->
 After installing and activating Coywolf Custom Blocks, open
-Custom Blocks &rarr; Add New to define your first block.
+Custom Blocks &rarr; Add Block to define your first block.
 
 == Frequently Asked Questions ==
 
@@ -173,7 +173,7 @@ Privacy-first: this plugin includes no analytics, no tracking, and no data gathe
 1. A new, empty block in the Coywolf Custom Blocks builder, showing the Custom HTML field where front-end markup is defined using field slugs wrapped in double curly braces.
 2. The Coywolf Custom Blocks builder showing the Review Summary block's editor fields, including Schema Type, Review Name, Rating, Strengths, and Brand, with block settings in the right sidebar.
 3. The Content Blocks listing in WordPress showing all 12 published Coywolf Custom Blocks, including Accordion, Blockquote, Newsletter, and Review Summary, with their categories, keywords, and usage counts.
-4. The Coywolf Custom Blocks Export & Import screen in WordPress, with options to export all blocks as a single JSON file or upload a JSON file to import blocks.
+4. The Coywolf Custom Blocks Import/Export screen in WordPress, with options to export all blocks as a single JSON file or upload a JSON file to import blocks.
 5. A Review Summary block rendered on the front end, showing a 4.6 out of 5 rating alongside "What I Liked Most" and "Could Be Better" columns.
 
 == Changelog ==
