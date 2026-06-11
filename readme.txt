@@ -23,6 +23,17 @@ front-end markup in the in-admin Custom HTML field (no
   verbatim. `<script>`, `<iframe>`, and inline event handlers pass through.
   Custom HTML and Preview HTML are the only render sources (no theme-file
   fallback).
+* Template logic without PHP — beyond {{field}} substitution, templates
+  support {{#if name}} … {{else}} … {{/if}} conditionals,
+  {{#each name}} … {{item}} … {{/each}} loops over multi-select values,
+  {{name|esc_html}}-style filters, and {{post:*}} / {{site:*}} context
+  values — all interpreted in PHP with no code generation, no eval(),
+  and nothing written to disk.
+* PHP in templates via a companion plugin — install the free
+  "Coywolf Custom Blocks — PHP Templates" companion
+  (https://github.com/coywolf-llc/custom-blocks-php-templates) and any
+  PHP in a template executes on the server at render time. The split
+  keeps this plugin free of database-stored code execution.
 * No external server calls, no analytics. The WP Engine plugin update
   server integration, the dormant Google Analytics client, and the Genesis
   Pro upgrade nag have all been removed.
@@ -116,26 +127,42 @@ Genesis Custom Blocks (WP Engine / StudioPress); that notice is preserved
 here for the whole fork, while the per-file headers carry the Coywolf LLC
 notice.
 
-= Why isn't this plugin on WordPress.org? =
+= Can I use PHP in block templates? =
 
-By deliberate decision (June 2026), this plugin is distributed through
-GitHub Releases only and will not be submitted to the WordPress.org
-plugin directory.
+Yes — install the free "Coywolf Custom Blocks — PHP Templates"
+companion plugin
+(https://github.com/coywolf-llc/custom-blocks-php-templates) and any
+PHP in a block's Custom HTML or Preview HTML executes on the server at
+render time (same manage_options trust level as Appearance -> Theme
+File Editor). Without the companion, blocks whose templates contain PHP
+render an explanatory HTML comment and an admin notice links to the
+companion. Most templates don't need PHP at all — see the built-in
+logic below.
 
-The fork's core feature — authoring block markup, including PHP, in the
-WordPress admin with no theme files or SFTP — is fundamentally
-incompatible with WordPress.org's guidelines, which forbid executing
-user-supplied code stored in the database (whether via cached files in
-uploads or eval()). Removing PHP support from the Custom HTML editor
-would reduce this plugin to what upstream Genesis Custom Blocks already
-offers on WordPress.org, so anyone who needs a directory-hosted plugin
-should simply use upstream.
+= What template logic is built in (no PHP needed)? =
 
-The trust model is the same one WordPress itself ships with: editing a
-block requires manage_options, the identical capability that gates
-Appearance -> Theme File Editor. Updates arrive through the built-in
-GitHub self-updater on Dashboard -> Updates, with downloads restricted
-to GitHub-owned hosts.
+* {{name}} — field output, sanitized with wp_kses_post().
+* {{name|esc_html|upper}} — the raw field value piped through
+  whitelisted filters: esc_html, esc_attr, esc_url, upper, lower, trim,
+  nl2br, wpautop, length, json.
+* {{#if name}} … {{else}} … {{/if}} — conditional on a field's
+  truthiness. Nestable.
+* {{#each name}} … {{item}} … {{/each}} — loop a multi-select field's
+  values; {{@index}} is the 0-based position.
+* {{post:title}}, {{post:permalink}}, {{post:date}}, {{post:author}},
+  {{post:id}}, {{site:name}}, {{site:url}} — escaped context values.
+* \{\{literal\}\} renders as {{literal}} for showing the syntax itself.
+* Shortcodes in template output expand on the front end as usual.
+
+= Why is PHP execution a separate plugin? =
+
+Templates in this plugin are interpreted — never compiled, eval()'d, or
+written to disk. The WordPress.org directory forbids executing
+user-supplied code stored in the database in any form, so the
+PHP-execution capability lives in the GitHub-distributed companion
+instead. The trust model is unchanged: editing a block requires
+manage_options, the identical capability that gates Appearance ->
+Theme File Editor.
 
 == Privacy ==
 

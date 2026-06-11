@@ -25,8 +25,10 @@ import { useBlock, useField } from '../hooks';
  * meta-only blocks, etc. — can still show a visible placeholder in
  * the editor without affecting the frontend.
  *
- * Same `{{field-slug}}` substitution + PHP execution pipeline as
- * Custom HTML; same `Insert field` dropdown for ergonomics.
+ * Same rendering pipeline as Custom HTML — `{{field-slug}}`
+ * substitution, the {{#if}}/{{#each}}/filter mini-language, and PHP
+ * execution when the "PHP Templates" companion plugin is installed —
+ * and the same `Insert field` dropdown for ergonomics.
  *
  * @return {React.ReactElement} The Preview HTML panel.
  */

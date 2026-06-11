@@ -10,6 +10,7 @@
 namespace Coywolf\CustomBlocks\Admin;
 
 use Coywolf\CustomBlocks\ComponentAbstract;
+use Coywolf\CustomBlocks\Blocks\TemplateEditor;
 
 /**
  * Class Admin
@@ -77,11 +78,64 @@ class Admin extends ComponentAbstract {
 	/**
 	 * Register any hooks that this component needs.
 	 *
-	 * Intentionally empty: the only thing this component used to do was
-	 * enqueue `css/admin.css` on every wp-admin page, but its sole rule
-	 * styled a `coywolf-custom-blocks-pro` admin-menu item that no
-	 * longer exists (the upstream Pro upsell was removed during the
-	 * fork). The dead stylesheet and its site-wide enqueue are gone.
+	 * (The historical site-wide `css/admin.css` enqueue is gone — its
+	 * sole rule styled the removed upstream Pro menu item.)
 	 */
-	public function register_hooks() {}
+	public function register_hooks() {
+		add_action( 'admin_notices', [ $this, 'maybe_render_php_executor_notice' ] );
+		add_action( 'admin_init', [ $this, 'maybe_dismiss_php_executor_notice' ] );
+	}
+
+	/**
+	 * Warn when a block template containing PHP rendered without the
+	 * "PHP Templates" companion plugin hooked.
+	 *
+	 * The flag option is written by TemplateEditor when its fallback
+	 * fires; the notice self-heals (deletes the flag) as soon as an
+	 * executor is present, so installing the companion clears it with
+	 * no further interaction.
+	 */
+	public function maybe_render_php_executor_notice() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		if ( ! get_option( TemplateEditor::EXECUTOR_MISSING_OPTION ) ) {
+			return;
+		}
+		if ( has_filter( 'coywolf_custom_blocks_execute_php_template' ) ) {
+			// An executor is hooked now — the condition resolved itself.
+			delete_option( TemplateEditor::EXECUTOR_MISSING_OPTION );
+			return;
+		}
+
+		$dismiss_url = wp_nonce_url(
+			add_query_arg( 'coywolf_ccb_dismiss_php_notice', '1' ),
+			'coywolf_ccb_dismiss_php_notice'
+		);
+		printf(
+			'<div class="notice notice-warning"><p><strong>%s</strong> %s</p><p><a class="button button-primary" href="%s" target="_blank" rel="noopener noreferrer">%s</a> <a class="button" href="%s">%s</a></p></div>',
+			esc_html__( 'Coywolf Custom Blocks:', 'coywolf-custom-blocks' ),
+			esc_html__( 'at least one block template contains PHP, which no longer executes without the free "PHP Templates" companion plugin. Those blocks currently render an HTML comment instead of their output.', 'coywolf-custom-blocks' ),
+			esc_url( 'https://github.com/coywolf-llc/custom-blocks-php-templates/releases/latest' ),
+			esc_html__( 'Get the companion plugin', 'coywolf-custom-blocks' ),
+			esc_url( $dismiss_url ),
+			esc_html__( 'Dismiss', 'coywolf-custom-blocks' )
+		);
+	}
+
+	/**
+	 * Handle the notice's Dismiss link. The flag re-arms on the next
+	 * fallback render, so dismissal is per-incident, not permanent.
+	 */
+	public function maybe_dismiss_php_executor_notice() {
+		if ( ! isset( $_GET['coywolf_ccb_dismiss_php_notice'] ) ) {
+			return;
+		}
+		check_admin_referer( 'coywolf_ccb_dismiss_php_notice' );
+		if ( current_user_can( 'manage_options' ) ) {
+			delete_option( TemplateEditor::EXECUTOR_MISSING_OPTION );
+		}
+		wp_safe_redirect( remove_query_arg( [ 'coywolf_ccb_dismiss_php_notice', '_wpnonce' ] ) );
+		exit;
+	}
 }

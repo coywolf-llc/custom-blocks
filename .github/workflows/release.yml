@@ -287,11 +287,27 @@ jobs:
             "${SLUG}.zip"
 
       # ----------------------------------------------------------------------
-      # No WordPress.org variant for this plugin — deliberate June 2026
-      # decision. The fork's core feature (in-admin Custom HTML templates
-      # that may contain PHP, executed via a cached file in uploads) is
-      # categorically disallowed by the .org plugin directory, so this
-      # plugin is GitHub-distributed only. See the "Why isn't this plugin
-      # on WordPress.org?" readme FAQ. The .github/build-wporg.sh script
-      # is kept solely as the staging harness for local Plugin Check runs.
+      # WordPress.org variant (.github/build-wporg.sh): strips the GitHub
+      # self-updater the .org directory forbids and uploads the zip as an
+      # artifact. Eligible again since 1.0.70 — PHP execution moved to the
+      # GitHub-only "PHP Templates" companion plugin, so this plugin no
+      # longer executes database-stored code. No SVN deploy here by policy:
+      # any .org submission/push is a manual, explicitly-confirmed step.
       # ----------------------------------------------------------------------
+      - name: Build WordPress.org variant
+        if: steps.tagcheck.outputs.exists == 'false'
+        env:
+          SLUG: coywolf-custom-blocks
+        run: |
+          set -euo pipefail
+          bash .github/build-wporg.sh "$RUNNER_TEMP/build/$SLUG" "$RUNNER_TEMP/wporg"
+          ( cd "$RUNNER_TEMP/wporg" && zip -r -q "$GITHUB_WORKSPACE/$SLUG-wporg.zip" "$SLUG" )
+          ls -l "$SLUG-wporg.zip"
+
+      - name: Upload WordPress.org zip (submission / Plugin Check)
+        if: steps.tagcheck.outputs.exists == 'false'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.final.outputs.tag }}-wporg
+          path: coywolf-custom-blocks-wporg.zip
+          if-no-files-found: error

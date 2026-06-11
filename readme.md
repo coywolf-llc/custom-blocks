@@ -15,6 +15,8 @@ Easily create and use custom blocks in WordPress. Export the custom blocks you c
 Coywolf Custom Blocks lets you define your own Gutenberg blocks (fields + markup) entirely in the WordPress admin. Each block lives as a `coywolf_custom_block` post: configure its fields in the editor, write its front-end markup in the in-admin Custom HTML field (no `blocks/block-{slug}.php` theme file required), and it renders site-wide.
 
 - **Inline Custom HTML editor.** Block markup is authored as a textarea below the fields grid on the block editor screen. The HTML is saved on the block's post record and renders verbatim — `<script>`, `<iframe>`, inline event handlers all pass through. As of 1.0.31, the legacy `{theme}/blocks/block-{slug}.php` fallback is gone — the Custom HTML and Preview HTML panels on the Builder page are the only render sources.
+- **Template logic without PHP.** Beyond `{{field}}` substitution, templates support `{{#if name}} … {{else}} … {{/if}}` conditionals, `{{#each name}} … {{item}} … {{/each}}` loops over multi-select values, `{{name|esc_html}}`-style filters, and `{{post:*}}` / `{{site:*}}` context values — all interpreted in PHP with no code generation, no `eval()`, and nothing written to disk.
+- **PHP in templates via a companion plugin.** Install the free [Coywolf Custom Blocks — PHP Templates](https://github.com/coywolf-llc/custom-blocks-php-templates) companion and any `<?php … ?>` in a template executes on the server at render time, exactly as it did when this was built into the main plugin (≤ 1.0.69). The split keeps the main plugin eligible for the WordPress.org directory, which forbids executing database-stored PHP.
 - **No external server calls, no analytics.** The WP Engine plugin update server integration, the dormant Google Analytics client (`GAClient.js` / `window.GcbAnalytics`), and the Genesis Pro upgrade nag have all been removed. The only outbound request this plugin ever makes is `GET api.github.com/repos/coywolf-llc/custom-blocks/releases/latest` for update checks.
 - **Self-updates from GitHub Releases.** Plugin updates appear on Dashboard → Updates and install with the standard one-click flow. Downloads are restricted to a GitHub-owned host allowlist.
 - **Renamespaced to coexist with upstream.** Every identifier that would collide with the original Genesis Custom Blocks plugin has been renamed (PHP namespace `Coywolf\CustomBlocks`, post type `coywolf_custom_block`, block prefix `coywolf-custom-blocks/`, text domain, options, hooks, REST routes, script/style handles, JS globals `coywolfCcbEditor` / `coywolfCcbBlocks` / `coywolfCustomBlocks`). Both plugins can be active simultaneously.
@@ -53,13 +55,23 @@ Yes. The field is intended for use by site administrators (editing `coywolf_cust
 
 This is a fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) by WP Engine / StudioPress, originally created by Luke Carbis, Ryan Kienstra, Stino11, Rheinard Korf, and the StudioPress / WP Engine team. All credit for the original plugin and its design belongs to them; this fork exists to keep the codebase alive and self-contained for Coywolf sites. Released under the same GPL-2.0-or-later license. Upstream code copyright © 2022 Genesis Custom Blocks (WP Engine / StudioPress); that notice is preserved here for the whole fork, while the per-file headers carry the Coywolf LLC notice.
 
-### Why isn't this plugin on WordPress.org?
+### Can I use PHP in block templates?
 
-By deliberate decision (June 2026), this plugin is distributed through GitHub Releases only and will not be submitted to the WordPress.org plugin directory.
+Yes — install the free [Coywolf Custom Blocks — PHP Templates](https://github.com/coywolf-llc/custom-blocks-php-templates) companion plugin and any `<?php … ?>` in a block's Custom HTML or Preview HTML executes on the server at render time, exactly as it did in ≤ 1.0.69 (same `manage_options` trust level as **Appearance → Theme File Editor**). Without the companion, blocks whose templates contain PHP render an explanatory HTML comment and an admin notice links to the companion. Most templates don't need PHP at all — see the built-in logic below.
 
-The fork's core feature — authoring block markup, including PHP, in the WordPress admin with no theme files or SFTP — is fundamentally incompatible with WordPress.org's guidelines, which forbid executing user-supplied code stored in the database (whether via cached files in uploads or `eval()`). Removing PHP support from the Custom HTML editor would reduce this plugin to what upstream Genesis Custom Blocks already offers on WordPress.org, so anyone who needs a directory-hosted plugin should simply use upstream.
+### What template logic is built in (no PHP needed)?
 
-The trust model is the same one WordPress itself ships with: editing a block requires `manage_options`, the identical capability that gates **Appearance → Theme File Editor**. Updates arrive through the built-in GitHub self-updater on **Dashboard → Updates**, with downloads restricted to GitHub-owned hosts.
+- `{{name}}` — field output, sanitized with `wp_kses_post()`.
+- `{{name|esc_html|upper}}` — the raw field value piped through whitelisted filters: `esc_html`, `esc_attr`, `esc_url`, `upper`, `lower`, `trim`, `nl2br`, `wpautop`, `length`, `json`.
+- `{{#if name}} … {{else}} … {{/if}}` — conditional on a field's truthiness. Nestable.
+- `{{#each name}} … {{item}} … {{/each}}` — loop a multi-select field's values; `{{@index}}` is the 0-based position.
+- `{{post:title}}`, `{{post:permalink}}`, `{{post:date}}`, `{{post:author}}`, `{{post:id}}`, `{{site:name}}`, `{{site:url}}` — escaped context values.
+- `\{\{literal\}\}` renders as `{{literal}}` for showing the syntax itself.
+- Shortcodes in template output expand on the front end as usual (WordPress runs `do_shortcode` over post content after blocks render).
+
+### Why is PHP execution a separate plugin?
+
+As of 1.0.70 the main plugin is WordPress.org-compliant by design: templates are interpreted — never compiled, `eval()`'d, or written to disk. The WordPress.org directory forbids executing user-supplied code stored in the database in any form, so rather than deleting the fork's signature capability, it moved to the GitHub-distributed companion. The trust model is unchanged: editing a block requires `manage_options`, the identical capability that gates **Appearance → Theme File Editor**. Updates for both plugins arrive through the built-in GitHub self-updater on **Dashboard → Updates**, with downloads restricted to GitHub-owned hosts.
 
 ## Privacy
 
