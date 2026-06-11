@@ -1,4 +1,4 @@
-/* global ccbEditor */
+/* global coywolfCcbEditor */
 
 /**
  * WordPress dependencies
@@ -57,7 +57,7 @@ import {
  */
 const useBlock = () => {
 	// @ts-ignore
-	const { postId } = ccbEditor;
+	const { postId } = coywolfCcbEditor;
 	const editedPostContent = useSelect(
 		( select ) => select( 'core/editor' ).getEditedPostContent(),
 		[]

@@ -1,4 +1,4 @@
-/* global ccbEditor */
+/* global coywolfCcbEditor */
 
 /**
  * External dependencies
@@ -52,8 +52,8 @@ const PreviewIframe = ( { blockName, attributes = {}, urlQueryArgs = {}, classNa
 	const [ error, setError ] = useState( null );
 	const [ height, setHeight ] = useState( 0 );
 
-	const previewStyles = ( typeof ccbEditor !== 'undefined' && ccbEditor && ccbEditor.previewStyles )
-		? ccbEditor.previewStyles
+	const previewStyles = ( typeof coywolfCcbEditor !== 'undefined' && coywolfCcbEditor && coywolfCcbEditor.previewStyles )
+		? coywolfCcbEditor.previewStyles
 		: { urls: [], inline: '' };
 
 	// Re-fetch when block name, attributes, or render mode change.

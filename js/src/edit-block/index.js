@@ -1,4 +1,4 @@
-/* global ccbEditor, __webpack_public_path__ */
+/* global coywolfCcbEditor, __webpack_public_path__ */
 
 /**
  * Tell webpack where to fetch dynamic-import chunks from at runtime.
@@ -58,5 +58,5 @@ domReady( () => {
 	}
 
 	// @ts-ignore
-	initializeEditor( ccbEditor, container );
+	initializeEditor( coywolfCcbEditor, container );
 } );

@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 #
-# build-wporg.sh — produce the WordPress.org-compliant variant of this plugin.
+# build-wporg.sh — produce the WordPress.org-shaped variant of this plugin.
+#
+# NOTE (June 2026): this plugin is GitHub-distributed only and will NOT be
+# submitted to WordPress.org — its core feature (in-admin templates that may
+# contain PHP, executed via a cached file in uploads) is disallowed by the
+# .org directory. See the "Why isn't this plugin on WordPress.org?" readme
+# FAQ. This script is no longer wired into the release workflow; it is kept
+# solely as the staging harness for local Plugin Check runs (stage the
+# output as wp-content/plugins/coywolf-custom-blocks in a test install).
 #
 # The plugin ships from GitHub with a bundled self-updater that pulls its own
-# updates from the project's GitHub Releases. The WordPress.org Plugin
-# Directory forbids that — listed plugins must update through .org — so this
-# script takes an already-staged build tree and strips the self-updater out,
-# leaving an otherwise-identical plugin that updates through wordpress.org.
+# updates from the project's GitHub Releases. Plugin Check reports that as an
+# error, so this script takes an already-staged build tree and strips the
+# self-updater out before a check run.
 #
 # What it removes:
 #   * includes/class-github-updater.php          — the updater class file

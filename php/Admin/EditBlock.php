@@ -138,7 +138,7 @@ class EditBlock extends ComponentAbstract {
 		wp_add_inline_script(
 			self::SCRIPT_SLUG,
 			sprintf(
-				'const ccbEditor = %s;',
+				'const coywolfCcbEditor = %s;',
 				wp_json_encode(
 					[
 						'controls'         => coywolf_custom_blocks()->block_post->get_controls(),
@@ -198,7 +198,7 @@ class EditBlock extends ComponentAbstract {
 	protected function collect_theme_preview_styles() {
 		// theme.json-heavy sites produce hundreds of KB of CSS from
 		// `wp_get_global_stylesheet()`. Inlining that into the
-		// `ccbEditor` JS global on every block-builder pageview was
+		// `coywolfCcbEditor` JS global on every block-builder pageview was
 		// flagged H2 in the 1.0.42 perf audit. Cache the result in a
 		// short transient and bust it on signals that can change the
 		// output: theme switch, global-style post save, and any direct
