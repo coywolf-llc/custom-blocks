@@ -1,4 +1,4 @@
-/* global coywolfCustomBlocks, ccbBlocks, __webpack_public_path__ */
+/* global coywolfCustomBlocks, coywolfCcbBlocks, __webpack_public_path__ */
 
 /**
  * Resolve dynamic-import chunks against the plugin's actual URL at
@@ -37,4 +37,4 @@ setLocaleData( { '': {} }, 'coywolf-custom-blocks' );
 addFilter( 'coywolfCustomBlocks.controls', 'coywolfCustomBlocks/addControls', addControls );
 
 // @ts-ignore
-registerBlocks( coywolfCustomBlocks, ccbBlocks, Edit );
+registerBlocks( coywolfCustomBlocks, coywolfCcbBlocks, Edit );
