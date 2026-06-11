@@ -79,7 +79,7 @@ class TemplateEditor {
 	 */
 	public function render_markup( $markup ) {
 		$markup   = (string) $markup;
-		$has_php  = $this->contains_php_tag( $markup );
+		$has_php  = self::contains_php_tag( $markup );
 		$rendered = $this->get_interpreter()->render( $markup );
 
 		if ( ! $has_php ) {
@@ -148,12 +148,14 @@ class TemplateEditor {
 	 * removed in PHP 7, but cheap to also flag for symmetry).
 	 *
 	 * Called on the RAW admin-authored template only — never on
-	 * field-substituted output.
+	 * field-substituted output. Public + static so other components
+	 * (e.g. the Genesis importer's "this block needs the PHP Templates
+	 * companion" check) share one canonical detector.
 	 *
 	 * @param string $content The template markup.
 	 * @return bool
 	 */
-	protected function contains_php_tag( $content ) {
+	public static function contains_php_tag( $content ) {
 		return false !== strpos( $content, '<?php' )
 			|| false !== strpos( $content, '<?=' )
 			|| (bool) preg_match( '/<\?(?:\s|$|[^x])/', $content );
