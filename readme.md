@@ -4,7 +4,7 @@
 
 Easily create and use custom blocks in WordPress. Export the custom blocks you create and import them on other sites, or share them with others. A privacy-respecting fork of [Genesis Custom Blocks](https://github.com/studiopress/genesis-custom-blocks) with WP Engine telemetry, the WPE update server, and Genesis Pro upsells removed; ships an inline Custom HTML editor, native JSON export/import, and a one-shot importer for migrating off upstream.
 
-- **Version:** 1.0.68
+- **Version:** 1.0.69
 - **Requires WordPress:** 6.0 or later
 - **Tested up to:** 7.0
 - **Requires PHP:** 7.0 or later
@@ -93,6 +93,9 @@ A Review Summary block rendered on the front end, showing a 4.6 out of 5 rating 
 ![Front-end output](.wordpress-org/screenshot-5.png)
 
 ## Changelog
+
+### 1.0.69
+- Distribution decision: GitHub-only — keep in-admin PHP templates, document why, drop .org variant from CI (#79).
 
 ### 1.0.68
 - WP.org review sweep: enqueue importer JS, prefix ccbBlocks global and stash transients (#78).
