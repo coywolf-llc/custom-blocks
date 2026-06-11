@@ -9,7 +9,7 @@
  * Plugin Name: Coywolf Custom Blocks
  * Plugin URI: https://coywolf.com/notes/custom-blocks-easily-create-and-use-custom-blocks-in-wordpress/
  * Description: Easily create and use custom blocks in WordPress. Export the custom blocks you create and import them on other sites, or share them with others.
- * Version: 1.0.70
+ * Version: 1.0.71
  * Author: Coywolf
  * Author URI: https://coywolf.com/jon-henshaw/
  * License: GPL2
