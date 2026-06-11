@@ -4,7 +4,7 @@ Tags: gutenberg, blocks, block editor, fields, template
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.69
+Stable tag: 1.0.70
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -177,6 +177,9 @@ Privacy-first: this plugin includes no analytics, no tracking, and no data gathe
 5. A Review Summary block rendered on the front end, showing a 4.6 out of 5 rating alongside "What I Liked Most" and "Could Be Better" columns.
 
 == Changelog ==
+
+= 1.0.70 =
+* WP.org-compliant templates: sandboxed interpreter + PHP execution via companion plugin (#80).
 
 = 1.0.69 =
 * Distribution decision: GitHub-only — keep in-admin PHP templates, document why, drop .org variant from CI (#79).
