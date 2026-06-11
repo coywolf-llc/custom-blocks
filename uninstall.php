@@ -59,6 +59,7 @@ $coywolf_options = array(
 	'coywolf_custom_blocks_delete_on_uninstall',
 	'coywolf_custom_blocks_notices',
 	'coywolf_custom_blocks_example_post_id', // Legacy: previously written by the now-removed Onboarding component.
+	'coywolf_custom_blocks_php_executor_missing', // Flag behind the "install the PHP Templates companion" notice.
 );
 
 foreach ( $coywolf_options as $coywolf_option_name ) {
@@ -86,11 +87,13 @@ delete_site_transient( 'coywolf_custom_blocks_gh_release_neg' );
 /**
  * Compiled-template cache directory.
  *
- * `TemplateEditor::render_markup()` writes per-content PHP files
- * to `wp-content/uploads/coywolf-custom-blocks/templates/` so the
- * embedded PHP in a block's Custom HTML can be `include`d at render
- * time. Drop the whole directory on uninstall — its only callers
- * are gone.
+ * Through 1.0.69, `TemplateEditor::render_markup()` wrote per-content
+ * PHP files to `wp-content/uploads/coywolf-custom-blocks/templates/`;
+ * since 1.0.70 the same directory is written by the separate
+ * "Coywolf Custom Blocks — PHP Templates" companion plugin. Drop it
+ * here too — the files are regenerable caches either way, and if the
+ * companion remains installed it simply recreates the directory on the
+ * next PHP-template render.
  */
 $coywolf_uploads = wp_get_upload_dir();
 if ( isset( $coywolf_uploads['basedir'] ) && is_string( $coywolf_uploads['basedir'] ) ) {

@@ -11,8 +11,32 @@ namespace Coywolf\CustomBlocks\Blocks;
 
 /**
  * Class TemplateEditor
+ *
+ * Renders the Custom HTML / Preview HTML authored in the block builder.
+ *
+ * Since 1.0.70 the renderer itself is WordPress.org-compliant: plain
+ * templates ({{field}} substitution plus the {{#if}}/{{#each}}/filter
+ * mini-language — see {@see TemplateInterpreter}) are interpreted in
+ * PHP with no code generation, no eval(), and no files written to
+ * disk. Templates whose admin-authored markup contains a PHP open tag
+ * are handed to the GitHub-distributed "Coywolf Custom Blocks — PHP
+ * Templates" companion through the
+ * `coywolf_custom_blocks_execute_php_template` filter; without the
+ * companion they render an explanatory HTML comment (and an admin
+ * notice points at the companion).
+ *
+ * Option name {@see self::EXECUTOR_MISSING_OPTION} records that a
+ * PHP-containing template hit the fallback, which drives that notice.
  */
 class TemplateEditor {
+
+	/**
+	 * Option set when a PHP-containing template rendered without an
+	 * executor hooked — read by Admin::maybe_render_php_executor_notice().
+	 *
+	 * @var string
+	 */
+	const EXECUTOR_MISSING_OPTION = 'coywolf_custom_blocks_php_executor_missing';
 
 	/**
 	 * The block names that have had their CSS rendered.
@@ -22,66 +46,71 @@ class TemplateEditor {
 	public $blocks_with_rendered_css = [];
 
 	/**
+	 * Lazily-built template interpreter.
+	 *
+	 * @var TemplateInterpreter|null
+	 */
+	private $interpreter;
+
+	/**
 	 * Renders markup that was entered in the Custom HTML / template editor.
 	 *
-	 * Two-stage pipeline:
-	 *   1. `{{field-slug}}` placeholders are substituted with the values
-	 *      returned by `block_field()`, exactly as before.
-	 *   2. If the resulting string contains any PHP tag (`<?php`, `<?=`,
-	 *      or a bare `<?`), it is written to a per-content cached file
-	 *      under `wp-content/uploads/coywolf-custom-blocks/templates/`
-	 *      and `include`d with output buffering — so the PHP actually
-	 *      runs. The file is keyed by a hash of the substituted content,
-	 *      so identical templates share a cached file across renders
-	 *      and across pageloads.
-	 *
-	 * If no PHP tag is present, the substituted string is echoed raw
-	 * (the v1.0.x behaviour). That preserves the fast path for static
-	 * HTML/CSS/JS blocks that don't need PHP at all.
-	 *
-	 * Security: this method evaluates arbitrary PHP from the block's
-	 * post_content. Editing a `coywolf_custom_block` requires
-	 * `manage_options`, the same capability as Appearance → Theme File
-	 * Editor, so the trust boundary is identical to what WordPress
-	 * itself grants admins by default. Network/host operators who do
-	 * not trust their site admins should also be disabling
-	 * `DISALLOW_FILE_EDIT`.
-	 *
-	 * Distribution note (June 2026 decision): executing admin-authored
-	 * PHP from the database — whether via this cached-file mechanism or
-	 * eval() — is categorically disallowed by the WordPress.org plugin
-	 * directory ("no user-supplied code files on disk, even in
-	 * uploads"). Because this capability is the fork's core feature
-	 * (see PR #3), the plugin is deliberately GitHub-distributed only
-	 * and will not be submitted to WordPress.org. See the
-	 * "Why isn't this plugin on WordPress.org?" readme FAQ.
+	 * Pipeline:
+	 *   1. Detect PHP open tags on the RAW admin-authored template.
+	 *      Deciding before substitution means content supplied through
+	 *      field values can never flip a plain-HTML template onto the
+	 *      execute path (belt and braces — block_field()'s echo path is
+	 *      wp_kses_post()'d anyway, so values can't carry tags).
+	 *   2. Interpret: `{{field}}` substitution plus the
+	 *      {{#if}}/{{#each}}/filter mini-language (TemplateInterpreter).
+	 *   3. No PHP → echo the interpreted markup. Templates render
+	 *      verbatim (no kses): editing a `coywolf_custom_block` requires
+	 *      `manage_options`, the same capability as Appearance → Theme
+	 *      File Editor, so admin-authored <script>/<iframe> pass through
+	 *      by design (see PR #3).
+	 *   4. PHP present → offer the substituted markup to an executor via
+	 *      the `coywolf_custom_blocks_execute_php_template` filter (the
+	 *      GitHub-only companion plugin hooks it; WordPress.org forbids
+	 *      executing database-stored PHP, which is why the executor
+	 *      cannot ship in this plugin). No executor → HTML-comment
+	 *      fallback + flag the admin notice.
 	 *
 	 * @param string $markup The markup to render.
 	 */
 	public function render_markup( $markup ) {
-		$rendered = preg_replace_callback(
-			'#{{(\S+?)}}#',
-			static function ( $matches ) {
-				ob_start();
-				block_field( $matches[1] );
-				return ob_get_clean();
-			},
-			$markup
-		);
+		$markup   = (string) $markup;
+		$has_php  = $this->contains_php_tag( $markup );
+		$rendered = $this->get_interpreter()->render( $markup );
 
-		// Escape characters before { should be stripped, like \{\{example\}\}.
-		// Like if they have a tutorial on Mustache and need the template to render {{example}}.
-		$rendered = preg_replace( '#\\\{\\\{(\S+?)\\\}\\\}#', '{{\1}}', $rendered );
-
-		// Fast path: no PHP tags → just echo. wp_kses_post() would strip
-		// <script>/<iframe>/inline event handlers, which authors do need;
-		// see PR #3 for the original rationale.
-		if ( ! $this->contains_php_tag( $rendered ) ) {
-			echo $rendered; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		if ( ! $has_php ) {
+			echo $rendered; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Admin-authored template, rendered verbatim by design (Theme File Editor trust level).
 			return;
 		}
 
-		echo $this->execute_php( $rendered ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		/**
+		 * Filters a PHP-containing block template to its executed output.
+		 *
+		 * Applied only when the RAW admin-authored Custom HTML contains a
+		 * PHP open tag. The "Coywolf Custom Blocks — PHP Templates"
+		 * companion (github.com/coywolf-llc/custom-blocks-php-templates)
+		 * hooks this and returns the executed result; the capability is a
+		 * separate GitHub-distributed plugin because the WordPress.org
+		 * directory forbids executing database-stored PHP in any form.
+		 *
+		 * @param string|null $output   Executed output, or null when no
+		 *                              executor has handled the template.
+		 * @param string      $rendered The template after {{field}}
+		 *                              substitution and mini-language
+		 *                              interpretation.
+		 */
+		$executed = apply_filters( 'coywolf_custom_blocks_execute_php_template', null, $rendered );
+		if ( is_string( $executed ) ) {
+			echo $executed; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Executed admin-authored template (Theme File Editor trust level).
+			return;
+		}
+
+		$this->flag_missing_executor();
+		echo '<!-- Coywolf Custom Blocks: this block template contains PHP, which only runs with the free "Coywolf Custom Blocks - PHP Templates" companion plugin installed: https://github.com/coywolf-llc/custom-blocks-php-templates -->';
 	}
 
 	/**
@@ -118,7 +147,10 @@ class TemplateEditor {
 	 * enabled in php.ini), and the ASP-style `<%` (vanishingly rare,
 	 * removed in PHP 7, but cheap to also flag for symmetry).
 	 *
-	 * @param string $content The post-substitution markup.
+	 * Called on the RAW admin-authored template only — never on
+	 * field-substituted output.
+	 *
+	 * @param string $content The template markup.
 	 * @return bool
 	 */
 	protected function contains_php_tag( $content ) {
@@ -128,133 +160,35 @@ class TemplateEditor {
 	}
 
 	/**
-	 * Execute PHP-containing markup by writing it to a cached file
-	 * under uploads/coywolf-custom-blocks/templates/ and `include`ing
-	 * it with output buffering.
+	 * The interpreter, wired to the real block_field()/block_value() API.
 	 *
-	 * Caching: filename is a hash of the rendered content. Two
-	 * identical templates resolve to the same file; modifying a
-	 * block's Custom HTML produces a new hash and a new file. Old
-	 * cached files are reaped opportunistically by
-	 * `maybe_prune_cache()` on the next cache-miss write (and the whole
-	 * directory is cleared on plugin uninstall).
-	 *
-	 * Failure modes: if the cache directory can't be created or the
-	 * file can't be written (permission errors, disk full,
-	 * open_basedir restrictions), fall back to echoing the markup as
-	 * literal text. Better to show the raw PHP source than to
-	 * silently lose the block's output.
-	 *
-	 * @param string $content Markup with embedded PHP tags.
-	 * @return string The PHP output.
+	 * @return TemplateInterpreter
 	 */
-	protected function execute_php( $content ) {
-		$cache_dir = $this->get_template_cache_dir();
-		if ( '' === $cache_dir ) {
-			return $content;
+	private function get_interpreter() {
+		if ( null === $this->interpreter ) {
+			$this->interpreter = new TemplateInterpreter(
+				static function ( $name ) {
+					ob_start();
+					block_field( $name );
+					return (string) ob_get_clean();
+				},
+				static function ( $name ) {
+					return block_value( $name );
+				}
+			);
 		}
-
-		$hash = md5( $content );
-		$file = $cache_dir . '/tpl-' . $hash . '.php';
-
-		if ( ! file_exists( $file ) ) {
-			// A cache miss is the only moment the directory grows, so
-			// it's also where we prune stale files — keeps the dir from
-			// accumulating one file per unique render over a site's
-			// lifetime without needing a cron event.
-			$this->maybe_prune_cache( $cache_dir );
-
-			// Use the wp-filesystem when possible so hosts that
-			// enforce certain ownership/permissions on PHP-written
-			// files still see writes succeed; fall back to a plain
-			// file_put_contents otherwise.
-			if ( false === file_put_contents( $file, $content, LOCK_EX ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-				return $content;
-			}
-		}
-
-		ob_start();
-		try {
-			include $file; // phpcs:ignore WordPress.PHP.IncludingFile -- runtime-cached, admin-authored template
-		} catch ( \Throwable $err ) {
-			ob_end_clean();
-			return '<!-- Coywolf Custom Blocks: PHP error in Custom HTML — ' . esc_html( $err->getMessage() ) . ' -->';
-		}
-		return (string) ob_get_clean();
+		return $this->interpreter;
 	}
 
 	/**
-	 * Number of days a compiled `tpl-*.php` file may go untouched before
-	 * `maybe_prune_cache()` reaps it.
-	 *
-	 * @var int
+	 * Record that a PHP template rendered without an executor, so the
+	 * admin notice can point at the companion plugin. One autoloaded
+	 * option read per render when already flagged; one write the first
+	 * time only.
 	 */
-	const CACHE_TTL_DAYS = 30;
-
-	/**
-	 * Delete compiled template files that haven't been modified in the
-	 * last {@see CACHE_TTL_DAYS} days.
-	 *
-	 * Runs at most once per request (guarded by a static flag) and only
-	 * from a cache-miss write path, so the cost — one `glob()` plus a
-	 * handful of `unlink()`s — is amortised against the rarer event of a
-	 * never-before-seen render. If a still-used template happens to be
-	 * older than the TTL it's reaped and simply rewritten on its next
-	 * render (a one-time cache miss), so correctness is unaffected.
-	 *
-	 * @param string $cache_dir Absolute path returned by get_template_cache_dir().
-	 */
-	protected function maybe_prune_cache( $cache_dir ) {
-		static $pruned = false;
-		if ( $pruned ) {
-			return;
+	private function flag_missing_executor() {
+		if ( ! get_option( self::EXECUTOR_MISSING_OPTION ) ) {
+			update_option( self::EXECUTOR_MISSING_OPTION, time() );
 		}
-		$pruned = true;
-
-		$files = glob( $cache_dir . '/tpl-*.php' );
-		if ( empty( $files ) ) {
-			return;
-		}
-
-		$cutoff = time() - ( self::CACHE_TTL_DAYS * DAY_IN_SECONDS );
-		foreach ( $files as $file ) {
-			$mtime = @filemtime( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a racing unlink is fine.
-			if ( false !== $mtime && $mtime < $cutoff ) {
-				wp_delete_file( $file );
-			}
-		}
-	}
-
-	/**
-	 * Path to the directory where compiled template files live.
-	 *
-	 * Created lazily on first need. Returns '' if the directory can't
-	 * be created (caller falls back to echoing markup as text).
-	 *
-	 * @return string Absolute filesystem path, or '' on failure.
-	 */
-	protected function get_template_cache_dir() {
-		$uploads = wp_get_upload_dir();
-		if ( ! isset( $uploads['basedir'] ) || ! is_string( $uploads['basedir'] ) ) {
-			return '';
-		}
-		$dir = rtrim( $uploads['basedir'], '/' ) . '/coywolf-custom-blocks/templates';
-		if ( file_exists( $dir ) ) {
-			return is_dir( $dir ) && wp_is_writable( $dir ) ? $dir : '';
-		}
-		if ( ! wp_mkdir_p( $dir ) ) {
-			return '';
-		}
-		// Drop a tiny .htaccess + index.php to make sure the directory
-		// isn't directly browsable and individual files aren't served
-		// raw by web servers that haven't been configured to deny .php
-		// in uploads. The Coywolf-only template files are still
-		// `include`d from PHP-land — the deny rules just stop a
-		// curious visitor from hitting them via HTTP.
-		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		file_put_contents( $dir . '/.htaccess', "Order Deny,Allow\nDeny from all\n" );
-		file_put_contents( $dir . '/index.php', "<?php\n// Silence is golden.\n" );
-		// phpcs:enable
-		return $dir;
 	}
 }

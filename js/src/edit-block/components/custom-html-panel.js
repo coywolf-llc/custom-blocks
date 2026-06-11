@@ -78,7 +78,7 @@ const CustomHtmlPanel = () => {
 				{ __( 'Custom HTML', 'coywolf-custom-blocks' ) }
 			</h2>
 			<p className="text-sm text-gray-700 mb-3">
-				{ __( 'Define the front-end markup for this block here. This is saved in the database — no theme file is required. Any HTML, CSS, JavaScript, or PHP you enter is rendered as-is; embedded <?php …  ?> tags execute on the server at render time (same trust level as Appearance → Theme File Editor).', 'coywolf-custom-blocks' ) }
+				{ __( 'Define the front-end markup for this block here. This is saved in the database — no theme file is required. HTML, CSS, and JavaScript render as-is (same trust level as Appearance → Theme File Editor). Templates containing <?php … ?> tags additionally require the free "Coywolf Custom Blocks — PHP Templates" companion plugin from GitHub; without it those blocks render an HTML comment.', 'coywolf-custom-blocks' ) }
 			</p>
 			<p className="text-sm text-gray-700 mb-3">
 				{
@@ -88,6 +88,8 @@ const CustomHtmlPanel = () => {
 						`{{${ exampleFieldName }}}`
 					)
 				}
+				{ ' ' }
+				{ __( 'Template logic needs no PHP: {{#if name}} … {{else}} … {{/if}} for conditionals, {{#each name}} … {{item}} … {{/each}} to loop a multi-select, {{name|esc_html}} to apply filters (esc_html, esc_attr, esc_url, upper, lower, trim, nl2br, wpautop, length, json), and {{post:title}}, {{post:permalink}}, {{post:date}}, {{post:author}}, {{post:id}}, {{site:name}}, {{site:url}} for context values.', 'coywolf-custom-blocks' ) }
 			</p>
 
 			<div className="flex items-center gap-2 mb-2">
