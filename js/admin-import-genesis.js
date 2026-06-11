@@ -93,7 +93,7 @@
 		// the progress bar would jump around, and the underlying
 		// SQL inserts are cheap enough that serial keeps the
 		// per-block animation honest.
-		var imported = [], skipped = [], errors = [], slugs = [];
+		var imported = [], skipped = [], errors = [], slugs = [], phpBlocks = [];
 
 		var importNext = function ( index ) {
 			if ( index >= ids.length ) {
@@ -122,10 +122,20 @@
 					imported.push( data.title );
 					if ( data.slug ) { slugs.push( data.slug ); }
 					appendLog( '✓ Imported "' + data.title + '"' );
+					if ( data.has_php ) {
+						// Server only sets has_php when no PHP executor is
+						// hooked (the "PHP Templates" companion is absent).
+						phpBlocks.push( data.title );
+						appendLog( '⚠ "' + data.title + '" contains PHP — requires the PHP Templates companion plugin', 'skipped' );
+					}
 				} else if ( 'skipped' === data.status ) {
 					skipped.push( data.title );
 					if ( data.slug ) { slugs.push( data.slug ); }
 					appendLog( '↷ Skipped "' + data.title + '" (already imported)', 'skipped' );
+					if ( data.has_php ) {
+						phpBlocks.push( data.title );
+						appendLog( '⚠ "' + data.title + '" contains PHP — requires the PHP Templates companion plugin', 'skipped' );
+					}
 				} else {
 					errors.push( ( data.title || '#' + ids[ index ] ) + ' — ' + ( data.error || 'unknown error' ) );
 					appendLog( '✗ ' + ( data.title || '#' + ids[ index ] ) + ': ' + ( data.error || 'unknown error' ), 'error' );
@@ -187,9 +197,10 @@
 				} ).join( '' );
 			};
 			var query = '&result=imported' +
-				encodeArrayParam( 'imported', imported ) +
-				encodeArrayParam( 'skipped',  skipped ) +
-				encodeArrayParam( 'errors',   errors );
+				encodeArrayParam( 'imported',   imported ) +
+				encodeArrayParam( 'skipped',    skipped ) +
+				encodeArrayParam( 'errors',     errors ) +
+				encodeArrayParam( 'php_blocks', phpBlocks );
 			if ( wantRewrite ) {
 				query += '&rewrite_count=' + encodeURIComponent( rewriteCount || 0 );
 			}

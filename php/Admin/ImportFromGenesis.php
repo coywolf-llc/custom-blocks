@@ -24,6 +24,7 @@
 namespace Coywolf\CustomBlocks\Admin;
 
 use Coywolf\CustomBlocks\ComponentAbstract;
+use Coywolf\CustomBlocks\Blocks\TemplateEditor;
 
 /**
  * Class ImportFromGenesis
@@ -229,6 +230,11 @@ class ImportFromGenesis extends ComponentAbstract {
 				'title'   => $source->post_title !== '' ? $source->post_title : $result['slug'],
 				'slug'    => $result['slug'],
 				'post_id' => $result['post_id'],
+				// Only true when the stored markup contains PHP AND no
+				// executor is hooked — drives the JS progress log's
+				// "needs the PHP Templates companion" warning. With the
+				// companion active there's nothing to warn about.
+				'has_php' => ! empty( $result['has_php'] ) && $this->php_executor_missing(),
 			],
 			200
 		);
@@ -376,12 +382,15 @@ class ImportFromGenesis extends ComponentAbstract {
 		$error_lines     = isset( $_GET['errors'] ) && is_array( $_GET['errors'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
 			? array_values( array_filter( array_map( 'sanitize_text_field', wp_unslash( $_GET['errors'] ) ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
 			: [];
+		$php_blocks      = isset( $_GET['php_blocks'] ) && is_array( $_GET['php_blocks'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
+			? array_values( array_filter( array_map( 'sanitize_text_field', wp_unslash( $_GET['php_blocks'] ) ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
+			: [];
 		$rewrite_count   = isset( $_GET['rewrite_count'] ) && '' !== $_GET['rewrite_count'] ? (int) $_GET['rewrite_count'] : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of post-redirect status, sanitized; capability-gated, no state change.
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Import from Genesis Custom Blocks', 'coywolf-custom-blocks' ); ?></h1>
 
-			<?php $this->render_notice( $result, $imported_titles, $skipped_titles, $error_lines, $rewrite_count ); ?>
+			<?php $this->render_notice( $result, $imported_titles, $skipped_titles, $error_lines, $rewrite_count, $php_blocks ); ?>
 
 			<p>
 				<?php esc_html_e( 'This page lists every block stored on this site under the upstream Genesis Custom Blocks post type. Select the blocks you want to copy into Coywolf Custom Blocks. The original blocks are not modified — Genesis Custom Blocks can stay installed and active.', 'coywolf-custom-blocks' ); ?>
@@ -500,8 +509,11 @@ class ImportFromGenesis extends ComponentAbstract {
 	 * @param string[] $errors        Per-block error strings.
 	 * @param int|null $rewrite_count Number of posts rewritten, or null if the
 	 *                                rewrite option was not selected.
+	 * @param string[] $php_blocks    Titles whose stored markup contains PHP
+	 *                                while no executor is hooked (the "PHP
+	 *                                Templates" companion isn't active).
 	 */
-	protected function render_notice( $result, $imported, $skipped, $errors, $rewrite_count ) {
+	protected function render_notice( $result, $imported, $skipped, $errors, $rewrite_count, $php_blocks = [] ) {
 		if ( '' === $result ) {
 			return;
 		}
@@ -589,6 +601,41 @@ class ImportFromGenesis extends ComponentAbstract {
 							<li><?php echo esc_html( $err ); ?></li>
 						<?php endforeach; ?>
 					</ul>
+				</div>
+			<?php endif; ?>
+			<?php if ( ! empty( $php_blocks ) ) : ?>
+				<div class="notice notice-warning">
+					<p>
+						<strong>
+							<?php
+							echo esc_html(
+								sprintf(
+									/* translators: %d: number of blocks whose template contains PHP */
+									_n(
+										'%d block contains PHP in its template, which needs the free "PHP Templates" companion plugin to render:',
+										'%d blocks contain PHP in their templates, which needs the free "PHP Templates" companion plugin to render:',
+										count( $php_blocks ),
+										'coywolf-custom-blocks'
+									),
+									count( $php_blocks )
+								)
+							);
+							?>
+						</strong>
+					</p>
+					<ul style="list-style: disc; padding-left: 1.5em; margin: 0;">
+						<?php foreach ( $php_blocks as $title ) : ?>
+							<li><?php echo esc_html( $title ); ?></li>
+						<?php endforeach; ?>
+					</ul>
+					<p>
+						<?php esc_html_e( 'Until the companion is installed, these blocks render an HTML comment instead of their output. Translated {{field}} markup, conditionals, and loops render fine without it.', 'coywolf-custom-blocks' ); ?>
+					</p>
+					<p>
+						<a class="button button-primary" href="<?php echo esc_url( 'https://github.com/coywolf-llc/custom-blocks-php-templates/releases/latest' ); ?>" target="_blank" rel="noopener noreferrer">
+							<?php esc_html_e( 'Get the companion plugin', 'coywolf-custom-blocks' ); ?>
+						</a>
+					</p>
 				</div>
 				<?php
 			endif;
@@ -753,6 +800,7 @@ class ImportFromGenesis extends ComponentAbstract {
 		$skipped        = []; // Already existed — shown as a soft warning.
 		$rewrite_slugs  = []; // Both — eligible for the content sweep.
 		$errors         = [];
+		$php_blocks     = []; // Stored markup contains PHP and no executor is hooked.
 
 		foreach ( $ids as $post_id ) {
 			$source = get_post( $post_id );
@@ -777,6 +825,9 @@ class ImportFromGenesis extends ComponentAbstract {
 				$imported[] = $title;
 			} else {
 				$skipped[] = $title;
+			}
+			if ( ! empty( $result['has_php'] ) && $this->php_executor_missing() ) {
+				$php_blocks[] = $title;
 			}
 		}
 
@@ -807,6 +858,7 @@ class ImportFromGenesis extends ComponentAbstract {
 					'imported'      => $imported,
 					'skipped'       => $skipped,
 					'errors'        => $errors,
+					'php_blocks'    => $php_blocks,
 					'rewrite_count' => $should_rewrite ? $rewrite_count : '',
 				],
 				$this->page_url()
@@ -983,6 +1035,7 @@ class ImportFromGenesis extends ComponentAbstract {
 				'post_id' => (int) $existing->ID,
 				'slug'    => $slug,
 				'created' => false,
+				'has_php' => $this->block_post_contains_php( (int) $existing->ID ),
 			];
 		}
 
@@ -1026,7 +1079,51 @@ class ImportFromGenesis extends ComponentAbstract {
 			'post_id' => (int) $post_id,
 			'slug'    => $slug,
 			'created' => true,
+			'has_php' => $this->block_post_contains_php( (int) $post_id ),
 		];
+	}
+
+	/**
+	 * Whether a saved Coywolf block's stored markup (Custom HTML and/or
+	 * Preview HTML) contains a PHP open tag. Inspects the post as saved
+	 * — after any theme-template translation and back-fill — so the
+	 * answer reflects exactly what will render.
+	 *
+	 * @param int $post_id The coywolf_custom_block post ID.
+	 * @return bool
+	 */
+	protected function block_post_contains_php( $post_id ) {
+		$post = get_post( $post_id );
+		if ( ! $post instanceof \WP_Post ) {
+			return false;
+		}
+		$envelope = json_decode( $post->post_content, true );
+		if ( ! is_array( $envelope ) ) {
+			return false;
+		}
+		foreach ( $envelope as $config ) {
+			if ( ! is_array( $config ) ) {
+				continue;
+			}
+			foreach ( [ 'templateMarkup', 'previewMarkup' ] as $key ) {
+				if ( ! empty( $config[ $key ] ) && TemplateEditor::contains_php_tag( (string) $config[ $key ] ) ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Whether PHP-containing templates currently have no executor — i.e.
+	 * the "PHP Templates" companion plugin isn't active. Gates the
+	 * import-time warnings: with the companion present there is nothing
+	 * for the user to do, so no warning is shown.
+	 *
+	 * @return bool
+	 */
+	protected function php_executor_missing() {
+		return ! has_filter( 'coywolf_custom_blocks_execute_php_template' );
 	}
 
 	/**
@@ -1286,11 +1383,14 @@ class ImportFromGenesis extends ComponentAbstract {
 			$result = preg_replace( $re, '{{$1}}', $result );
 		}
 
-		// Untranslated PHP tags are left as-is. Pre-v1.0.19 we
-		// prepended a "<!-- review and convert -->" notice because
-		// raw PHP wouldn't execute through the renderer; v1.0.19's
-		// PHP-execution pipeline runs whatever PHP survives, so the
-		// notice is misleading — nothing to fix.
+		// Untranslated PHP tags are left as-is. Since 1.0.70 they only
+		// execute when the GitHub-distributed "PHP Templates" companion
+		// plugin is active (the main plugin's renderer is
+		// WordPress.org-compliant and hands PHP templates to the
+		// companion via the coywolf_custom_blocks_execute_php_template
+		// filter; without it the block renders an HTML comment). The
+		// import flow flags affected blocks — see import_one()'s
+		// `has_php` and the php_blocks warning in render_notice().
 		return $result;
 	}
 
