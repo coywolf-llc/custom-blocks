@@ -1,4 +1,4 @@
-/* global ccbEditor */
+/* global coywolfCcbEditor */
 
 /**
  * WordPress dependencies
@@ -44,7 +44,7 @@ import { DEFAULT_LOCATION } from '../../common/constants';
  */
 const useField = () => {
 	// @ts-ignore
-	const { controls } = ccbEditor;
+	const { controls } = coywolfCcbEditor;
 	const { changeBlock } = useBlock();
 	const editedPostContent = useSelect(
 		( select ) => select( 'core/editor' ).getEditedPostContent(),

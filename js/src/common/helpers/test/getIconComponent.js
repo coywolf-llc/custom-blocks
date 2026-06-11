@@ -4,7 +4,7 @@
 import { getIconComponent } from '../';
 import { DefaultIcon, loadLibrary } from '../../icons';
 
-global.ccbEditor = { controls: {} };
+global.coywolfCcbEditor = { controls: {} };
 
 /*
  * Test order matters: the icon cache is module-level, so the

@@ -62,11 +62,11 @@ export function reinitializeEditor(
  *
  * Forked from Gutenberg.
  *
- * @param {Object} ccbEditor The initial controls to filter.
+ * @param {Object} coywolfCcbEditor The initial controls to filter.
  * @param {Object} container The initial controls to filter.
  */
 const initializeEditor = (
-	ccbEditor,
+	coywolfCcbEditor,
 	container
 ) => {
 	const {
@@ -74,7 +74,7 @@ const initializeEditor = (
 		postId,
 		settings,
 		initialEdits,
-	} = ccbEditor;
+	} = coywolfCcbEditor;
 
 	const reboot = reinitializeEditor.bind(
 		null,

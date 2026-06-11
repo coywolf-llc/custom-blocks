@@ -47,6 +47,15 @@ class TemplateEditor {
 	 * not trust their site admins should also be disabling
 	 * `DISALLOW_FILE_EDIT`.
 	 *
+	 * Distribution note (June 2026 decision): executing admin-authored
+	 * PHP from the database — whether via this cached-file mechanism or
+	 * eval() — is categorically disallowed by the WordPress.org plugin
+	 * directory ("no user-supplied code files on disk, even in
+	 * uploads"). Because this capability is the fork's core feature
+	 * (see PR #3), the plugin is deliberately GitHub-distributed only
+	 * and will not be submitted to WordPress.org. See the
+	 * "Why isn't this plugin on WordPress.org?" readme FAQ.
+	 *
 	 * @param string $markup The markup to render.
 	 */
 	public function render_markup( $markup ) {
@@ -77,6 +86,14 @@ class TemplateEditor {
 
 	/**
 	 * Renders CSS that was entered in the template editor.
+	 *
+	 * Deliberately prints a `<style>` element in the body, adjacent to
+	 * the block being rendered: blocks render after `wp_head` has
+	 * closed, so there is no head-enqueue path, and WordPress core's
+	 * own style engine emits body `<style>` tags for block supports in
+	 * exactly the same situation. Only legacy `templateCss` data (the
+	 * Template Editor UI that wrote it was removed in 1.0.23) reaches
+	 * this method.
 	 *
 	 * @param string $css        The CSS to render, if any.
 	 * @param string $block_name The block name, without the coywolf-custom-blocks/ namespace.

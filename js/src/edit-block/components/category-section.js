@@ -1,4 +1,4 @@
-/* global ccbEditor */
+/* global coywolfCcbEditor */
 
 /**
  * External dependencies
@@ -24,7 +24,7 @@ import { useBlock } from '../hooks';
  */
 const CategorySection = () => {
 	// @ts-ignore
-	const { categories: initialCategories } = ccbEditor;
+	const { categories: initialCategories } = coywolfCcbEditor;
 	const { block, changeBlock } = useBlock();
 	const [ categories, setCategories ] = useState( initialCategories );
 	const [ showNewCategoryForm, setShowNewCategoryForm ] = useState( false );

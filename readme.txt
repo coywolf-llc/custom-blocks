@@ -116,6 +116,27 @@ Genesis Custom Blocks (WP Engine / StudioPress); that notice is preserved
 here for the whole fork, while the per-file headers carry the Coywolf LLC
 notice.
 
+= Why isn't this plugin on WordPress.org? =
+
+By deliberate decision (June 2026), this plugin is distributed through
+GitHub Releases only and will not be submitted to the WordPress.org
+plugin directory.
+
+The fork's core feature — authoring block markup, including PHP, in the
+WordPress admin with no theme files or SFTP — is fundamentally
+incompatible with WordPress.org's guidelines, which forbid executing
+user-supplied code stored in the database (whether via cached files in
+uploads or eval()). Removing PHP support from the Custom HTML editor
+would reduce this plugin to what upstream Genesis Custom Blocks already
+offers on WordPress.org, so anyone who needs a directory-hosted plugin
+should simply use upstream.
+
+The trust model is the same one WordPress itself ships with: editing a
+block requires manage_options, the identical capability that gates
+Appearance -> Theme File Editor. Updates arrive through the built-in
+GitHub self-updater on Dashboard -> Updates, with downloads restricted
+to GitHub-owned hosts.
+
 == Privacy ==
 
 Privacy-first: this plugin includes no analytics, no tracking, and no data gathering. Nothing about you, your site, or your visitors is ever collected or sent anywhere.

@@ -1,4 +1,4 @@
-/* global ccbEditor */
+/* global coywolfCcbEditor */
 
 /**
  * External dependencies
@@ -28,7 +28,7 @@ import { BottomNotice, PostTitle, TopNotice } from './';
  */
 const Main = ( { children } ) => {
 	// @ts-ignore
-	const { isOnboardingPost: initialIsOnboarding } = ccbEditor;
+	const { isOnboardingPost: initialIsOnboarding } = coywolfCcbEditor;
 	const isPublished = useSelect( ( select ) => select( 'core/editor' ).isCurrentPostPublished() );
 	const isOnboarding = initialIsOnboarding && ! isPublished;
 
