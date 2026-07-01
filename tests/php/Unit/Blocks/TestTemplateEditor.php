@@ -83,4 +83,43 @@ class TestTemplateEditor extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( "<style>{$second_css}</style>", ob_get_clean() );
 	}
+
+	/**
+	 * A field placeholder inside a PHP span is never exposed for {{field}}
+	 * substitution — so a field value (settable by a lower-privileged post
+	 * author) can't be interpolated into executable PHP source.
+	 *
+	 * @covers \Coywolf\CustomBlocks\Blocks\TemplateEditor::mask_php_spans()
+	 * @covers \Coywolf\CustomBlocks\Blocks\TemplateEditor::unmask_php_spans()
+	 */
+	public function test_php_spans_are_masked_from_substitution() {
+		$mask   = new \ReflectionMethod( TemplateEditor::class, 'mask_php_spans' );
+		$unmask = new \ReflectionMethod( TemplateEditor::class, 'unmask_php_spans' );
+		$mask->setAccessible( true );
+		$unmask->setAccessible( true );
+
+		$payload = '";system("id");//';
+
+		// Field inside a PHP string literal must not become interpretable,
+		// and a literal close tag inside that string must not end the span.
+		$template = 'Hi {{name}} <?php $x = "?>{{name}}"; echo "{{name}}"; ?>';
+		$spans    = [];
+		$masked   = $mask->invokeArgs( null, [ $template, &$spans ] );
+
+		$this->assertSame( 1, substr_count( $masked, '{{name}}' ), 'Only the inline-HTML {{name}} stays interpretable.' );
+		$this->assertCount( 1, $spans );
+
+		// Simulate the interpreter substituting the (only) inline {{name}}.
+		$rendered = $unmask->invoke( null, str_replace( '{{name}}', $payload, $masked ), $spans );
+
+		$this->assertStringStartsWith( 'Hi ' . $payload . ' ', $rendered );
+		$this->assertStringContainsString( 'echo "{{name}}"', $rendered, 'The in-PHP placeholder is restored verbatim.' );
+		$this->assertSame( 0, preg_match( '/<\?php.*system\("id"\).*\?>/s', $rendered ), 'Payload is never inside a PHP span.' );
+
+		// A no-PHP template passes through untouched with no spans.
+		$plain  = '<div>{{name}}</div>';
+		$spans2 = [];
+		$this->assertSame( $plain, $mask->invokeArgs( null, [ $plain, &$spans2 ] ) );
+		$this->assertSame( [], $spans2 );
+	}
 }
