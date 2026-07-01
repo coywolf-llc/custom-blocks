@@ -39,6 +39,18 @@ class TemplateEditor {
 	const EXECUTOR_MISSING_OPTION = 'coywolf_custom_blocks_php_executor_missing';
 
 	/**
+	 * Sentinels that stand in for a masked PHP span (wrapping its index)
+	 * while the template's inline-HTML portions run through the interpreter.
+	 * Control characters can't be typed into the block editor's template
+	 * field, so they can never collide with real template content, and they
+	 * carry no `{{`/`}}` so the interpreter leaves them untouched as text.
+	 *
+	 * @var string
+	 */
+	const PHP_MASK_OPEN  = "\x05\x05";
+	const PHP_MASK_CLOSE = "\x06\x06";
+
+	/**
 	 * The block names that have had their CSS rendered.
 	 *
 	 * @var string[]
@@ -61,31 +73,41 @@ class TemplateEditor {
 	 *      field values can never flip a plain-HTML template onto the
 	 *      execute path (belt and braces — block_field()'s echo path is
 	 *      wp_kses_post()'d anyway, so values can't carry tags).
-	 *   2. Interpret: `{{field}}` substitution plus the
-	 *      {{#if}}/{{#each}}/filter mini-language (TemplateInterpreter).
-	 *   3. No PHP → echo the interpreted markup. Templates render
-	 *      verbatim (no kses): editing a `coywolf_custom_block` requires
-	 *      `manage_options`, the same capability as Appearance → Theme
-	 *      File Editor, so admin-authored <script>/<iframe> pass through
-	 *      by design (see PR #3).
-	 *   4. PHP present → offer the substituted markup to an executor via
-	 *      the `coywolf_custom_blocks_execute_php_template` filter (the
+	 *   2. No PHP → interpret ({{field}} substitution plus the
+	 *      {{#if}}/{{#each}}/filter mini-language) and echo verbatim (no
+	 *      kses): editing a `coywolf_custom_block` requires `manage_options`,
+	 *      the same capability as Appearance → Theme File Editor, so
+	 *      admin-authored <script>/<iframe> pass through by design (PR #3).
+	 *   3. PHP present → MASK the `<?php … ?>` spans first, so {{field}}
+	 *      substitution runs only over the surrounding inline HTML, then
+	 *      unmask and offer the result to an executor via the
+	 *      `coywolf_custom_blocks_execute_php_template` filter (the
 	 *      GitHub-only companion plugin hooks it; WordPress.org forbids
-	 *      executing database-stored PHP, which is why the executor
-	 *      cannot ship in this plugin). No executor → HTML-comment
-	 *      fallback + flag the admin notice.
+	 *      executing database-stored PHP, which is why the executor cannot
+	 *      ship in this plugin). No executor → HTML-comment fallback + flag
+	 *      the admin notice. Masking is the security boundary: a field VALUE
+	 *      (which a lower-privileged post author can set on a block instance)
+	 *      is never interpolated into the PHP source that gets executed —
+	 *      inside PHP, templates must read values via block_value()/
+	 *      block_field() at runtime, not `{{field}}`.
 	 *
 	 * @param string $markup The markup to render.
 	 */
 	public function render_markup( $markup ) {
-		$markup   = (string) $markup;
-		$has_php  = self::contains_php_tag( $markup );
-		$rendered = $this->get_interpreter()->render( $markup );
+		$markup  = (string) $markup;
+		$has_php = self::contains_php_tag( $markup );
 
 		if ( ! $has_php ) {
-			echo $rendered; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Admin-authored template, rendered verbatim by design (Theme File Editor trust level).
+			echo $this->get_interpreter()->render( $markup ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Admin-authored template, rendered verbatim by design (Theme File Editor trust level).
 			return;
 		}
+
+		// PHP-mode: mask the PHP spans, interpret only the inline HTML around
+		// them, then restore the PHP verbatim. Field values therefore reach
+		// the executor as HTML content, never as PHP source.
+		$spans    = [];
+		$masked   = self::mask_php_spans( $markup, $spans );
+		$rendered = self::unmask_php_spans( $this->get_interpreter()->render( $masked ), $spans );
 
 		/**
 		 * Filters a PHP-containing block template to its executed output.
@@ -111,6 +133,88 @@ class TemplateEditor {
 
 		$this->flag_missing_executor();
 		echo '<!-- Coywolf Custom Blocks: this block template contains PHP, which only runs with the free "Coywolf Custom Blocks - PHP Templates" companion plugin installed: https://github.com/coywolf-llc/custom-blocks-php-templates -->';
+	}
+
+	/**
+	 * Replace each PHP span (`<?php … ?>`, `<?= … ?>`, `<? … ?>`) in a
+	 * PHP-mode template with an indexed sentinel, so the interpreter's
+	 * {{field}} substitution only ever touches the inline HTML around them.
+	 *
+	 * This is the security boundary for PHP templates: a block instance's
+	 * field values can be set by any user who can edit the post the block
+	 * lives in (an Author/Contributor, not only the `manage_options` admin
+	 * who authored the template), so those values must never be interpolated
+	 * into the PHP source the companion executor include()s — otherwise a
+	 * value like `";system($_GET[0]);"` placed into `<?php echo "{{f}}"; ?>`
+	 * would execute. Inside PHP, templates read values at runtime via
+	 * block_value()/block_field() instead.
+	 *
+	 * token_get_all() is used rather than a regex so a literal `?>` inside a
+	 * PHP string can't end a span early, and so the same short_open_tag
+	 * behaviour the executor's include() applies is what decides here.
+	 *
+	 * @param string $markup The raw admin-authored template.
+	 * @param array  $spans  Filled, by reference, with the extracted spans in order.
+	 * @return string The template with each PHP span replaced by a sentinel.
+	 */
+	private static function mask_php_spans( $markup, array &$spans ) {
+		$spans  = [];
+		$out    = '';
+		$buffer = '';
+		$in_php = false;
+
+		foreach ( @token_get_all( $markup ) as $token ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- token_get_all warns on malformed PHP but still returns usable tokens.
+			$id   = is_array( $token ) ? $token[0] : null;
+			$text = is_array( $token ) ? $token[1] : $token;
+
+			if ( ! $in_php ) {
+				if ( T_OPEN_TAG === $id || T_OPEN_TAG_WITH_ECHO === $id ) {
+					$in_php = true;
+					$buffer = $text;
+				} else {
+					$out .= $text; // Inline HTML — may carry {{fields}}.
+				}
+				continue;
+			}
+
+			$buffer .= $text;
+			if ( T_CLOSE_TAG === $id ) {
+				$spans[] = $buffer;
+				$out    .= self::PHP_MASK_OPEN . ( count( $spans ) - 1 ) . self::PHP_MASK_CLOSE;
+				$in_php  = false;
+				$buffer  = '';
+			}
+		}
+
+		if ( $in_php ) { // PHP left open through the end of the template.
+			$spans[] = $buffer;
+			$out    .= self::PHP_MASK_OPEN . ( count( $spans ) - 1 ) . self::PHP_MASK_CLOSE;
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Restore masked PHP spans after interpretation. A span may appear more
+	 * than once (inside a {{#each}} loop) or not at all (a false {{#if}});
+	 * both restore correctly by index.
+	 *
+	 * @param string $rendered Interpreted template still holding sentinels.
+	 * @param array  $spans    The spans captured by mask_php_spans().
+	 * @return string
+	 */
+	private static function unmask_php_spans( $rendered, array $spans ) {
+		if ( empty( $spans ) ) {
+			return $rendered;
+		}
+		return (string) preg_replace_callback(
+			'/' . preg_quote( self::PHP_MASK_OPEN, '/' ) . '(\d+)' . preg_quote( self::PHP_MASK_CLOSE, '/' ) . '/',
+			static function ( $m ) use ( $spans ) {
+				$i = (int) $m[1];
+				return isset( $spans[ $i ] ) ? $spans[ $i ] : '';
+			},
+			$rendered
+		);
 	}
 
 	/**
